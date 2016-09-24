@@ -21,13 +21,31 @@ public class ClientIOHandler {
 	}
 	
 	public void handleIO() {
-		
+		while (true) {
+			/**
+			 * TODO
+			 * Beginning info
+			 * Game start
+			 * New game info
+			 * Purchased info
+			 * Start round: Buy1, Straw, Vote1, Buy2, Final
+			 * Vote count received: Straw, Vote1, Final
+			 * Candidates that moved on: Vote1 results
+			 * Candidate won + winnings 
+			 * Games over
+			 * Removed from game
+			 */
+		}
 	}
 	
 	class ChangeListener implements PropertyChangeListener {
 		@Override
 		public void propertyChange(PropertyChangeEvent PCE) {
-			// TODO react to gui events
+			/**
+			 * Purchase info about candidate
+			 * Done with buy round
+			 * Vote
+			 */
 		}
 	}
 

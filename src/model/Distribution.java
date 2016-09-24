@@ -25,7 +25,7 @@ public class Distribution {
 		sumOfDists = 0;
 		
 		for (int i = 0; i < 101; i++) {
-			int distributionPoint = (int) (100*(50*normal1.density(i) + 50*normal2.density(i)));
+			int distributionPoint = (int) (100*(50*normal1.density(i) + 50*normal2.density(i))); // FIXME where do these multipliers come from?
 			sumOfDists += distributionPoint;
 			cdf[i] = sumOfDists;
 		}

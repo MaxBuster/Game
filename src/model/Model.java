@@ -1,9 +1,11 @@
 package model;
 
+import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Random;
 
 public class Model {
+	private PropertyChangeSupport pcs;
 	private int num_games;
 	private int current_game;
 	private String current_round;
@@ -14,7 +16,8 @@ public class Model {
 	private int next_player_num;
 	private ArrayList<Player> players;
 
-	public Model(Game[] games) {
+	public Model(Game[] games, PropertyChangeSupport pcs) {
+		this.pcs = pcs;
 		this.num_games = games.length;
 		this.current_game = 0;
 		this.current_round = Constants.NOT_STARTED;
@@ -40,7 +43,7 @@ public class Model {
 		Distribution dist = games[current_game].getDistribution();
 		int[] cdf = dist.getCDF();
 		int sum = cdf[cdf.length-1];
-		int random_point = new Random().nextInt(sum);
+		int random_point = new Random().nextInt(sum); // FIXME should this be an int, double, float?
 		for (int i=0; i<cdf.length; i++) {
 			if (cdf[i] <= random_point) {
 				ideal_point = cdf[i];
@@ -71,6 +74,14 @@ public class Model {
 		for (Game game : games) {
 			int num_candidates_in_game = game.getCandidates().size();
 			candidates_per_round[game.getGameNumber()] = num_candidates_in_game;
+		}
+	}
+	
+	public synchronized boolean game_started() {
+		if (current_round == Constants.NOT_STARTED) {
+			return false;
+		} else {
+			return true;
 		}
 	}
 	

@@ -18,4 +18,8 @@ public class Constants {
 	// Edge rounds
 	public static final String NOT_STARTED = "Not Started";
 	public static final String ALL_FINISHED = "All Finished";
+	
+	// Return codes
+	public static final int IOEXCEPTION = 1;
+	public static final int METHOD_SUCCEEDED = 0;
 }

@@ -8,12 +8,12 @@ import java.net.UnknownHostException;
 
 import javax.swing.JOptionPane;
 
-public class ClientSocket {
+public class ClientIO {
 	private Socket socket;
 	private DataInputStream in;
 	private DataOutputStream out;
 
-	public ClientSocket() {
+	public ClientIO() {
 		try {
 			// On PC go to Command Prompt; look for IPv4 after ipconfig
 			// On Mac go to Terminal; look for inet after ifconfig |grep inet
@@ -32,6 +32,6 @@ public class ClientSocket {
 	}
 
 	public static void main(String[] args) {
-		ClientSocket client = new ClientSocket();
+		ClientIO client = new ClientIO();
 	}
 }
