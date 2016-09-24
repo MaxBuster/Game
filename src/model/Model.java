@@ -1,5 +1,7 @@
 package model;
 
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Random;
@@ -18,6 +20,7 @@ public class Model {
 
 	public Model(Game[] games, PropertyChangeSupport pcs) {
 		this.pcs = pcs;
+		this.pcs.addPropertyChangeListener(new ChangeListener());
 		this.num_games = games.length;
 		this.current_game = 0;
 		this.current_round = Constants.NOT_STARTED;
@@ -51,9 +54,9 @@ public class Model {
 			}
 		}
 		if (ideal_point < .5) {
-			party = 'R';
+			party = Constants.Party_2;
 		} else {
-			party = 'D';
+			party = Constants.PARTY_1;
 		}
 		player.setPlayerInfo(ideal_point, party);
 	}
@@ -99,5 +102,27 @@ public class Model {
 			next_round_pos++;
 		}
 		this.current_round = list_of_rounds.get(next_round_pos);
+	}
+	
+	class ChangeListener implements PropertyChangeListener {
+		@Override
+		public void propertyChange(PropertyChangeEvent PCE) {
+			String event = PCE.getPropertyName();
+			if (event == Constants.START_GAME) {
+				increment_round();
+			}
+			/**
+			 * TODO:
+			 * Remove player
+			 * Player removed due to io
+			 * New player
+			 * New round
+			 * New game
+			 * Game over
+			 * Write data
+			 * End game
+			 * All games over
+			 */
+		}
 	}
 }

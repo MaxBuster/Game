@@ -11,12 +11,11 @@ public class Distribution {
 	private int[] cdf;
 	private int sumOfDists;
 
-	public Distribution(int mean1, int std_dev1, 
-						int mean2, int std_dev2) {
-		this.mean1 = mean1;
-		this.mean2 = mean2;
-		this.std_dev1 = std_dev1;
-		this.std_dev2 = std_dev2;
+	public Distribution(int[] distribution) {
+		this.mean1 = distribution[0];
+		this.std_dev1 = distribution[1];
+		this.mean2 = distribution[2];
+		this.std_dev2 = distribution[3];
 		
 		NormalDistribution normal1 = new NormalDistribution(mean1, std_dev1);
 		NormalDistribution normal2 = new NormalDistribution(mean2, std_dev2);

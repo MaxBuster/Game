@@ -22,4 +22,13 @@ public class Constants {
 	// Return codes
 	public static final int IOEXCEPTION = 1;
 	public static final int METHOD_SUCCEEDED = 0;
+	
+	// Parties
+	public static final char PARTY_1 = 'D';
+	public static final char Party_2 = 'R';
+	
+	// Server Events
+	public static final String START_GAME = "Start Game";
+	public static final String END_GAME = "End Game";
+	public static final String WRITE_DATA = "Write Data";
 }

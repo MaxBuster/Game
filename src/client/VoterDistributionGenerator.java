@@ -2,7 +2,7 @@ package client;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 
-public class VoterDistribution {
+public class VoterDistributionGenerator {
 
 	public static double[] getData(int[] graphData) {
 		int mean1 = graphData[0];

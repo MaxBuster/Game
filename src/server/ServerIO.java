@@ -28,13 +28,12 @@ public class ServerIO {
 
 	public ServerIO(Game[] games) {
 		this.pcs = new PropertyChangeSupport(this);
-		this.pcs.addPropertyChangeListener(new ChangeListener());
-		gui = new ServerGUI(pcs);
-		gui.setVisible(true);
+//		this.pcs.addPropertyChangeListener(new ChangeListener()); FIXME remove if not needed
+		gui = new ServerGUI(pcs); // FIXME close gui if socket fails
 
 		this.clientHandlers = new HashMap<Integer, ServerIOHandler>();
 		this.clientSockets = new HashMap<Integer, Socket>();
-		this.model = new Model(games, pcs);
+		this.model = new Model(games, pcs); // FIXME catch errors?
 	}
 
 	public int run() {
@@ -80,33 +79,36 @@ public class ServerIO {
 		thread.start();
 	}
 
-	// FIXME don't need a listener here if handlers, model and gui have them
-	class ChangeListener implements PropertyChangeListener {
-		@Override
-		public void propertyChange(PropertyChangeEvent PCE) {
-			/**
-			 * FIXME should some of this get thrown from model and retrieved from gui?
-			 * Game started
-			 * Remove player
-			 * Player removed due to io
-			 * New player
-			 * New round
-			 * New game
-			 * Game over
-			 * Write data
-			 * End game
-			 * All games over
-			 */
-		}
-	}
+//	// FIXME don't need a listener here if handlers, model and gui have them
+//	class ChangeListener implements PropertyChangeListener {
+//		@Override
+//		public void propertyChange(PropertyChangeEvent PCE) {
+//			/**
+//			 * FIXME should some of this get thrown from model and retrieved from gui?
+//			 * Game started
+//			 * Remove player
+//			 * Player removed due to io
+//			 * New player
+//			 * New round
+//			 * New game
+//			 * Game over
+//			 * Write data
+//			 * End game
+//			 * All games over
+//			 */
+//		}
+//	}
 
 	public static void main(String[] args) {
-		Game[] games = new Game[2]; // FIXME get from data file
-		if (games == null) {
-			JOptionPane.showMessageDialog(null, "Problem reading config file");
-		} else {
-			ServerIO server = new ServerIO(games);
+		ConfigReader config = new ConfigReader();
+		boolean config_read_successfully = config.read_config();
+		if (config_read_successfully) {
+			ArrayList<Game> games = config.get_games();
+			Game[] games_array = games.toArray(new Game[games.size()]);
+			ServerIO server = new ServerIO(games_array);
 			server.run();
+		} else {
+			JOptionPane.showMessageDialog(null, "Problem reading config file");
 		}
 	}
 

@@ -19,5 +19,14 @@ public class ClientGUI extends JFrame {
 	
 	public ClientGUI(PropertyChangeSupport pcs) {
 		this.pcs = pcs;
+		
+		/**
+		 * Style:
+		 * Player label panel
+		 * Game label panel
+		 * Info + Actions tables panel
+		 * Graph panel
+		 * End round btn panel
+		 */
 	}
 }
