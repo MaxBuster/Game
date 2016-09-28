@@ -3,25 +3,63 @@ package client;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
+
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
+import java.net.Socket;
+
+import model.Constants;
+
+/**
+ * Intermediary between the client UI and the server data stream
+ * @author Max Buster
+ */
 
 public class ClientIOHandler {
-	private final PropertyChangeSupport pcs = new PropertyChangeSupport(this);
+	private final PropertyChangeSupport pcs;
 	private DataInputStream in;
 	private DataOutputStream out;
 	private ClientGUI gui;
-	
-	public ClientIOHandler(DataInputStream in, DataOutputStream out) {
+
+	public ClientIOHandler(Socket socket) {
+		pcs = new PropertyChangeSupport(this);
 		pcs.addPropertyChangeListener(new ChangeListener());
-		this.in = in;
-		this.out = out;
+		try {
+			in = new DataInputStream(socket.getInputStream());
+			out = new DataOutputStream(socket.getOutputStream());
+		} catch (IOException e) {
+			// TODO error message, close client
+			e.printStackTrace();
+		}
 		gui = new ClientGUI(pcs);
-		gui.setVisible(true);
 	}
-	
+
+	/**
+	 * Listens to the input stream from the server and responds to
+	 * messages by updating the UI
+	 */
 	public void handleIO() {
 		while (true) {
+			try {
+				int c = in.readInt();
+				while (c != Constants.MESSAGE_START) {
+					c = (char) in.readChar();
+				}
+				int type = in.readInt();
+				int[] message = read_message();
+				switch (type) {
+					case Constants.PLAYER_NUMBER: 
+						gui.set_player_number(message);
+						break;
+					case Constants.GAME_INFO:
+						gui.set_player_info(message);
+						break;
+					default: break;
+				}
+			} catch (IOException e) {
+
+			}
 			/**
 			 * TODO
 			 * Beginning info
@@ -38,6 +76,24 @@ public class ClientIOHandler {
 		}
 	}
 	
+	/**
+	 * Reads the message from the io stream
+	 * @throws IOException if read from io fails
+	 */
+	private int[] read_message() throws IOException {
+		int message_length = in.readInt();
+		int[] message = new int[message_length];
+		for (int i=0; i<message_length; i++) {
+			message[i] = in.readInt();
+			System.out.println(message[i]);
+		}
+		return message;
+	}
+
+	/**
+	 * Listens to UI events and passes messages to the server
+	 * through the output stream
+	 */
 	class ChangeListener implements PropertyChangeListener {
 		@Override
 		public void propertyChange(PropertyChangeEvent PCE) {

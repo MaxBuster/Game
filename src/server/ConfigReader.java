@@ -2,15 +2,18 @@ package server;
 
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
 import model.Candidate;
 import model.Distribution;
 import model.Game;
+
+/**
+ * Reads a config file in and convert the info into game objects
+ * @author Max Buster
+ */
 
 public class ConfigReader {
 	private int payoff_intercept;
@@ -25,16 +28,19 @@ public class ConfigReader {
 	 * FIXME handle extra commas and spaces and stuff
 	 */
 
-	public boolean read_config() {
-		String fileName = "config.csv";
-		File file = new File(fileName);
+	/**
+	 * Read a csv file as game objects
+	 */
+	public boolean read_config(String file_name) {
+		File file = new File(file_name);
 		if (file.canRead()) {
 			try {
 				FileReader fReader = new FileReader(file);
 				BufferedReader reader = new BufferedReader(fReader);
-				read_multipliers(reader);
+				read_multipliers(reader); 
 				
 				String line;
+				// Read each game into a game object
 				while ((line = reader.readLine()) != null && !line.isEmpty()) { 
 					Game game = read_game(reader);
 					games.add(game);
@@ -59,6 +65,9 @@ public class ConfigReader {
 		return this.payoff_multiplier;
 	}
 	
+	/**
+	 * Read the multiplier and intercept that manipulate payoffs
+	 */
 	private void read_multipliers(BufferedReader reader) throws Exception {
 		reader.readLine(); // TODO check it is a comment
 		String payoff_intercept_string = reader.readLine();
@@ -68,6 +77,10 @@ public class ConfigReader {
 		payoff_multiplier = Integer.parseInt(payoff_multiplier_string);
 	}
 	
+	/**
+	 * Read and parse lines into game info
+	 * @throws Exception if reading or parsing goes wrong
+	 */
 	private Game read_game(BufferedReader reader) throws Exception {
 		String candidate_points = reader.readLine();
 		String candidate_parties = reader.readLine();
@@ -84,6 +97,9 @@ public class ConfigReader {
 		return game;
 	}
 	
+	/**
+	 * Create candidate objects given ideal points and parties from the config
+	 */
 	private HashMap<Integer, Candidate> create_candidates(int[] ideal_points, char[] parties) {
 		HashMap<Integer, Candidate> candidates = new HashMap<Integer, Candidate>();
 		for (int i=0; i<ideal_points.length; i++) {
@@ -93,6 +109,9 @@ public class ConfigReader {
 		return candidates;
 	}
 	
+	/**
+	 * Convert strings into chars
+	 */
 	private char[] parse_chars(String[] split_string) {
 		char[] parsed_chars = new char[split_string.length];
 		for (int i=0; i<split_string.length; i++) {
@@ -101,6 +120,9 @@ public class ConfigReader {
 		return parsed_chars;
 	}
 	
+	/**
+	 * Convert strings into ints
+	 */
 	private int[] parse_ints(String[] split_string) {
 		int[] parsed_ints = new int[split_string.length];
 		for (int i=0; i<split_string.length; i++) {
@@ -109,6 +131,9 @@ public class ConfigReader {
 		return parsed_ints;
 	}
 	
+	/**
+	 * Split a csv string into an array of strings
+	 */
 	private String[] split_string(String s) {
 		s = s.replaceAll("\\s", "");
 		s = s.replaceAll(",", " ");

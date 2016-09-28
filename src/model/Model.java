@@ -6,6 +6,11 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Random;
 
+/**
+ * Keep track of game info and current game status
+ * @author Max Buster
+ */
+
 public class Model {
 	private PropertyChangeSupport pcs;
 	private int num_games;
@@ -40,20 +45,21 @@ public class Model {
 	}
 	
 	public synchronized void set_player_info(Player player) {
-		int ideal_point = 0;
-		char party;
-		
 		Distribution dist = games[current_game].getDistribution();
 		int[] cdf = dist.getCDF();
+		
+		int ideal_point = 100;
+		char party;
+		
 		int sum = cdf[cdf.length-1];
-		int random_point = new Random().nextInt(sum); // FIXME should this be an int, double, float?
+		int random_point = new Random().nextInt(sum); 
 		for (int i=0; i<cdf.length; i++) {
-			if (cdf[i] <= random_point) {
-				ideal_point = cdf[i];
+			if (cdf[i] > random_point) {
+				ideal_point = cdf[i - 1]; // FIXME corner cases?
 				break;
 			}
 		}
-		if (ideal_point < .5) {
+		if (ideal_point < 50) {
 			party = Constants.Party_2;
 		} else {
 			party = Constants.PARTY_1;
