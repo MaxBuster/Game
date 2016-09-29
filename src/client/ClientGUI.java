@@ -1,6 +1,5 @@
 package client;
 
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
 import java.awt.EventQueue;
@@ -12,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.beans.PropertyChangeSupport;
 
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.DefaultCellEditor;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -22,6 +23,7 @@ import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
@@ -36,13 +38,24 @@ public class ClientGUI extends JFrame {
 	private PropertyChangeSupport pcs;
 	private JPanel content;
 	
+	private Label current_game_change;
+	private Label num_games_change;
+	private Label current_round_change;
+	private Label winnings_change;
+	
+	private Label player_number_change;
+	private Label player_party_change;
+	private Label ideal_point_change;
+	private Label budget_change;
+	
 	/**
 	 * Initialize the Swing GUI with all the components
 	 */
 	public ClientGUI(PropertyChangeSupport pcs) {
 		this.pcs = pcs;
 		
-		this.content = new JPanel(new GridLayout(7, 1, 0, 5));
+		this.content = new JPanel();
+		this.content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		this.content.setBorder(new EmptyBorder(100, 100, 100, 100));
 		add_game_label_panel();
 		add_player_label_panel();
@@ -51,10 +64,12 @@ public class ClientGUI extends JFrame {
 		JScrollPane action_table = add_action_table();
 		ChartPanel chart = add_chart(new double[0], 50); // FIXME real dataset
 		
-		JPanel tables = new JPanel(new GridLayout(2, 1));
+		JPanel tables = new JPanel();
+		tables.setLayout(new BoxLayout(tables, BoxLayout.Y_AXIS));
 		tables.add(info_table);
 		tables.add(action_table);
-		JPanel all_info = new JPanel(new GridLayout(1, 2));
+		JPanel all_info = new JPanel();
+		all_info.setLayout(new BoxLayout(all_info, BoxLayout.X_AXIS));
 		all_info.add(tables);
 		all_info.add(chart);
 		content.add(all_info);
@@ -67,11 +82,13 @@ public class ClientGUI extends JFrame {
 	}
 	
 	public void set_player_number(int[] player_number) {
-		// FIXME set player label
+		player_number_change.setText(Integer.toString(player_number[0])); 
 	}
 	
 	public void set_player_info(int[] player_info) {
-		// FIXME set player info - ideal_pt, party
+		ideal_point_change.setText(Integer.toString(player_info[0]));
+		player_party_change.setText(Integer.toString(player_info[1]));
+		// FIXME add budget
 	}
 	
 	public void set_game_info(int[] game_info) {
@@ -82,14 +99,37 @@ public class ClientGUI extends JFrame {
 	 * Add the labels that describe the game
 	 */
 	private void add_game_label_panel() {
-		Label current_game = new Label("Current Game: 0");
-		current_game.setFont(Constants.MEDIUM_LABEL);
-		Label num_games = new Label("Total Games: x"); // FIXME update
-		num_games.setFont(Constants.MEDIUM_LABEL);
-		Label current_round = new Label("Current Round: Not Started");
-		current_round.setFont(Constants.MEDIUM_LABEL);
-		Label winnings = new Label("Winnings: x");
-		winnings.setFont(Constants.MEDIUM_LABEL);
+		Label current_game_fixed = new Label("Current Game: ", Label.RIGHT);
+		current_game_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
+		current_game_change = new Label("0");
+		current_game_change.setFont(Constants.MEDIUM_LABEL);
+		JPanel current_game = new JPanel();
+		current_game.add(current_game_fixed);
+		current_game.add(current_game_change);
+		
+		Label num_games_fixed = new Label("Total Games: ", Label.RIGHT); 
+		num_games_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
+		num_games_change = new Label("X");
+		num_games_change.setFont(Constants.MEDIUM_LABEL);
+		JPanel num_games = new JPanel();
+		num_games.add(num_games_fixed);
+		num_games.add(num_games_change);
+		
+		Label current_round_fixed = new Label("Current Round: ", Label.RIGHT);
+		current_round_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
+		current_round_change = new Label("Not Started");
+		current_round_change.setFont(Constants.MEDIUM_LABEL);
+		JPanel current_round = new JPanel();
+		current_round.add(current_round_fixed);
+		current_round.add(current_round_change);
+		
+		Label winnings_fixed = new Label("Winnings: ", Label.RIGHT);
+		winnings_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
+		winnings_change = new Label("X");
+		winnings_change.setFont(Constants.MEDIUM_LABEL);
+		JPanel winnings = new JPanel();
+		winnings.add(winnings_fixed);
+		winnings.add(winnings_change);
 		
 		JPanel game_label_panel = new JPanel();
 		game_label_panel.add(current_game);
@@ -104,18 +144,42 @@ public class ClientGUI extends JFrame {
 	 * Add the labels that describe the player info
 	 */
 	private void add_player_label_panel() {
-		Label player_number = new Label("Player Number: x");
-		player_number.setFont(Constants.MEDIUM_LABEL);
-		Label party = new Label("Party: x"); // FIXME update
-		party.setFont(Constants.MEDIUM_LABEL);
-		Label ideal_point = new Label("Ideal Point: x");
-		ideal_point.setFont(Constants.MEDIUM_LABEL);
-		Label budget = new Label("Budget: x");
-		budget.setFont(Constants.MEDIUM_LABEL);
+
+		Label player_number_fixed = new Label("Player Number: ", Label.RIGHT);
+		player_number_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
+		player_number_change = new Label("0");
+		player_number_change.setFont(Constants.MEDIUM_LABEL);
+		JPanel player_number = new JPanel();
+		player_number.add(player_number_fixed);
+		player_number.add(player_number_change);
+		
+		Label player_party_fixed = new Label("Party: ", Label.RIGHT);
+		player_party_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
+		player_party_change = new Label("X");
+		player_party_change.setFont(Constants.MEDIUM_LABEL);
+		JPanel player_party = new JPanel();
+		player_party.add(player_party_fixed);
+		player_party.add(player_party_change);
+		
+		Label ideal_point_fixed = new Label("Ideal Point: ", Label.RIGHT);
+		ideal_point_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
+		ideal_point_change = new Label("X");
+		ideal_point_change.setFont(Constants.MEDIUM_LABEL);
+		JPanel ideal_point = new JPanel();
+		ideal_point.add(ideal_point_fixed);
+		ideal_point.add(ideal_point_change);
+		
+		Label budget_fixed = new Label("Budget: ", Label.RIGHT);
+		budget_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
+		budget_change = new Label("X");
+		budget_change.setFont(Constants.MEDIUM_LABEL);
+		JPanel budget = new JPanel();
+		budget.add(budget_fixed);
+		budget.add(budget_change);
 
 		JPanel player_label_panel = new JPanel();
 		player_label_panel.add(player_number);
-		player_label_panel.add(party);
+		player_label_panel.add(player_party);
 		player_label_panel.add(ideal_point);
 		player_label_panel.add(budget);
 		
@@ -130,7 +194,6 @@ public class ClientGUI extends JFrame {
 		info_block.setEditable(false);
 		info_block.setText("Game Info"); // FIXME change
 		info_block.setMargin(new Insets(20, 50, 20, 50));
-		// TODO set font, orientation, color...
 		JPanel info_panel = new JPanel(new GridLayout(1,1));
 		info_panel.add(info_block);
 		
@@ -153,7 +216,11 @@ public class ClientGUI extends JFrame {
 		};
 		JTable info_table = new JTable(info_table_model);
 		JScrollPane info_table_scroller = new JScrollPane(info_table);
-//		content.add(info_table_scroller);
+		info_table_scroller.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createEtchedBorder(),
+                "Info Table",
+                TitledBorder.CENTER,
+                TitledBorder.TOP));
 		return info_table_scroller;
 	}
 	
@@ -178,7 +245,11 @@ public class ClientGUI extends JFrame {
 		};
 		JTable action_table = new JTable(action_table_model);
 		JScrollPane action_table_scroller = new JScrollPane(action_table);
-//		content.add(action_table_scroller);
+		action_table_scroller.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createEtchedBorder(),
+                "Action Table",
+                TitledBorder.CENTER,
+                TitledBorder.TOP));
 		return action_table_scroller;
 	}
 
@@ -195,7 +266,6 @@ public class ClientGUI extends JFrame {
 		marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
 		chart_panel.getChart().getXYPlot().addDomainMarker(marker);
 	
-//		content.add(chart_panel);
 		return chart_panel;
 	}
 
@@ -350,5 +420,7 @@ public class ClientGUI extends JFrame {
 	 */
 	public static void main(String[] args) {
 		ClientGUI gui = new ClientGUI(new PropertyChangeSupport(new Object()));
+		gui.set_player_number(new int[]{5});
+		gui.set_player_info(new int[]{25, 0});
 	}
 }
