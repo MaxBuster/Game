@@ -11,10 +11,9 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 public class ChartCreator {
 
-	public static ChartPanel create_chart(double[] data) {
-		IntervalXYDataset dataset = createDataset(data, "Voters");
+	public static ChartPanel create__blank_chart() {
 		final JFreeChart chart = ChartFactory.createXYLineChart(
-				"Expectations", "Ideal Point", "Distribution", dataset,
+				"Expectations", "Ideal Point", "Distribution", null,
 				PlotOrientation.VERTICAL, true, false, false);
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.getDomainAxis().setRange(0.00, 100);
@@ -23,10 +22,10 @@ public class ChartCreator {
 		return chartPanel;
 	}
 
-	public static IntervalXYDataset createDataset(double[] beta, String dataName) {
-		final XYSeries series = new XYSeries(dataName);
-		for (int i = 0; i < beta.length; i++) {
-			series.add(i, beta[i]);
+	public static IntervalXYDataset create_dataset(double[] data, String name) {
+		final XYSeries series = new XYSeries(name);
+		for (int i = 0; i < data.length; i++) {
+			series.add(i, data[i]);
 		}
 		final XYSeriesCollection dataset = new XYSeriesCollection(series);
 		return dataset;

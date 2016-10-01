@@ -7,9 +7,11 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-import model.Constants;
+import model.Distribution;
+import model.Game;
 import model.Model;
 import model.Player;
+import utils.Constants;
 
 /**
  * Handles incoming client messages and Server UI events
@@ -22,7 +24,6 @@ public class ServerIOHandler {
 	private DataInputStream in;
 	private DataOutputStream out;
 	private static Object waitObject = new Object();
-	//	private int gameNum = 0; FIXME do we need this?
 
 	public ServerIOHandler(Model model, Socket socket) {
 		this.model = model;
@@ -41,12 +42,14 @@ public class ServerIOHandler {
 	 * Interact with client connection
 	 */
 	public void handleIO() {
-		write_player_number();
+		write_start_info();
 		while (!model.game_started()) {
 			sleep(200);
 		}
 		model.set_player_info(player);
 		write_player_info();
+		write_game_info(); // FIXME do in response to increment game?
+		write_voter_dist();
 		while (true) {
 			/**
 			 * TODO add io statements:
@@ -58,18 +61,56 @@ public class ServerIOHandler {
 		}
 	}
 	
-	private void write_player_number() {
-		int[] message = new int[]{player.getPlayer_number()};
-		write_message(Constants.PLAYER_NUMBER , message);
+	/**
+	 * Writes the player # and num games to start all games
+	 */
+	private void write_start_info() {
+		int[] message = new int[]{player.getPlayer_number(), model.get_num_games()};
+		write_message(Constants.START_INFO , message);
 	}
 	
+	/**
+	 * Writes player info for the start of a game
+	 */
 	private void write_player_info() {
 		int[] message = new int[] {
 				player.getPlayer_party(), player.getIdeal_point()
 		};
+		write_message(Constants.PLAYER_INFO, message);
+	}
+	
+	/**
+	 * Writes the general info for a new game
+	 */
+	private void write_game_info() {
+		Game current_game = model.get_current_game();
+		int[] message = new int[] {
+				current_game.getGameNumber(), current_game.getBudget(),
+				current_game.getCandidates().size()
+		};
 		write_message(Constants.GAME_INFO, message);
 	}
+	
+	private void write_voter_dist() {
+		Game current_game = model.get_current_game();
+		Distribution current_dist = current_game.getDistribution();
+		int[] message = current_dist.get_dist();
+		write_message(Constants.VOTER_DIST, message);
+	}
+	
+	// TODO write voter dist
+	
+	// TODO write candidate info
+	
+	// TODO write new round
+	
+	// TODO write vote results
+	
+	// TODO write end game
+	
+	// TODO write end all games
 
+	// FIXME don't catch error or respond to the error by removing client
 	private boolean write_message(int message_type, int[] messages) {
 		try {
 			out.writeInt(Constants.MESSAGE_START);

@@ -9,9 +9,9 @@ import org.junit.Before;
 import org.junit.Test;
 
 import model.Candidate;
-import model.Constants;
 import model.Distribution;
 import model.Game;
+import utils.Constants;
 
 public class Game_Tests {
 	private Game game;

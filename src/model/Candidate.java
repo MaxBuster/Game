@@ -2,6 +2,8 @@ package model;
 
 import java.util.HashMap;
 
+import utils.Constants;
+
 /**
  * Contains a candidate's data and number of votes
  * @author Max Buster

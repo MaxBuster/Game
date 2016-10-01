@@ -6,6 +6,8 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.Random;
 
+import utils.Constants;
+
 /**
  * Keep track of game info and current game status
  * @author Max Buster
@@ -37,6 +39,18 @@ public class Model {
 		initialize_cands_per_round();
 	}
 	
+	public synchronized int get_num_games() {
+		return num_games;
+	}
+	
+//	public synchronized int get_current_game() {
+//		return current_game;
+//	}
+	
+	public synchronized Game get_current_game() {
+		return games[current_game];
+	}
+	
 	public synchronized Player new_player() {
 		Player player = new Player(next_player_num, games.length, candidates_per_round);
 		players.add(player);
@@ -55,7 +69,7 @@ public class Model {
 		int random_point = new Random().nextInt(sum); 
 		for (int i=0; i<cdf.length; i++) {
 			if (cdf[i] > random_point) {
-				ideal_point = cdf[i - 1]; // FIXME corner cases?
+				ideal_point = i-1; // FIXME corner cases?
 				break;
 			}
 		}

@@ -23,7 +23,9 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.table.TableCellRenderer;
 
-import model.Constants;
+import utils.ButtonEditor;
+import utils.ButtonRenderer;
+import utils.Constants;
 
 /**
  * Creates a UI for the RA to interact with and track game progress
@@ -156,110 +158,35 @@ public class ServerGUI extends JFrame {
 		panel.repaint();
 	}
 	
+	private void set_players_table(final String[] headers, String[][] data) {
+		DefaultTableModel player_table_model = new DefaultTableModel(data, headers) {
+			private static final long serialVersionUID = 1L;
+
+			public boolean isCellEditable(int row, int column)
+			{
+				if ((headers.length-1) == column) {
+					return true;
+				}
+				return false;
+			}
+		};
+		player_table.setModel(player_table_model);
+		
+		int button_column = headers.length - 1;
+		String column_name = headers[button_column];
+		player_table.getColumn(column_name).setCellRenderer(new ButtonRenderer());
+		player_table.getColumn(column_name).setCellEditor(new ButtonEditor(pcs)); 
+	}
+	
 	/**
 	 * Add the table which shows player connections with buttons that
 	 * allow the player to be removed from the game
 	 */
 	private void add_players_table() {
-		DefaultTableModel table_model = new DefaultTableModel(player_table_data, player_table_column_names) {
-			private static final long serialVersionUID = 1L; // Default serial version id
-
-			public boolean isCellEditable(int row, int column)
-			{
-				if (column == 1) {
-					return true;
-				} 
-				return false;
-			}
-		};
-		player_table = new JTable(table_model);
-		player_table.getColumn("Remove").setCellRenderer(new ButtonRenderer()); // FIXME change to constant
-		player_table.getColumn("Remove").setCellEditor(new ButtonEditor(new JCheckBox()));
+		player_table = new JTable(null);
 		Dimension d = new Dimension(5, 5);
 		player_table.setPreferredScrollableViewportSize(d);
 		JScrollPane scroll_table = new JScrollPane(player_table);
 		content.add(scroll_table);
-	}
-	
-	// -------------------------------- Custom Table -------------------------------------------- //
-	
-	private class ButtonRenderer extends JButton implements TableCellRenderer {
-		private static final long serialVersionUID = 1L; // Default serial version id
-
-		public ButtonRenderer() {
-			setOpaque(true);
-		}
-
-		public Component getTableCellRendererComponent(JTable table,
-				Object value, boolean isSelected, boolean hasFocus, int row,
-				int column) {
-			if (isSelected) {
-				setForeground(table.getSelectionForeground());
-				setBackground(table.getSelectionBackground());
-			} else {
-				setForeground(table.getForeground());
-				setBackground(UIManager.getColor("Button.background"));
-			}
-			setText((value == null) ? "" : value.toString()); // FIXME what is this
-			return this;
-		}
-	}
-
-	private class ButtonEditor extends DefaultCellEditor {
-		private static final long serialVersionUID = 1L; // Default serial version id
-		protected JButton button;
-		private String label;
-		private boolean isPushed;
-
-		public ButtonEditor(JCheckBox checkBox) {
-			super(checkBox);
-			button = new JButton();
-			button.setOpaque(true);
-			button.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					fireEditingStopped();
-					// FIXME figure out how the changes edit
-//					int selectedRow = player_table.getSelectedRow();
-//					int playerNumber = (Integer) player_table.getModel().getValueAt(selectedRow, 0);
-//					pcs.firePropertyChange("Remove Player", null, playerNumber); // FIXME change to constant
-				}
-			});
-		}
-
-		public Component getTableCellEditorComponent(JTable table,
-				Object value, boolean isSelected, int row, int column) {
-			if (isSelected) {
-				button.setForeground(table.getSelectionForeground());
-				button.setBackground(table.getSelectionBackground());
-			} else {
-				button.setForeground(table.getForeground());
-				button.setBackground(table.getBackground());
-			}
-			label = (value == null) ? "" : value.toString();
-			button.setText(label);
-			isPushed = true;
-			return button;
-		}
-
-		public Object getCellEditorValue() {
-			EventQueue.invokeLater(new Runnable() {
-				@Override
-				public void run() {
-					if (isPushed) {
-						isPushed = false;
-					}
-				}
-			});
-			return new String(label);
-		}
-
-		public boolean stopCellEditing() {
-			isPushed = false;
-			return super.stopCellEditing();
-		}
-
-		protected void fireEditingStopped() {
-			super.fireEditingStopped();
-		}
 	}
 }

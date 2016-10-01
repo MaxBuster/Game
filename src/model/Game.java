@@ -2,6 +2,8 @@ package model;
 
 import java.util.HashMap;
 
+import utils.Constants;
+
 /**
  * Holds the info and candidates for a single game
  * @author Max Buster

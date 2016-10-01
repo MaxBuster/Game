@@ -3,6 +3,7 @@ package model;
 import org.apache.commons.math3.distribution.NormalDistribution;
 
 public class Distribution {
+	private int[] distribution;
 	private int mean1;
 	private int std_dev1;
 	private int mean2;
@@ -12,6 +13,7 @@ public class Distribution {
 	private int sumOfDists;
 
 	public Distribution(int[] distribution) {
+		this.distribution = distribution;
 		this.mean1 = distribution[0];
 		this.std_dev1 = distribution[1];
 		this.mean2 = distribution[2];
@@ -36,5 +38,9 @@ public class Distribution {
 	
 	public int getSumOfDists() {
 		return sumOfDists;
+	}
+	
+	public int[] get_dist() {
+		return distribution;
 	}
 }

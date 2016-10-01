@@ -2,6 +2,8 @@ package model;
 
 import java.util.HashMap;
 
+import utils.Constants;
+
 /**
  * Keeps track of all info tokens received for one user throughout all games
  * @author Max Buster

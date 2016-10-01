@@ -9,7 +9,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
-import model.Constants;
+import utils.Constants;
 
 /**
  * Intermediary between the client UI and the server data stream
@@ -49,11 +49,17 @@ public class ClientIOHandler {
 				int type = in.readInt();
 				int[] message = read_message();
 				switch (type) {
-					case Constants.PLAYER_NUMBER: 
-						gui.set_player_number(message);
+					case Constants.START_INFO: 
+						gui.set_start_info(message);
+						break;
+					case Constants.PLAYER_INFO:
+						gui.set_player_info(message);
 						break;
 					case Constants.GAME_INFO:
-						gui.set_player_info(message);
+						gui.set_game_info(message);
+						break;
+					case Constants.VOTER_DIST:
+						gui.add_voter_data(message);
 						break;
 					default: break;
 				}

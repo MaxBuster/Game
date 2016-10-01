@@ -7,7 +7,7 @@ import org.junit.Before;
 import org.junit.Test;
 
 import model.Candidate;
-import model.Constants;
+import utils.Constants;
 
 public class Candidate_Tests {
 	private Candidate candidate;

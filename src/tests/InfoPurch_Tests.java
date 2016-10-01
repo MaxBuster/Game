@@ -6,8 +6,8 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
-import model.Constants;
 import model.PlayerPurchasedInfo;
+import utils.Constants;
 
 public class InfoPurch_Tests {
 	private PlayerPurchasedInfo ppi;

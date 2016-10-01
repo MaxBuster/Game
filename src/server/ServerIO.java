@@ -9,9 +9,9 @@ import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 
-import model.Constants;
 import model.Game;
 import model.Model;
+import utils.Constants;
 
 /**
  * Create a server socket, server GUI, data model 
