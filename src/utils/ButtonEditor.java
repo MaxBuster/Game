@@ -48,6 +48,7 @@ public class ButtonEditor extends DefaultCellEditor {
 
 	public Object getCellEditorValue() {
 		if (isPushed) {
+			// FIXME send table row too?
 			pcs.firePropertyChange(label, null, null); // FIXME make sure this is where to fire event
 			System.out.println(label);
 		}

@@ -61,13 +61,9 @@ public class ClientGUI extends JFrame {
 	private JPanel end_round_panel;
 	
 	// Table data
-	private String[] info_table_headers;
-	private String[] buy_table_headers;
-	private String[] vote_table_headers;
-
-	private String[][] info_table_data;
-	private String[][] buy_table_data;
-	private String[][] vote_table_data;
+	String[][] info_table_data;
+	String[][] buy_table_data;
+	String[][] vote_table_data;
 	
 	/**
 	 * Initialize the Swing GUI with all the components
@@ -81,17 +77,6 @@ public class ClientGUI extends JFrame {
 		add_game_label_panel();
 		add_player_label_panel();
 		add_info_panel();
-		
-		info_table_headers = new String[] {
-			"Candidate #", "Party", "Best Guess", 
-			"Straw Votes", "First Round Votes"
-		};
-		buy_table_headers = new String[] {
-			"Candidate #", "Price", "Action"
-		};
-		vote_table_headers = new String[] {
-			"Candidate #", "Action"	
-		};
 		
 		info_table_pane = add_info_table();
 		action_table_pane = add_action_table();
@@ -112,6 +97,7 @@ public class ClientGUI extends JFrame {
 				
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
+		set_visible_panels(Constants.START_GAME_VISIBILITY);
 	}
 	
 	/**
@@ -131,7 +117,7 @@ public class ClientGUI extends JFrame {
 	
 	public void set_start_info(int[] start_info) {
 		player_number_change.setText(Integer.toString(start_info[0])); 
-		num_games_change.setText(Integer.toString(start_info[1])); 
+		num_games_change.setText(Integer.toString(start_info[1]));
 	}
 	
 	public void set_player_info(int[] player_info) {
@@ -145,8 +131,42 @@ public class ClientGUI extends JFrame {
 	public void set_game_info(int[] game_info) {
 		current_game_change.setText(Integer.toString(game_info[0]));
 		budget_change.setText(Integer.toString(game_info[1]));
-		int num_candidates = game_info[2];
-		// TODO set tables and graph to num candidates
+	}
+	
+	public void set_winnings(int[] winnings) {
+		winnings_change.setText(Integer.toString(winnings[0]));
+	}
+	
+	/**
+	 * Given candidate #'s and parties, sets them in a chart and tables
+	 * @param candidates - array with alternating candidate #s and parties
+	 */
+	public void add_candidates(int[] candidates) {
+		for (int i=0; i<candidates.length; i+=2) {
+			int candidate_number = candidates[i];
+			int candidate_viewable_number = candidate_number + 1; // Note - this increments the cand number to make it work
+			add_candidate_data(Constants.ZERO_TOKENS, candidate_viewable_number);
+		}
+		info_table_data = TableGenerator.generate_info_table(candidates);
+		buy_table_data = TableGenerator.generate_buy_table(candidates);
+		vote_table_data = TableGenerator.generate_vote_table(candidates); // FIXME save for later
+		set_info_table(Constants.INFO_TABLE_HEADERS, info_table_data);
+		set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
+		set_visible_panels(Constants.START_NEW_GAME_VISIBILITY);
+	}
+	
+	/**
+	 * Updates info in the candidate table
+	 */
+	public void update_candidate_info(int candidate_number, int position, String info) {
+		int candidate_viewable = candidate_number + 1;
+		for (int i=0; i<info_table_data.length; i++) {
+			if (Integer.parseInt(info_table_data[i][0]) == candidate_viewable) {
+				info_table_data[i][position] = info;
+				set_info_table(Constants.INFO_TABLE_HEADERS, info_table_data);
+				return;
+			}
+		}
 	}
 	
 	/**
@@ -197,6 +217,11 @@ public class ClientGUI extends JFrame {
 		game_label_panel.add(winnings);
 		
 		content.add(game_label_panel);
+	}
+	
+	public void set_round(int[] round_message) {
+		String round = Constants.LIST_OF_ROUNDS[round_message[0]];
+		current_round_change.setText(round);
 	}
 	
 	/**
@@ -379,7 +404,7 @@ public class ClientGUI extends JFrame {
 	 * the graph and adds that data as a line on the graph
 	 */
 	public void add_candidate_data(int[] candidate_tokens, int candidate_number) {
-		int dataset_position = candidate_number; // FIXME set this with candidate number
+		int dataset_position = candidate_number; 
 		String dataset_name = "Candidate " + candidate_number;
 		double[] candidate_data = CandidateDistributionGenerator.generate_data(candidate_tokens);
 		IntervalXYDataset chart_dataset = ChartCreator.create_dataset(candidate_data, dataset_name);
@@ -423,10 +448,9 @@ public class ClientGUI extends JFrame {
 		gui.set_game_info(new int[]{1, 80, 3}); // Game 1, 80 Budget, 3 Candidates
 		gui.add_voter_data(new int[]{40, 5, 80, 5});
 		gui.add_candidate_data(new int[]{3, 2}, 1);
-		String[][] action_data = new String[2][2];
-		action_data[0][1] = "First";
-		action_data[1][1] = "Second";
-		gui.set_action_table(new String[]{"One", "Two"}, action_data);
+		gui.add_candidates(new int[]{0, 1, 1, 2}); // 2 candidates
+		gui.update_candidate_info(0, 4, "50%");
+		
 //		gui.set_visible_panels(Constants.START_GAME_VISIBILITY);
 //		sleep(3000);
 //		gui.set_visible_panels(Constants.START_NEW_GAME_VISIBILITY);

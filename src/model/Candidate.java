@@ -11,11 +11,11 @@ import utils.Constants;
 
 public class Candidate {
 	private final int candidate_number;
-	private final char candidate_party;
+	private final int candidate_party;
 	private final int ideal_point;
 	private HashMap<String, Integer> votes; // Map from round name to # votes candidate received
 
-	public Candidate(int candidate_number, char candidate_party, int ideal_point) {
+	public Candidate(int candidate_number, int candidate_party, int ideal_point) {
 		this.candidate_number = candidate_number;
 		this.candidate_party = candidate_party;
 		this.ideal_point = ideal_point;
@@ -31,7 +31,7 @@ public class Candidate {
 		return this.candidate_number;
 	}
 	
-	public char get_candidate_party() {
+	public int get_candidate_party() {
 		return this.candidate_party;
 	}
 	

@@ -61,6 +61,15 @@ public class ClientIOHandler {
 					case Constants.VOTER_DIST:
 						gui.add_voter_data(message);
 						break;
+					case Constants.ALL_CANDIDATES:
+						gui.add_candidates(message);
+						break;
+					case Constants.ROUND_NUMBER:
+						gui.set_round(message);
+						break;
+					case Constants.WINNINGS:
+						gui.set_winnings(message);
+						break;
 					default: break;
 				}
 			} catch (IOException e) {

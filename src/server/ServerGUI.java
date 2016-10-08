@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.beans.PropertyChangeEvent;
+import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 import javax.swing.DefaultCellEditor;
@@ -41,6 +43,10 @@ public class ServerGUI extends JFrame {
 	private String[] player_table_column_names;
 	private Object[][] player_table_data;
 	
+	// Changeable labels
+	private Label current_game_change;
+	private Label current_round_change;
+	
 	/**
 	 * TODO:
 	 * Update table on player removed/added
@@ -56,6 +62,7 @@ public class ServerGUI extends JFrame {
 	 */
 	public ServerGUI(PropertyChangeSupport pcs) {
 		this.pcs = pcs;
+		this.pcs.addPropertyChangeListener(new ChangeListener());
 		this.player_table_column_names = new String[]{"Player #", "Remove"}; // FIXME make constants
 		this.player_table_data = new Object[0][2];
 		this.content = new JPanel(new GridLayout(3, 1, 0, 5));
@@ -76,7 +83,7 @@ public class ServerGUI extends JFrame {
 	private void add_game_label_panel() {
 		Label current_game_fixed = new Label("Current Game: ", Label.RIGHT);
 		current_game_fixed.setFont(Constants.BIG_BOLD_LABEL);
-		Label current_game_change = new Label("0", Label.LEFT);
+		current_game_change = new Label("0", Label.LEFT);
 		current_game_change.setFont(Constants.BIG_LABEL);
 		JPanel current_game_panel = new JPanel();
 		current_game_panel.add(current_game_fixed);
@@ -92,7 +99,7 @@ public class ServerGUI extends JFrame {
 		
 		Label current_round_fixed = new Label("Current Round: ", Label.RIGHT);
 		current_round_fixed.setFont(Constants.BIG_BOLD_LABEL);
-		Label current_round_change = new Label("Not Started", Label.LEFT);
+		current_round_change = new Label("Not Started", Label.LEFT);
 		current_round_change.setFont(Constants.BIG_LABEL);
 		JPanel current_round_panel = new JPanel();
 		current_round_panel.add(current_round_fixed);
@@ -188,5 +195,17 @@ public class ServerGUI extends JFrame {
 		player_table.setPreferredScrollableViewportSize(d);
 		JScrollPane scroll_table = new JScrollPane(player_table);
 		content.add(scroll_table);
+	}
+	
+	class ChangeListener implements PropertyChangeListener {
+		@Override
+		public void propertyChange(PropertyChangeEvent PCE) {
+			String event = PCE.getPropertyName();
+			if (event == Constants.NEW_GAME) {
+				current_game_change.setText((String) PCE.getOldValue());
+			} else if (event == Constants.NEW_ROUND) {
+				current_round_change.setText(Constants.LIST_OF_ROUNDS[(Integer) PCE.getOldValue()]);
+			}
+		}
 	}
 }

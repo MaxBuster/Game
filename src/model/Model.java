@@ -18,7 +18,6 @@ public class Model {
 	private int num_games;
 	private int current_game;
 	private String current_round;
-	private ArrayList<String> list_of_rounds;
 	
 	private Game[] games;
 	private int[] candidates_per_round;
@@ -35,7 +34,6 @@ public class Model {
 		this.next_player_num = 0;
 		this.players = new ArrayList<Player>();
 		
-		initialize_rounds();
 		initialize_cands_per_round();
 	}
 	
@@ -43,6 +41,7 @@ public class Model {
 		return num_games;
 	}
 	
+	// FIXME
 //	public synchronized int get_current_game() {
 //		return current_game;
 //	}
@@ -81,17 +80,6 @@ public class Model {
 		player.setPlayerInfo(ideal_point, party);
 	}
 	
-	public void initialize_rounds() {
-		this.list_of_rounds = new ArrayList<String>();
-		list_of_rounds.add(Constants.NOT_STARTED);
-		list_of_rounds.add(Constants.FIRST_BUY);
-		list_of_rounds.add(Constants.STRAW_VOTE);
-		list_of_rounds.add(Constants.FIRST_VOTE);
-		list_of_rounds.add(Constants.SECOND_BUY);
-		list_of_rounds.add(Constants.FINAL_VOTE);
-		list_of_rounds.add(Constants.ALL_FINISHED);
-	}
-	
 	public void initialize_cands_per_round() {
 		candidates_per_round = new int[games.length];
 		for (Game game : games) {
@@ -110,18 +98,25 @@ public class Model {
 	
 	public synchronized void increment_game() {
 		current_game++;
+		pcs.firePropertyChange(Constants.NEW_GAME, current_game, null);
 	}
 	
 	public synchronized void increment_round() {
-		int current_round_pos = list_of_rounds.indexOf(current_round);
+		int current_round_pos = 0;
+		for (int i=0; i<Constants.LIST_OF_ROUNDS.length; i++) {
+			if (Constants.LIST_OF_ROUNDS[i] == current_round) {
+				current_round_pos = i;
+			}
+		}
 		int next_round_pos = current_round_pos + 1;
 		if (current_game < num_games) {
-			next_round_pos %= list_of_rounds.size() - 1;
+			next_round_pos %= Constants.LIST_OF_ROUNDS.length - 1;
 		}
 		if (next_round_pos < current_round_pos) {
 			next_round_pos++;
 		}
-		this.current_round = list_of_rounds.get(next_round_pos);
+		this.current_round = Constants.LIST_OF_ROUNDS[next_round_pos];
+		pcs.firePropertyChange(Constants.NEW_ROUND, next_round_pos, null);
 	}
 	
 	class ChangeListener implements PropertyChangeListener {

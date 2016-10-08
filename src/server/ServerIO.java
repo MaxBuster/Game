@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 
 import model.Game;
 import model.Model;
+import utils.ConfigReader;
 import utils.Constants;
 
 /**
@@ -66,7 +67,7 @@ public class ServerIO {
 	public void newThread(final Socket clientSocket) {
 		Thread thread = new Thread() {
 			public void run() {
-				ServerIOHandler serverIOHandler = new ServerIOHandler(model, clientSocket);
+				ServerIOHandler serverIOHandler = new ServerIOHandler(model, pcs, clientSocket);
 				serverIOHandler.handleIO();
 				clientHandlers.put(serverIOHandler.getPlayerNum(), serverIOHandler);
 				clientSockets.put(serverIOHandler.getPlayerNum(), clientSocket);

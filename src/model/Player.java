@@ -4,6 +4,7 @@ public class Player {
 	private final int player_number;
 	private int ideal_point;
 	private char player_party;
+	private int winnings;
 	private PlayerPurchasedInfo ppi;
 	private int[] payoffs;
 	
@@ -11,6 +12,7 @@ public class Player {
 		this.player_number = player_number;
 		ppi = new PlayerPurchasedInfo(num_games, candidates_per_game);
 		payoffs = new int[num_games];
+		winnings = 0;
 	}
 	
 	public void setPlayerInfo(int ideal_point, char player_party) {
@@ -48,5 +50,9 @@ public class Player {
 	
 	public void setPayoff(int gameNum, int payoff) {
 		payoffs[gameNum] = payoff;
+	}
+	
+	public int getWinnings() {
+		return winnings;
 	}
 }
