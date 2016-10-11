@@ -9,6 +9,8 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 
+import javax.swing.JOptionPane;
+
 import utils.Constants;
 
 /**
@@ -21,6 +23,9 @@ public class ClientIOHandler {
 	private DataInputStream in;
 	private DataOutputStream out;
 	private ClientGUI gui;
+	private int budget;
+	private int party;
+	private String round;
 
 	public ClientIOHandler(Socket socket) {
 		pcs = new PropertyChangeSupport(this);
@@ -33,6 +38,8 @@ public class ClientIOHandler {
 			e.printStackTrace();
 		}
 		gui = new ClientGUI(pcs);
+		budget = 0;
+		party = -1;
 	}
 
 	/**
@@ -54,21 +61,31 @@ public class ClientIOHandler {
 						break;
 					case Constants.PLAYER_INFO:
 						gui.set_player_info(message);
+						party = message[0];
 						break;
 					case Constants.GAME_INFO:
 						gui.set_game_info(message);
+						budget = message[1];
 						break;
 					case Constants.VOTER_DIST:
 						gui.add_voter_data(message);
 						break;
 					case Constants.ALL_CANDIDATES:
-						gui.add_candidates(message);
+						gui.add_candidates(message, party);
 						break;
 					case Constants.ROUND_NUMBER:
+						this.round = Constants.LIST_OF_ROUNDS[message[0]];
 						gui.set_round(message);
 						break;
 					case Constants.WINNINGS:
 						gui.set_winnings(message);
+						break;
+					case Constants.TOKENS:
+						gui.add_candidate_data(message, message[2]);
+						gui.update_candidate_expected_point(message);
+						break;
+					case Constants.VOTES:
+						gui.add_votes(message, round);
 						break;
 					default: break;
 				}
@@ -77,11 +94,6 @@ public class ClientIOHandler {
 			}
 			/**
 			 * TODO
-			 * Beginning info
-			 * Game start
-			 * New game info
-			 * Purchased info
-			 * Start round: Buy1, Straw, Vote1, Buy2, Final
 			 * Vote count received: Straw, Vote1, Final
 			 * Candidates that moved on: Vote1 results
 			 * Candidate won + winnings 
@@ -104,7 +116,24 @@ public class ClientIOHandler {
 		}
 		return message;
 	}
-
+	
+	/**
+	 * Write a message through the output stream to the server
+	 */
+	private boolean write_message(int message_type, int[] messages) {
+		try {
+			out.writeInt(Constants.MESSAGE_START);
+			out.writeInt(message_type);
+			out.writeInt(messages.length);
+			for (int i=0; i<messages.length; i++) {
+				out.writeInt(messages[i]);
+			}
+		} catch (IOException e) {
+			return false;
+		}
+		return true;
+	}
+	
 	/**
 	 * Listens to UI events and passes messages to the server
 	 * through the output stream
@@ -112,11 +141,29 @@ public class ClientIOHandler {
 	class ChangeListener implements PropertyChangeListener {
 		@Override
 		public void propertyChange(PropertyChangeEvent PCE) {
-			/**
-			 * Purchase info about candidate
-			 * Done with buy round
-			 * Vote
-			 */
+			String event = PCE.getPropertyName();
+			if (event.equals("Buy")) { // FIXME Constant
+				int candidate_num = Integer.parseInt((String) PCE.getOldValue()) - 1;
+				int price = Integer.parseInt((String) PCE.getNewValue());
+				if (price <= budget) {
+					budget -= price;
+					gui.set_budget(budget);
+					int[] message = new int[]{candidate_num};
+					write_message(Constants.REQUEST_INFO, message);
+				} else {
+					JOptionPane.showMessageDialog(null, "Insufficient Funds.");
+				}
+			} else if (event.equals(Integer.toString(Constants.END_ROUND))) {
+				gui.set_visible_panels(Constants.END_ROUND_VISIBILITY);
+				// FIXME Set instructions
+				write_message(Constants.END_ROUND, new int[0]);
+			} else if (event.equals("Vote")) {
+				gui.set_visible_panels(Constants.END_ROUND_VISIBILITY);
+				// FIXME Set instructions
+				int candidate_num = Integer.parseInt((String) PCE.getOldValue()) - 1;
+				int[] message = new int[]{candidate_num};
+				write_message(Constants.VOTE, message);
+			}
 		}
 	}
 

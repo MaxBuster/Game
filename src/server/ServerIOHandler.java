@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.HashMap;
 
 import model.Candidate;
@@ -14,6 +15,7 @@ import model.Distribution;
 import model.Game;
 import model.Model;
 import model.Player;
+import model.PlayerPurchasedInfo;
 import utils.Constants;
 
 /**
@@ -25,15 +27,16 @@ public class ServerIOHandler {
 	private Model model;
 	private PropertyChangeSupport pcs;
 	private Player player;
+	private PlayerPurchasedInfo info;
 	private DataInputStream in;
 	private DataOutputStream out;
-	private static Object waitObject = new Object();
 
 	public ServerIOHandler(Model model, PropertyChangeSupport pcs, Socket socket) {
 		this.model = model;
 		this.pcs = pcs;
 		this.pcs.addPropertyChangeListener(new ChangeListener());
 		this.player = model.new_player();
+		this.info = player.getPpi();
 
 		try {
 			in = new DataInputStream(socket.getInputStream());
@@ -59,6 +62,7 @@ public class ServerIOHandler {
 			write_voter_dist();
 			write_candidate_info();
 			write_winnings();
+			write_round_num();
 			while (true) {
 				int c = in.readInt();
 				while (c != Constants.MESSAGE_START) {
@@ -66,9 +70,19 @@ public class ServerIOHandler {
 				}
 				int type = in.readInt();
 				int[] message = read_message();
-				/**
-				 * TODO Respond to messages
-				 */
+				switch(type) {
+				case Constants.REQUEST_INFO:
+					get_token(message);
+					break;
+				case Constants.END_ROUND:
+					model.set_player_done(player);
+					break;
+				case Constants.VOTE:
+					model.vote_for_candidate(message);
+					model.set_player_done(player);
+					break;
+				default: break;
+				}
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -114,7 +128,7 @@ public class ServerIOHandler {
 		int[] message = current_dist.get_dist();
 		write_message(Constants.VOTER_DIST, message);
 	}
-	
+
 	/**
 	 * Writes out candidate numbers and parties for the current game
 	 */
@@ -130,13 +144,26 @@ public class ServerIOHandler {
 		}
 		write_message(Constants.ALL_CANDIDATES, message);
 	}
-	
+
 	private void write_winnings() {
 		int[] message = new int[]{player.getWinnings()};
 		write_message(Constants.WINNINGS, message);
 	}
 
-	// TODO write new round
+	private void get_token(int[] request) {
+		int game = model.get_current_game().getGameNumber();
+		int candidate = request[0];
+		String round = model.get_current_round();
+		int token = model.get_token(candidate);
+		info.add_token(game, token, round, candidate);
+		int[] all_tokens = info.get_tokens(game, candidate);
+		write_message(Constants.TOKENS, all_tokens);
+	}
+
+	private void write_round_num() {
+		int[] message = new int[]{model.get_round_num()};
+		write_message(Constants.ROUND_NUMBER, message);
+	}
 
 	// TODO write vote results
 
@@ -157,10 +184,6 @@ public class ServerIOHandler {
 			return false;
 		}
 		return true;
-	}
-
-	public int getPlayerNum() {
-		return player.getPlayer_number();
 	}
 
 	/**
@@ -195,6 +218,16 @@ public class ServerIOHandler {
 			if (event == Constants.NEW_ROUND) {
 				int round_pos = (Integer) PCE.getOldValue();
 				write_message(Constants.ROUND_NUMBER, new int[]{round_pos});
+			} else if (event == Constants.ROUND_OVER) {
+				String previous_round = (String) PCE.getOldValue();
+				if (previous_round == Constants.STRAW_VOTE) {
+					write_message(Constants.VOTES, model.get_current_game().get_votes(Constants.STRAW_VOTE));
+				} else if (previous_round == Constants.FIRST_VOTE) {
+					write_message(Constants.VOTES, model.get_current_game().get_votes(Constants.FIRST_VOTE));
+				} else if (previous_round == Constants.FINAL_VOTE) {
+					write_message(Constants.VOTES, model.get_current_game().get_votes(Constants.FINAL_VOTE));
+				}
+				write_round_num();
 			}
 		}
 	}

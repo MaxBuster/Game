@@ -5,7 +5,6 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.HashMap;
 
 import javax.swing.JOptionPane;
 
@@ -24,16 +23,17 @@ public class ServerIO {
 	private final PropertyChangeSupport pcs;
 	private Model model;
 	private static ServerSocket socket;
+	@SuppressWarnings("unused")
 	private static ServerGUI gui;
-	private HashMap<Integer, ServerIOHandler> clientHandlers;
-	private HashMap<Integer, Socket> clientSockets;
+	//	private HashMap<Integer, ServerIOHandler> clientHandlers; // FIXME
+	//	private HashMap<Integer, Socket> clientSockets;
 
 	public ServerIO(Game[] games) {
 		this.pcs = new PropertyChangeSupport(this);
-		gui = new ServerGUI(pcs); // FIXME close gui if socket fails
+		gui = new ServerGUI(pcs, games.length); // FIXME close gui if socket fails
 
-		this.clientHandlers = new HashMap<Integer, ServerIOHandler>();
-		this.clientSockets = new HashMap<Integer, Socket>();
+		//		this.clientHandlers = new HashMap<Integer, ServerIOHandler>(); FIXME
+		//		this.clientSockets = new HashMap<Integer, Socket>();
 		this.model = new Model(games, pcs); // FIXME catch errors?
 	}
 
@@ -50,13 +50,16 @@ public class ServerIO {
 		}
 		Socket clientSocket = null;
 		while (true) {
-			// FIXME stop accepting after game started
 			try {
 				clientSocket = socket.accept();
-				newThread(clientSocket);
+				if (!model.game_started()) {
+					newThread(clientSocket);
+				} else {
+					clientSocket.close();
+				}
 			} catch (IOException e) {
 				e.printStackTrace();
-				return Constants.IOEXCEPTION; // FIXME continue so it doesn't crash all clients
+				return Constants.IOEXCEPTION; 
 			}
 		} 
 	}
@@ -69,8 +72,8 @@ public class ServerIO {
 			public void run() {
 				ServerIOHandler serverIOHandler = new ServerIOHandler(model, pcs, clientSocket);
 				serverIOHandler.handleIO();
-				clientHandlers.put(serverIOHandler.getPlayerNum(), serverIOHandler);
-				clientSockets.put(serverIOHandler.getPlayerNum(), clientSocket);
+				//				clientHandlers.put(serverIOHandler.getPlayerNum(), serverIOHandler); FIXME
+				//				clientSockets.put(serverIOHandler.getPlayerNum(), clientSocket);
 			}
 		};
 		thread.start();

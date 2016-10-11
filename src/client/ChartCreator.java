@@ -11,7 +11,7 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 public class ChartCreator {
 
-	public static ChartPanel create__blank_chart() {
+	public static ChartPanel create_blank_chart() {
 		final JFreeChart chart = ChartFactory.createXYLineChart(
 				"Expectations", "Ideal Point", "Distribution", null,
 				PlotOrientation.VERTICAL, true, false, false);

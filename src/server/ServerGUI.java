@@ -3,7 +3,6 @@ package server;
 import java.awt.Button;
 import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.EventQueue;
 import java.awt.GridLayout;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
@@ -12,18 +11,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
-import javax.swing.DefaultCellEditor;
-import javax.swing.GroupLayout;
-import javax.swing.JButton;
-import javax.swing.JCheckBox;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.UIManager;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableCellRenderer;
 
 import utils.ButtonEditor;
 import utils.ButtonRenderer;
@@ -60,14 +53,14 @@ public class ServerGUI extends JFrame {
 	 * Initialize the UI with all the needed components
 	 * @param pcs
 	 */
-	public ServerGUI(PropertyChangeSupport pcs) {
+	public ServerGUI(PropertyChangeSupport pcs, int num_games) {
 		this.pcs = pcs;
 		this.pcs.addPropertyChangeListener(new ChangeListener());
 		this.player_table_column_names = new String[]{"Player #", "Remove"}; // FIXME make constants
 		this.player_table_data = new Object[0][2];
 		this.content = new JPanel(new GridLayout(3, 1, 0, 5));
 		this.content.setBorder(new EmptyBorder(100, 100, 100, 100));
-		add_game_label_panel();
+		add_game_label_panel(num_games);
 		add_game_controls_panel();
 		add_players_table();
 		setContentPane(this.content);
@@ -80,7 +73,7 @@ public class ServerGUI extends JFrame {
 	/**
 	 * Add labels which show game progress
 	 */
-	private void add_game_label_panel() {
+	private void add_game_label_panel(int num_games) {
 		Label current_game_fixed = new Label("Current Game: ", Label.RIGHT);
 		current_game_fixed.setFont(Constants.BIG_BOLD_LABEL);
 		current_game_change = new Label("0", Label.LEFT);
@@ -91,7 +84,7 @@ public class ServerGUI extends JFrame {
 
 		Label num_games_fixed = new Label("Number of Games: ", Label.RIGHT);
 		num_games_fixed.setFont(Constants.BIG_BOLD_LABEL);
-		Label num_games_change = new Label("0", Label.LEFT);
+		Label num_games_change = new Label(Integer.toString(num_games), Label.LEFT);
 		num_games_change.setFont(Constants.BIG_LABEL);
 		JPanel num_games_panel = new JPanel();
 		num_games_panel.add(num_games_fixed);
@@ -182,7 +175,7 @@ public class ServerGUI extends JFrame {
 		int button_column = headers.length - 1;
 		String column_name = headers[button_column];
 		player_table.getColumn(column_name).setCellRenderer(new ButtonRenderer());
-		player_table.getColumn(column_name).setCellEditor(new ButtonEditor(pcs)); 
+		player_table.getColumn(column_name).setCellEditor(new ButtonEditor(pcs, player_table)); 
 	}
 	
 	/**
@@ -202,7 +195,9 @@ public class ServerGUI extends JFrame {
 		public void propertyChange(PropertyChangeEvent PCE) {
 			String event = PCE.getPropertyName();
 			if (event == Constants.NEW_GAME) {
-				current_game_change.setText((String) PCE.getOldValue());
+				int current_game = Integer.parseInt((String) PCE.getOldValue());
+				int current_game_viewable = current_game + 1;
+				current_game_change.setText(Integer.toString(current_game_viewable));
 			} else if (event == Constants.NEW_ROUND) {
 				current_round_change.setText(Constants.LIST_OF_ROUNDS[(Integer) PCE.getOldValue()]);
 			}

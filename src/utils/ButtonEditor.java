@@ -15,13 +15,15 @@ public class ButtonEditor extends DefaultCellEditor {
 	private static final JCheckBox CHECK_BOX = new JCheckBox();
 
 	private PropertyChangeSupport pcs;
+	private JTable table;
 	protected JButton button;
 	private String label;
 	private boolean isPushed;
 
-	public ButtonEditor(PropertyChangeSupport pcs) {
+	public ButtonEditor(PropertyChangeSupport pcs, JTable table) {
 		super(CHECK_BOX);
 		this.pcs = pcs;
+		this.table = table;
 		button = new JButton();
 		button.setOpaque(true);
 		button.addActionListener(new ActionListener() {
@@ -48,9 +50,10 @@ public class ButtonEditor extends DefaultCellEditor {
 
 	public Object getCellEditorValue() {
 		if (isPushed) {
-			// FIXME send table row too?
-			pcs.firePropertyChange(label, null, null); // FIXME make sure this is where to fire event
-			System.out.println(label);
+			int selected_row = table.getSelectedRow();
+			Object first = table.getModel().getValueAt(selected_row, 0);
+			Object second = table.getModel().getValueAt(selected_row, 1);
+			pcs.firePropertyChange(label, first, second); 
 		}
 		isPushed = false;
 		return new String(label);

@@ -14,7 +14,7 @@ public class VoterDistributionGenerator {
 		NormalDistribution normal1 = new NormalDistribution(mean1, stdDev1);
 		NormalDistribution normal2 = new NormalDistribution(mean2, stdDev2);
 		for (int i = 0; i < 100; i++) {
-			double num = (50*normal1.density(i) + 50*normal2.density(i)); // FIXME multipliers?
+			double num = (25*normal1.density(i) + 25*normal2.density(i)); // FIXME multipliers?
 			data[i] = num;
 		}
 		return data;

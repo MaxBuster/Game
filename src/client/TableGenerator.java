@@ -20,7 +20,7 @@ public class TableGenerator {
 		return info_table_data;
 	}
 
-	public static String[][] generate_buy_table(int[] candidate_info) {
+	public static String[][] generate_buy_table(int[] candidate_info, int party) {
 		String[][] buy_table_data = new String[candidate_info.length/2][];
 		for (int i=0; i<candidate_info.length; i+=2) {
 			int candidate_number = candidate_info[i];
@@ -29,7 +29,11 @@ public class TableGenerator {
 			
 			String[] blank_row = Constants.CLIENT_BUY_ROW.clone();
 			blank_row[0] = Integer.toString(candidate_viewable_number);
-			blank_row[1] = "50"; // FIXME if party_int is same as client then double price
+			if (party_int == party) {
+				blank_row[1] = Integer.toString(Constants.SAME_PARTY_PRICE);
+			} else {
+				blank_row[1] = Integer.toString(Constants.OTHER_PARTY_PRICE);
+			}
 			buy_table_data[i/2] = blank_row;
 		}
 		return buy_table_data;

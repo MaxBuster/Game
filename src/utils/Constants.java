@@ -13,6 +13,7 @@ public class Constants {
 	// Server PCS
 	public static final String NEW_GAME = "New Game";
 	public static final String NEW_ROUND = "New Round";
+	public static final String ROUND_OVER = "Round Over";
 
 	// Buy round names
 	public static final String FIRST_BUY = "Buy 1";
@@ -57,6 +58,12 @@ public class Constants {
 	public static final int ALL_CANDIDATES = 5;
 	public static final int ROUND_NUMBER = 6;
 	public static final int WINNINGS = 7;
+	public static final int TOKENS = 8;
+	public static final int VOTES = 9;
+	
+	public static final int REQUEST_INFO = 20;
+	public static final int END_ROUND = 21;
+	public static final int VOTE = 22;
 
 	// Fonts
 	public static final Font BIG_BOLD_LABEL = new Font("Serif", Font.BOLD, 30);
@@ -71,17 +78,24 @@ public class Constants {
 	public static final Color GREEN = new Color(153, 255, 153);
 	public static final Color RED = new Color(255, 153, 153);
 	public static final Color BLUE = new Color(153, 204, 255);
+	
+	// Graph Colors
+	public static final Color[] GRAPH_GOLORS = new Color[]{
+			Color.BLACK, Color.BLUE, Color.CYAN, Color.DARK_GRAY, 
+			Color.GRAY, Color.GREEN, Color.LIGHT_GRAY, Color.MAGENTA, 
+			Color.ORANGE, Color.PINK, Color.RED, Color.WHITE, Color.YELLOW};
 
 	// Panel Visibility
 	// Order: [game_labels, player_labels, all_info, action_table, end_round]
 	public static final boolean[] START_GAME_VISIBILITY = new boolean[]{false, false, false, false, false};
-	public static final boolean[] START_NEW_GAME_VISIBILITY = new boolean[]{true, true, true, true, true};
+	public static final boolean[] BUY_ROUND_VISIBILITY = new boolean[]{true, true, true, true, true};
+	public static final boolean[] VOTE_ROUND_VISIBILITY = new boolean[]{true, true, true, true, false};
 	public static final boolean[] END_ROUND_VISIBILITY = new boolean[]{true, true, true, false, false};
 	public static final boolean[] END_GAME_VISIBILITY = new boolean[]{true, false, false, false, false};
 
 	// Client table headers
 	public static final String[] INFO_TABLE_HEADERS = new String[] {
-			"Candidate #", "Party", "Best Guess", "Straw Votes", "First Round Votes"
+			"Candidate #", "Party", "Best Guess", "Straw Votes", "First Round Votes", "Final Round Votes"
 	};
 	public static final String[] BUY_TABLE_HEADERS = new String[] {
 			"Candidate #", "Price", "Action"
@@ -92,7 +106,7 @@ public class Constants {
 
 	// Client table blank rows
 	// Order: Candidate #, Party, Best Guess, Straw Votes, First Round Votes
-	public static final String[] CLIENT_INFO_ROW = new String[]{"--", "--", "50", "--", "--"};
+	public static final String[] CLIENT_INFO_ROW = new String[]{"--", "--", "50", "--", "--", "--"};
 	// Order: Candidate #, Price, Buy Button
 	public static final String[] CLIENT_BUY_ROW = new String[]{"--", "--", "Buy"};
 	// Order: Candidate #, Vote Button
@@ -100,4 +114,8 @@ public class Constants {
 
 	// Zero token array for candidate beta distribution
 	public static final int[] ZERO_TOKENS = new int[]{0, 0};
+	
+	// Info Prices
+	public static final int SAME_PARTY_PRICE = 10;
+	public static final int OTHER_PARTY_PRICE = 20;
 }

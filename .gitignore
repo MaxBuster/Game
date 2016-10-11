@@ -51,3 +51,4 @@ local.properties
 
 # Config and Data Files
 *.csv
+*.txt

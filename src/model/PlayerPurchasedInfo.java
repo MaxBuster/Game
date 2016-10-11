@@ -1,8 +1,6 @@
 package model;
 
-import java.util.HashMap;
-
-import utils.Constants;
+import java.util.ArrayList;
 
 /**
  * Keeps track of all info tokens received for one user throughout all games
@@ -10,81 +8,55 @@ import utils.Constants;
  */
 
 public class PlayerPurchasedInfo {
-	private GameTokens[] allGameTokens; // Array of game tokens for each game
+	private ArrayList<Token>[] tokens;
 	
-	public PlayerPurchasedInfo(int numGames, int[] numCandidates) {
-		allGameTokens = new GameTokens[numGames];
-		// Add game token object for each game
-		for (int i=0; i<numGames; i++) {
-			GameTokens gameTokens = new GameTokens(numCandidates[i]); // initialize with num cands
-			allGameTokens[i] = gameTokens;
+	public PlayerPurchasedInfo(int num_games) {
+		tokens = new ArrayList[num_games];
+		for (int i=0; i<num_games; i++) {
+			tokens[i] = new ArrayList<Token>();
 		}
 	}
 	
-	/**
-	 * Increments ones and total tokens for the specified game with round and candidate
-	 */
-	public synchronized void addOnesToken(int gameNum, String round, int candidateNum) {
-		RoundTokens currentRoundInfo = getRoundTokens(gameNum, round);
-		currentRoundInfo.all_tokens[candidateNum] += 1;
-		currentRoundInfo.one_tokens[candidateNum] += 1;
+	public void add_token(int game, int value, String round, int candidate) {
+		Token token = new Token(value, round, candidate);
+		tokens[game].add(token);
 	}
 	
-	/**
-	 * Increments total tokens for the specified game with round and candidate
-	 */
-	public synchronized void addZerosToken(int gameNum, String round, int candidateNum) {
-		RoundTokens currentRoundInfo = getRoundTokens(gameNum, round);
-		currentRoundInfo.all_tokens[candidateNum] += 1;
-	}
-	
-	public GameTokens[] getAllTokens() {
-		return allGameTokens;
-	}
-	
-	/**
-	 * Get round tokens for a single round within a game
-	 */
-	public RoundTokens getRoundTokens(int gameNum, String round) {
-		GameTokens currentGameInfo = allGameTokens[gameNum];
-		RoundTokens currentRoundInfo = currentGameInfo.rounds_info.get(round);
-		return currentRoundInfo;
-	}
-	
-	// --------------------------------- Helper Classes --------------------------------------- //
-
-	/**
-	 * All tokens for both buy rounds for a single game
-	 */
-	public class GameTokens {
-		protected HashMap<String, RoundTokens> rounds_info;
-		
-		public GameTokens(int numCandidates) {
-			rounds_info = new HashMap<String, RoundTokens>();
-			
-			rounds_info.put(Constants.FIRST_BUY, new RoundTokens(numCandidates));
-			rounds_info.put(Constants.SECOND_BUY, new RoundTokens(numCandidates));
+	public int[] get_tokens(int game, int candidate) {
+		int[] candidate_info = new int[3];
+		for (Token t : tokens[game]) {
+			if (t.get_candidate() == candidate) {
+				candidate_info[0] += t.get_value();
+				candidate_info[1] += 1;
+			}
 		}
+		candidate_info[2] = candidate;
+		return candidate_info;
 	}
-
-	/**
-	 * Ones tokens and all tokens received for all candidates for a single round
-	 */
-	public class RoundTokens {
-		protected int[] one_tokens;
-		protected int[] all_tokens;
+	
+	
+	
+	public class Token {
+		protected int value;
+		protected String round;
+		protected int candidate;
 		
-		public RoundTokens(int numCandidates) {
-			one_tokens = new int[numCandidates];
-			all_tokens = new int[numCandidates];
+		public Token(int value, String round, int candidate) {
+			this.value = value;
+			this.round = round;
+			this.candidate = candidate;
 		}
 		
-		public int[] getOnes() {
-			return one_tokens;
+		public int get_value() {
+			return value;
 		}
 		
-		public int[] getAll() {
-			return all_tokens;
+		public String get_round() {
+			return round;
+		}
+		
+		public int get_candidate() {
+			return candidate;
 		}
 	}
 }

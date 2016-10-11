@@ -37,19 +37,6 @@ public class Model {
 		initialize_cands_per_round();
 	}
 	
-	public synchronized int get_num_games() {
-		return num_games;
-	}
-	
-	// FIXME
-//	public synchronized int get_current_game() {
-//		return current_game;
-//	}
-	
-	public synchronized Game get_current_game() {
-		return games[current_game];
-	}
-	
 	public synchronized Player new_player() {
 		Player player = new Player(next_player_num, games.length, candidates_per_round);
 		players.add(player);
@@ -80,12 +67,37 @@ public class Model {
 		player.setPlayerInfo(ideal_point, party);
 	}
 	
+	public synchronized void set_player_done(Player player) {
+		player.setDone(true);
+		for (Player p : players) {
+			if (!p.isDone()) {
+				return;
+			}
+		}
+		end_round();
+	}
+	
+	public synchronized void end_round() {
+		String previous_round = current_round;
+		increment_round();
+		pcs.firePropertyChange(Constants.ROUND_OVER, previous_round, null);
+		for (Player p : players) {
+			p.setDone(false);
+		}
+	}
+	
 	public void initialize_cands_per_round() {
 		candidates_per_round = new int[games.length];
 		for (Game game : games) {
 			int num_candidates_in_game = game.getCandidates().size();
 			candidates_per_round[game.getGameNumber()] = num_candidates_in_game;
 		}
+	}
+	
+	public synchronized void vote_for_candidate(int[] vote_message) {
+		int candidate_number = vote_message[0];
+		Candidate candidate = games[current_game].getCandidates().get(candidate_number);
+		candidate.increment_round_votes(current_round);
 	}
 	
 	public synchronized boolean game_started() {
@@ -96,9 +108,25 @@ public class Model {
 		}
 	}
 	
-	public synchronized void increment_game() {
-		current_game++;
-		pcs.firePropertyChange(Constants.NEW_GAME, current_game, null);
+	public synchronized int get_round_num() {
+		for (int i=0; i<Constants.LIST_OF_ROUNDS.length; i++) {
+			if (Constants.LIST_OF_ROUNDS[i].equals(current_round)) {
+				return i;
+			}
+		}
+		return -1;
+	}
+	
+	public synchronized int get_num_games() {
+		return num_games;
+	}
+	
+	public synchronized Game get_current_game() {
+		return games[current_game];
+	}
+	
+	public synchronized String get_current_round() {
+		return current_round;
 	}
 	
 	public synchronized void increment_round() {
@@ -113,10 +141,23 @@ public class Model {
 			next_round_pos %= Constants.LIST_OF_ROUNDS.length - 1;
 		}
 		if (next_round_pos < current_round_pos) {
+			current_game++;
 			next_round_pos++;
+			pcs.firePropertyChange(Constants.NEW_GAME, Integer.toString(current_game), null);
 		}
 		this.current_round = Constants.LIST_OF_ROUNDS[next_round_pos];
 		pcs.firePropertyChange(Constants.NEW_ROUND, next_round_pos, null);
+	}
+	
+	public int get_token(int candidate_num) {
+		Candidate c = get_current_game().getCandidates().get(candidate_num);
+		int ideal_pt = c.get_candidate_ideal_point();
+		int random_num = new Random().nextInt(100);
+		if (random_num < ideal_pt) {
+			return 0; // FIXME make constant and ensure these are the correct tokens
+		} else {
+			return 1;
+		}
 	}
 	
 	class ChangeListener implements PropertyChangeListener {
@@ -130,13 +171,6 @@ public class Model {
 			 * TODO:
 			 * Remove player
 			 * Player removed due to io
-			 * New player
-			 * New round
-			 * New game
-			 * Game over
-			 * Write data
-			 * End game
-			 * All games over
 			 */
 		}
 	}

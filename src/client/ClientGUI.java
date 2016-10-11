@@ -30,6 +30,7 @@ import org.jfree.ui.TextAnchor;
 import utils.ButtonEditor;
 import utils.ButtonRenderer;
 import utils.Constants;
+import utils.Info;
 
 public class ClientGUI extends JFrame {
 	private static final long serialVersionUID = 1L; // Default serial id
@@ -47,6 +48,9 @@ public class ClientGUI extends JFrame {
 	private Label player_party_change;
 	private Label ideal_point_change;
 	private Label budget_change;
+	
+	// Info text
+	private JTextArea info_block;
 	
 	// All containers
 	private JPanel game_label_panel;
@@ -133,6 +137,10 @@ public class ClientGUI extends JFrame {
 		budget_change.setText(Integer.toString(game_info[1]));
 	}
 	
+	public void set_budget(int new_budget) {
+		budget_change.setText(Integer.toString(new_budget));
+	}
+	
 	public void set_winnings(int[] winnings) {
 		winnings_change.setText(Integer.toString(winnings[0]));
 	}
@@ -141,18 +149,30 @@ public class ClientGUI extends JFrame {
 	 * Given candidate #'s and parties, sets them in a chart and tables
 	 * @param candidates - array with alternating candidate #s and parties
 	 */
-	public void add_candidates(int[] candidates) {
+	public void add_candidates(int[] candidates, int party) {
 		for (int i=0; i<candidates.length; i+=2) {
 			int candidate_number = candidates[i];
-			int candidate_viewable_number = candidate_number + 1; // Note - this increments the cand number to make it work
-			add_candidate_data(Constants.ZERO_TOKENS, candidate_viewable_number);
+			add_candidate_data(Constants.ZERO_TOKENS, candidate_number);
 		}
 		info_table_data = TableGenerator.generate_info_table(candidates);
-		buy_table_data = TableGenerator.generate_buy_table(candidates);
-		vote_table_data = TableGenerator.generate_vote_table(candidates); // FIXME save for later
-		set_info_table(Constants.INFO_TABLE_HEADERS, info_table_data);
-		set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
-		set_visible_panels(Constants.START_NEW_GAME_VISIBILITY);
+		buy_table_data = TableGenerator.generate_buy_table(candidates, party);
+		vote_table_data = TableGenerator.generate_vote_table(candidates); 
+	}
+	
+	public void add_votes(int[] votes, String round) {
+		int position = 2;
+		if (round == Constants.STRAW_VOTE) {
+			position = 2;
+		} else if (round == Constants.FIRST_VOTE) {
+			position = 3;
+		} else if (round == Constants.FINAL_VOTE) {
+			position = 4;
+		}
+		for (int i=0; i<votes.length; i+=2) {
+			int candidate_number = votes[i];
+			int vote_percentage = votes[i+1];
+			update_candidate_info(candidate_number, position, vote_percentage + "%");
+		}
 	}
 	
 	/**
@@ -221,7 +241,34 @@ public class ClientGUI extends JFrame {
 	
 	public void set_round(int[] round_message) {
 		String round = Constants.LIST_OF_ROUNDS[round_message[0]];
+		System.out.println(round);
 		current_round_change.setText(round);
+		if (round == Constants.FIRST_BUY) {
+			set_info_table(Constants.INFO_TABLE_HEADERS, info_table_data);
+			set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
+			set_info_text(Info.BUY_1);
+			set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
+		} else if (round == Constants.STRAW_VOTE) {
+			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
+			set_info_text(Info.STRAW);
+			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
+		} else if (round == Constants.FIRST_VOTE) {
+			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
+			set_info_text(Info.FIRST);
+			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
+		} else if (round == Constants.SECOND_BUY) {
+			set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
+			set_info_text(Info.BUY_2);
+			set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
+		} else if (round == Constants.FINAL_VOTE) {
+			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
+			set_info_text(Info.FINAL);
+			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
+		}
+	}
+	
+	private void set_info_text(String text) {
+		info_block.setText(text);
 	}
 	
 	/**
@@ -279,7 +326,7 @@ public class ClientGUI extends JFrame {
 	 * Add the text box that provides round info
 	 */
 	private void add_info_panel() {
-		JTextArea info_block = new JTextArea();
+		info_block = new JTextArea(Info.NOT_STARTED);
 		info_block.setEditable(false);
 		info_block.setMargin(new Insets(20, 50, 20, 50));
 		JPanel info_panel = new JPanel(new GridLayout(1,1));
@@ -343,7 +390,7 @@ public class ClientGUI extends JFrame {
 		int button_column = headers.length - 1;
 		String column_name = headers[button_column];
 		action_table.getColumn(column_name).setCellRenderer(new ButtonRenderer());
-		action_table.getColumn(column_name).setCellEditor(new ButtonEditor(pcs)); 
+		action_table.getColumn(column_name).setCellEditor(new ButtonEditor(pcs, action_table)); 
 	}
 	
 	/**
@@ -365,7 +412,7 @@ public class ClientGUI extends JFrame {
 	 * and the user ideal point
 	 */
 	private ChartPanel add_chart() {
-		ChartPanel chart_panel = ChartCreator.create__blank_chart();
+		ChartPanel chart_panel = ChartCreator.create_blank_chart();
 		return chart_panel;
 	}
 	
@@ -404,17 +451,22 @@ public class ClientGUI extends JFrame {
 	 * the graph and adds that data as a line on the graph
 	 */
 	public void add_candidate_data(int[] candidate_tokens, int candidate_number) {
-		int dataset_position = candidate_number; 
-		String dataset_name = "Candidate " + candidate_number;
+		int dataset_position = candidate_number + 1; 
+		String dataset_name = "Candidate " + dataset_position;
 		double[] candidate_data = CandidateDistributionGenerator.generate_data(candidate_tokens);
 		IntervalXYDataset chart_dataset = ChartCreator.create_dataset(candidate_data, dataset_name);
 		chart.getChart().getXYPlot().setDataset(dataset_position, chart_dataset); 
 
-		Color dataset_color = Color.BLUE; // FIXME pick from a list
+		Color dataset_color = Constants.GRAPH_GOLORS[candidate_number]; // FIXME pick from a list
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(); 
 		renderer.setSeriesShapesVisible(0, false);
 		renderer.setSeriesPaint(0, dataset_color);
 		chart.getChart().getXYPlot().setRenderer(dataset_position, renderer);
+	}
+	
+	public void update_candidate_expected_point(int[] candidate_info) {
+		int expected_value = ((candidate_info[0]+1)*100)/(candidate_info[1]+2);
+		update_candidate_info(candidate_info[2], 2, Integer.toString(expected_value));
 	}
 	
 	/**
@@ -428,7 +480,7 @@ public class ClientGUI extends JFrame {
 		end_round.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO hide button, fire event
+				pcs.firePropertyChange(Integer.toString(Constants.END_ROUND), null, null);
 			}
 		});
 		end_round_panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
@@ -443,12 +495,13 @@ public class ClientGUI extends JFrame {
 	 */
 	public static void main(String[] args) {
 		ClientGUI gui = new ClientGUI(new PropertyChangeSupport(new Object()));
+		gui.set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
 		gui.set_start_info(new int[]{5, 2}); // Player 5, 2 games
 		gui.set_player_info(new int[]{2, 23}); // Party 2, Ideal Point 23
 		gui.set_game_info(new int[]{1, 80, 3}); // Game 1, 80 Budget, 3 Candidates
 		gui.add_voter_data(new int[]{40, 5, 80, 5});
+		gui.add_candidates(new int[]{0, 1, 1, 2}, 2); // 2 candidates
 		gui.add_candidate_data(new int[]{3, 2}, 1);
-		gui.add_candidates(new int[]{0, 1, 1, 2}); // 2 candidates
 		gui.update_candidate_info(0, 4, "50%");
 		
 //		gui.set_visible_panels(Constants.START_GAME_VISIBILITY);

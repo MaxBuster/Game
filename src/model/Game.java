@@ -34,6 +34,21 @@ public class Game {
 	public HashMap<Integer, Candidate> getCandidates() {
 		return candidates;
 	}
+	
+	public int[] get_votes(String round) {
+		int[] votes = new int[candidates.size()*2];
+		int total_votes = 0;
+		for (int i=0, j=1; i<candidates.size(); i++, j+=2) {
+			Candidate c = candidates.get(i);
+			votes[i] = c.get_candidate_number();
+			votes[j] = c.get_round_votes(round);
+			total_votes += c.get_round_votes(round);
+		}
+		for (int i=1; i<votes.length; i+=2) {
+			votes[i] = (votes[i]/total_votes)*100;
+		}
+		return votes;
+	}
 
 	public Distribution getDistribution() {
 		return distribution;

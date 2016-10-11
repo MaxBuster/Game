@@ -7,25 +7,19 @@ public class Player {
 	private int winnings;
 	private PlayerPurchasedInfo ppi;
 	private int[] payoffs;
+	private boolean done_with_round;
 	
 	public Player(int player_number, int num_games, int[] candidates_per_game) {
 		this.player_number = player_number;
-		ppi = new PlayerPurchasedInfo(num_games, candidates_per_game);
+		ppi = new PlayerPurchasedInfo(num_games);
 		payoffs = new int[num_games];
 		winnings = 0;
+		done_with_round = false;
 	}
 	
 	public void setPlayerInfo(int ideal_point, char player_party) {
 		this.ideal_point = ideal_point;
 		this.player_party = player_party;
-	}
-	
-	public void addOnesToken(int currentGame, String currentRound, int candidateNum) {
-		ppi.addOnesToken(currentGame, currentRound, candidateNum);
-	}
-	
-	public void addZerosToken(int currentGame, String currentRound, int candidateNum) {
-		ppi.addZerosToken(currentGame, currentRound, candidateNum);
 	}
 
 	public int getPlayer_number() {
@@ -54,5 +48,13 @@ public class Player {
 	
 	public int getWinnings() {
 		return winnings;
+	}
+	
+	public void setDone(boolean done) {
+		this.done_with_round = done;
+	}
+	
+	public boolean isDone() {
+		return this.done_with_round;
 	}
 }
