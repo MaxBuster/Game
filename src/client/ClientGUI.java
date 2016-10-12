@@ -104,6 +104,8 @@ public class ClientGUI extends JFrame {
 		set_visible_panels(Constants.START_GAME_VISIBILITY);
 	}
 	
+	// -------------------------------------- General Pane ----------------------------------------- //
+	
 	/**
 	 * Takes a constant boolean array and sets the visibility of the panels
 	 * according to the values in the array
@@ -118,6 +120,8 @@ public class ClientGUI extends JFrame {
 		content.revalidate();
 		content.repaint();
 	}
+	
+	// -------------------------------------- Setters ----------------------------------------- //
 	
 	public void set_start_info(int[] start_info) {
 		player_number_change.setText(Integer.toString(start_info[0])); 
@@ -145,6 +149,38 @@ public class ClientGUI extends JFrame {
 		winnings_change.setText(Integer.toString(winnings[0]));
 	}
 	
+	public void set_round(int[] round_message) {
+		String round = Constants.LIST_OF_ROUNDS[round_message[0]];
+		System.out.println(round);
+		current_round_change.setText(round);
+		if (round == Constants.FIRST_BUY) {
+			set_info_table(Constants.INFO_TABLE_HEADERS, info_table_data);
+			set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
+			set_info_text(Info.BUY_1);
+			set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
+		} else if (round == Constants.STRAW_VOTE) {
+			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
+			set_info_text(Info.STRAW);
+			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
+		} else if (round == Constants.FIRST_VOTE) {
+			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
+			set_info_text(Info.FIRST);
+			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
+		} else if (round == Constants.SECOND_BUY) {
+			set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
+			set_info_text(Info.BUY_2);
+			set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
+		} else if (round == Constants.FINAL_VOTE) {
+			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
+			set_info_text(Info.FINAL);
+			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
+		}
+	}
+	
+	private void set_info_text(String text) {
+		info_block.setText(text);
+	}
+	
 	/**
 	 * Given candidate #'s and parties, sets them in a chart and tables
 	 * @param candidates - array with alternating candidate #s and parties
@@ -159,16 +195,20 @@ public class ClientGUI extends JFrame {
 		vote_table_data = TableGenerator.generate_vote_table(candidates); 
 	}
 	
-	public void add_votes(int[] votes, String round) {
-		int position = 2;
+	public void add_votes(int[] votes) {
+		int round_num = votes[votes.length-1];
+		String round = Constants.LIST_OF_ROUNDS[round_num];
+		int position;
 		if (round == Constants.STRAW_VOTE) {
-			position = 2;
-		} else if (round == Constants.FIRST_VOTE) {
 			position = 3;
-		} else if (round == Constants.FINAL_VOTE) {
+		} else if (round == Constants.FIRST_VOTE) {
 			position = 4;
+		} else if (round == Constants.FINAL_VOTE) {
+			position = 5;
+		} else {
+			return;
 		}
-		for (int i=0; i<votes.length; i+=2) {
+		for (int i=0; i<votes.length-1; i+=2) {
 			int candidate_number = votes[i];
 			int vote_percentage = votes[i+1];
 			update_candidate_info(candidate_number, position, vote_percentage + "%");
@@ -188,6 +228,61 @@ public class ClientGUI extends JFrame {
 			}
 		}
 	}
+	
+	/**
+	 * Adds a fixed vertical line to the graph as a marker of the player's ideal point
+	 * @param ideal_point - the point on the x axis to put the line
+	 */
+	private void add_marker(int ideal_point) {
+		ValueMarker marker = new ValueMarker(ideal_point); // Sets the marker at x position ideal_point
+		marker.setPaint(Color.BLACK);
+		marker.setLabel("You"); // Adds a label next to the marker
+		marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
+		chart.getChart().getXYPlot().addDomainMarker(marker);
+	}
+	
+	/**
+	 * Given a voter distribution (mean1, std dev1, mean2, std dev2), it generates the data
+	 * to graph the distribution and adds the generated data as a line to the chart
+	 */
+	public void add_voter_data(int[] voter_dist) {
+		int dataset_position = 0;
+		String dataset_name = "Voters";
+		double[] voter_data = VoterDistributionGenerator.generate_data(voter_dist);
+		IntervalXYDataset chart_dataset = ChartCreator.create_dataset(voter_data, dataset_name);
+		chart.getChart().getXYPlot().setDataset(dataset_position, chart_dataset); 
+
+		Color dataset_color = Color.RED;
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(); 
+		renderer.setSeriesShapesVisible(0, false);
+		renderer.setSeriesPaint(0, dataset_color);
+		chart.getChart().getXYPlot().setRenderer(dataset_position, renderer);
+	}
+
+	/**
+	 * Given candidate beta information, this generates the data to show the candidate expectations on 
+	 * the graph and adds that data as a line on the graph
+	 */
+	public void add_candidate_data(int[] candidate_tokens, int candidate_number) {
+		int dataset_position = candidate_number + 1; 
+		String dataset_name = "Candidate " + dataset_position;
+		double[] candidate_data = CandidateDistributionGenerator.generate_data(candidate_tokens);
+		IntervalXYDataset chart_dataset = ChartCreator.create_dataset(candidate_data, dataset_name);
+		chart.getChart().getXYPlot().setDataset(dataset_position, chart_dataset); 
+
+		Color dataset_color = Constants.GRAPH_GOLORS[candidate_number]; // FIXME pick from a list
+		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(); 
+		renderer.setSeriesShapesVisible(0, false);
+		renderer.setSeriesPaint(0, dataset_color);
+		chart.getChart().getXYPlot().setRenderer(dataset_position, renderer);
+	}
+	
+	public void update_candidate_expected_point(int[] candidate_info) {
+		int expected_value = ((candidate_info[0]+1)*100)/(candidate_info[1]+2);
+		update_candidate_info(candidate_info[2], 2, Integer.toString(expected_value));
+	}
+
+	// -------------------------------------- Add panes ----------------------------------------- //
 	
 	/**
 	 * Add the labels that describe the game
@@ -237,38 +332,6 @@ public class ClientGUI extends JFrame {
 		game_label_panel.add(winnings);
 		
 		content.add(game_label_panel);
-	}
-	
-	public void set_round(int[] round_message) {
-		String round = Constants.LIST_OF_ROUNDS[round_message[0]];
-		System.out.println(round);
-		current_round_change.setText(round);
-		if (round == Constants.FIRST_BUY) {
-			set_info_table(Constants.INFO_TABLE_HEADERS, info_table_data);
-			set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
-			set_info_text(Info.BUY_1);
-			set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
-		} else if (round == Constants.STRAW_VOTE) {
-			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
-			set_info_text(Info.STRAW);
-			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
-		} else if (round == Constants.FIRST_VOTE) {
-			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
-			set_info_text(Info.FIRST);
-			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
-		} else if (round == Constants.SECOND_BUY) {
-			set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
-			set_info_text(Info.BUY_2);
-			set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
-		} else if (round == Constants.FINAL_VOTE) {
-			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
-			set_info_text(Info.FINAL);
-			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
-		}
-	}
-	
-	private void set_info_text(String text) {
-		info_block.setText(text);
 	}
 	
 	/**
@@ -341,6 +404,20 @@ public class ClientGUI extends JFrame {
 	}
 	
 	/**
+	 * Add the table with candidate info
+	 */
+	private JScrollPane add_info_table() {
+		info_table = new JTable(null);
+		JScrollPane info_table_scroller = new JScrollPane(info_table);
+		info_table_scroller.setBorder(BorderFactory.createTitledBorder(
+				BorderFactory.createEtchedBorder(),
+                "Candidate Info",
+                TitledBorder.CENTER,
+                TitledBorder.TOP));
+		return info_table_scroller;
+	}
+	
+	/**
 	 * Sets the info table headers and data
 	 */
 	private void set_info_table(String[] headers, String[][] data) {
@@ -356,17 +433,17 @@ public class ClientGUI extends JFrame {
 	}
 	
 	/**
-	 * Add the table with candidate info
+	 * Add the table with buy/vote buttons
 	 */
-	private JScrollPane add_info_table() {
-		info_table = new JTable(null);
-		JScrollPane info_table_scroller = new JScrollPane(info_table);
-		info_table_scroller.setBorder(BorderFactory.createTitledBorder(
+	private JScrollPane add_action_table() {
+		action_table = new JTable(null);
+		JScrollPane action_table_scroller = new JScrollPane(action_table);
+		action_table_scroller.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(),
-                "Candidate Info",
+                "Action Table",
                 TitledBorder.CENTER,
                 TitledBorder.TOP));
-		return info_table_scroller;
+		return action_table_scroller;
 	}
 	
 	/**
@@ -392,20 +469,6 @@ public class ClientGUI extends JFrame {
 		action_table.getColumn(column_name).setCellRenderer(new ButtonRenderer());
 		action_table.getColumn(column_name).setCellEditor(new ButtonEditor(pcs, action_table)); 
 	}
-	
-	/**
-	 * Add the table with buy/vote buttons
-	 */
-	private JScrollPane add_action_table() {
-		action_table = new JTable(null);
-		JScrollPane action_table_scroller = new JScrollPane(action_table);
-		action_table_scroller.setBorder(BorderFactory.createTitledBorder(
-				BorderFactory.createEtchedBorder(),
-                "Action Table",
-                TitledBorder.CENTER,
-                TitledBorder.TOP));
-		return action_table_scroller;
-	}
 
 	/**
 	 * Add the chart showing voter distribution, candidate expectations,
@@ -414,59 +477,6 @@ public class ClientGUI extends JFrame {
 	private ChartPanel add_chart() {
 		ChartPanel chart_panel = ChartCreator.create_blank_chart();
 		return chart_panel;
-	}
-	
-	/**
-	 * Adds a fixed vertical line to the graph as a marker of the player's ideal point
-	 * @param ideal_point - the point on the x axis to put the line
-	 */
-	private void add_marker(int ideal_point) {
-		ValueMarker marker = new ValueMarker(ideal_point); // Sets the marker at x position ideal_point
-		marker.setPaint(Color.BLACK);
-		marker.setLabel("You"); // Adds a label next to the marker
-		marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
-		chart.getChart().getXYPlot().addDomainMarker(marker);
-	}
-	
-	/**
-	 * Given a voter distribution (mean1, std dev1, mean2, std dev2), it generates the data
-	 * to graph the distribution and adds the generated data as a line to the chart
-	 */
-	public void add_voter_data(int[] voter_dist) {
-		int dataset_position = 0;
-		String dataset_name = "Voters";
-		double[] voter_data = VoterDistributionGenerator.generate_data(voter_dist);
-		IntervalXYDataset chart_dataset = ChartCreator.create_dataset(voter_data, dataset_name);
-		chart.getChart().getXYPlot().setDataset(dataset_position, chart_dataset); 
-
-		Color dataset_color = Color.RED;
-		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(); 
-		renderer.setSeriesShapesVisible(0, false);
-		renderer.setSeriesPaint(0, dataset_color);
-		chart.getChart().getXYPlot().setRenderer(dataset_position, renderer);
-	}
-
-	/**
-	 * Given candidate beta information, this generates the data to show the candidate expectations on 
-	 * the graph and adds that data as a line on the graph
-	 */
-	public void add_candidate_data(int[] candidate_tokens, int candidate_number) {
-		int dataset_position = candidate_number + 1; 
-		String dataset_name = "Candidate " + dataset_position;
-		double[] candidate_data = CandidateDistributionGenerator.generate_data(candidate_tokens);
-		IntervalXYDataset chart_dataset = ChartCreator.create_dataset(candidate_data, dataset_name);
-		chart.getChart().getXYPlot().setDataset(dataset_position, chart_dataset); 
-
-		Color dataset_color = Constants.GRAPH_GOLORS[candidate_number]; // FIXME pick from a list
-		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(); 
-		renderer.setSeriesShapesVisible(0, false);
-		renderer.setSeriesPaint(0, dataset_color);
-		chart.getChart().getXYPlot().setRenderer(dataset_position, renderer);
-	}
-	
-	public void update_candidate_expected_point(int[] candidate_info) {
-		int expected_value = ((candidate_info[0]+1)*100)/(candidate_info[1]+2);
-		update_candidate_info(candidate_info[2], 2, Integer.toString(expected_value));
 	}
 	
 	/**
@@ -488,7 +498,7 @@ public class ClientGUI extends JFrame {
 		content.add(end_round_panel);
 	}
 	
-	// ------------------------------------------------ Testing --------------------------------------------------------- //
+	// -------------------------------------- Testing ----------------------------------------- //
 	
 	/**
 	 * Main method to test ui on its own
@@ -503,14 +513,6 @@ public class ClientGUI extends JFrame {
 		gui.add_candidates(new int[]{0, 1, 1, 2}, 2); // 2 candidates
 		gui.add_candidate_data(new int[]{3, 2}, 1);
 		gui.update_candidate_info(0, 4, "50%");
-		
-//		gui.set_visible_panels(Constants.START_GAME_VISIBILITY);
-//		sleep(3000);
-//		gui.set_visible_panels(Constants.START_NEW_GAME_VISIBILITY);
-//		sleep(3000);
-//		gui.set_visible_panels(Constants.END_ROUND_VISIBILITY);
-//		sleep(3000);
-//		gui.set_visible_panels(Constants.END_GAME_VISIBILITY);
 		sleep(3000);
 	}
 	

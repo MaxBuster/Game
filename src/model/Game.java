@@ -14,7 +14,6 @@ public class Game {
 	private final Distribution distribution; // Distribution of voters
 	private final int budget; // Info purchase budget
 	private HashMap<Integer, Candidate> candidates; // List of candidates in this game
-	private String round; // The name of the current round
 	
 	public Game(int game_number, 
 				HashMap<Integer, Candidate> candidates, 
@@ -24,7 +23,6 @@ public class Game {
 		this.candidates = candidates;
 		this.distribution = distribution;
 		this.budget = budget;
-		this.round = Constants.FIRST_BUY;
 	}
 
 	public int getGameNumber() {
@@ -35,18 +33,21 @@ public class Game {
 		return candidates;
 	}
 	
-	public int[] get_votes(String round) {
-		int[] votes = new int[candidates.size()*2];
+	public int[] get_votes(int round_num) {
+		String round = Constants.LIST_OF_ROUNDS[round_num];
+		int array_length = (candidates.size()*2) + 1;
+		int[] votes = new int[array_length];
 		int total_votes = 0;
 		for (int i=0, j=1; i<candidates.size(); i++, j+=2) {
 			Candidate c = candidates.get(i);
-			votes[i] = c.get_candidate_number();
+			votes[j-1] = c.get_candidate_number();
 			votes[j] = c.get_round_votes(round);
 			total_votes += c.get_round_votes(round);
 		}
 		for (int i=1; i<votes.length; i+=2) {
 			votes[i] = (votes[i]/total_votes)*100;
 		}
+		votes[votes.length-1] = round_num;
 		return votes;
 	}
 
@@ -56,13 +57,5 @@ public class Game {
 
 	public int getBudget() {
 		return budget;
-	}
-
-	public synchronized String getRound() {
-		return round;
-	}
-	
-	public synchronized void setRound(String round) {
-		this.round = round;
 	}
 }

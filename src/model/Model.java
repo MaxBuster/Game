@@ -17,10 +17,9 @@ public class Model {
 	private PropertyChangeSupport pcs;
 	private int num_games;
 	private int current_game;
-	private String current_round;
+	private int current_round_index;
 	
 	private Game[] games;
-	private int[] candidates_per_round;
 	private int next_player_num;
 	private ArrayList<Player> players;
 
@@ -29,22 +28,22 @@ public class Model {
 		this.pcs.addPropertyChangeListener(new ChangeListener());
 		this.num_games = games.length;
 		this.current_game = 0;
-		this.current_round = Constants.NOT_STARTED;
+		 this.current_round_index = 0;
 		this.games = games;
 		this.next_player_num = 0;
 		this.players = new ArrayList<Player>();
-		
-		initialize_cands_per_round();
 	}
 	
+	// ------------------------- Player Stuff ------------------------------ //
+	
 	public synchronized Player new_player() {
-		Player player = new Player(next_player_num, games.length, candidates_per_round);
+		Player player = new Player(next_player_num, games.length);
 		players.add(player);
 		next_player_num++;
 		return player;
 	}
 	
-	public synchronized void set_player_info(Player player) {
+	public synchronized void init_player(Player player) {
 		Distribution dist = games[current_game].getDistribution();
 		int[] cdf = dist.getCDF();
 		
@@ -74,79 +73,16 @@ public class Model {
 				return;
 			}
 		}
-		end_round();
+		end_round(); // Ends round if all players are done
 	}
 	
-	public synchronized void end_round() {
-		String previous_round = current_round;
-		increment_round();
-		pcs.firePropertyChange(Constants.ROUND_OVER, previous_round, null);
-		for (Player p : players) {
-			p.setDone(false);
-		}
-	}
-	
-	public void initialize_cands_per_round() {
-		candidates_per_round = new int[games.length];
-		for (Game game : games) {
-			int num_candidates_in_game = game.getCandidates().size();
-			candidates_per_round[game.getGameNumber()] = num_candidates_in_game;
-		}
-	}
+	// ------------------------- Candidate Stuff ------------------------------ //
 	
 	public synchronized void vote_for_candidate(int[] vote_message) {
 		int candidate_number = vote_message[0];
 		Candidate candidate = games[current_game].getCandidates().get(candidate_number);
+		String current_round = Constants.LIST_OF_ROUNDS[current_round_index];
 		candidate.increment_round_votes(current_round);
-	}
-	
-	public synchronized boolean game_started() {
-		if (current_round == Constants.NOT_STARTED) {
-			return false;
-		} else {
-			return true;
-		}
-	}
-	
-	public synchronized int get_round_num() {
-		for (int i=0; i<Constants.LIST_OF_ROUNDS.length; i++) {
-			if (Constants.LIST_OF_ROUNDS[i].equals(current_round)) {
-				return i;
-			}
-		}
-		return -1;
-	}
-	
-	public synchronized int get_num_games() {
-		return num_games;
-	}
-	
-	public synchronized Game get_current_game() {
-		return games[current_game];
-	}
-	
-	public synchronized String get_current_round() {
-		return current_round;
-	}
-	
-	public synchronized void increment_round() {
-		int current_round_pos = 0;
-		for (int i=0; i<Constants.LIST_OF_ROUNDS.length; i++) {
-			if (Constants.LIST_OF_ROUNDS[i] == current_round) {
-				current_round_pos = i;
-			}
-		}
-		int next_round_pos = current_round_pos + 1;
-		if (current_game < num_games) {
-			next_round_pos %= Constants.LIST_OF_ROUNDS.length - 1;
-		}
-		if (next_round_pos < current_round_pos) {
-			current_game++;
-			next_round_pos++;
-			pcs.firePropertyChange(Constants.NEW_GAME, Integer.toString(current_game), null);
-		}
-		this.current_round = Constants.LIST_OF_ROUNDS[next_round_pos];
-		pcs.firePropertyChange(Constants.NEW_ROUND, next_round_pos, null);
 	}
 	
 	public int get_token(int candidate_num) {
@@ -160,18 +96,73 @@ public class Model {
 		}
 	}
 	
+	// ------------------------- Game Stuff ------------------------------ //
+
+	public synchronized int get_num_games() {
+		return num_games;
+	}
+	
+	public synchronized Game get_current_game() {
+		return games[current_game];
+	}
+	
+	public synchronized boolean game_started() {
+		if (current_round_index == 0) {
+			return false;
+		} else {
+			return true;
+		}
+	}
+	
+	public synchronized int get_current_round_index() {
+		return current_round_index;
+	}
+	
+	public synchronized String get_current_round() {
+		return Constants.LIST_OF_ROUNDS[current_round_index];
+	}
+	
+	public synchronized void end_round() {
+		Game game = get_current_game();
+		pcs.firePropertyChange(Constants.ROUND_OVER, current_round_index, game);
+		increment_round();
+		for (Player p : players) {
+			p.setDone(false);
+		}
+	}
+	
+	public synchronized void increment_round() {
+		int previous_round_index = current_round_index;
+		current_round_index++;
+		// Overflow round if there are games left
+		if (current_game < num_games) {
+			current_round_index %= Constants.LIST_OF_ROUNDS.length - 1;
+		}
+		// If round overflowed then there is a new game
+		if (current_round_index < previous_round_index) {
+			current_round_index++; // Skip over first if it overflowed
+			current_game++;
+			pcs.firePropertyChange(Constants.NEW_GAME, current_game, null);
+			// FIXME simplify this method
+		}
+		if (current_round_index == Constants.LIST_OF_ROUNDS.length-1) {
+			// End games
+		} else {
+			pcs.firePropertyChange(Constants.NEW_ROUND, current_round_index, null);
+		}
+	}
+	
+	// ------------------------- Listener Stuff ------------------------------ //
+	
 	class ChangeListener implements PropertyChangeListener {
 		@Override
 		public void propertyChange(PropertyChangeEvent PCE) {
 			String event = PCE.getPropertyName();
 			if (event == Constants.START_GAME) {
 				increment_round();
+			} else if (event == Constants.REMOVE_PLAYER) {
+				// TODO
 			}
-			/**
-			 * TODO:
-			 * Remove player
-			 * Player removed due to io
-			 */
 		}
 	}
 }

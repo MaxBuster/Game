@@ -25,7 +25,6 @@ public class ClientIOHandler {
 	private ClientGUI gui;
 	private int budget;
 	private int party;
-	private String round;
 
 	public ClientIOHandler(Socket socket) {
 		pcs = new PropertyChangeSupport(this);
@@ -74,7 +73,6 @@ public class ClientIOHandler {
 						gui.add_candidates(message, party);
 						break;
 					case Constants.ROUND_NUMBER:
-						this.round = Constants.LIST_OF_ROUNDS[message[0]];
 						gui.set_round(message);
 						break;
 					case Constants.WINNINGS:
@@ -85,21 +83,23 @@ public class ClientIOHandler {
 						gui.update_candidate_expected_point(message);
 						break;
 					case Constants.VOTES:
-						gui.add_votes(message, round);
+						// TODO if first get rid of two, if final show winnings
+						// TODO final - wait to update gui, show popup
+						gui.add_votes(message);
 						break;
+						
+					/*
+					 * TODO
+					 * Game over
+					 * All games over
+					 * Removed from game
+					 */
+						
 					default: break;
 				}
 			} catch (IOException e) {
 
 			}
-			/**
-			 * TODO
-			 * Vote count received: Straw, Vote1, Final
-			 * Candidates that moved on: Vote1 results
-			 * Candidate won + winnings 
-			 * Games over
-			 * Removed from game
-			 */
 		}
 	}
 	
@@ -145,6 +145,7 @@ public class ClientIOHandler {
 			if (event.equals("Buy")) { // FIXME Constant
 				int candidate_num = Integer.parseInt((String) PCE.getOldValue()) - 1;
 				int price = Integer.parseInt((String) PCE.getNewValue());
+				// TODO parse into method
 				if (price <= budget) {
 					budget -= price;
 					gui.set_budget(budget);
@@ -166,5 +167,4 @@ public class ClientIOHandler {
 			}
 		}
 	}
-
 }

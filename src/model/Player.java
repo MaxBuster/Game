@@ -9,7 +9,7 @@ public class Player {
 	private int[] payoffs;
 	private boolean done_with_round;
 	
-	public Player(int player_number, int num_games, int[] candidates_per_game) {
+	public Player(int player_number, int num_games) {
 		this.player_number = player_number;
 		ppi = new PlayerPurchasedInfo(num_games);
 		payoffs = new int[num_games];

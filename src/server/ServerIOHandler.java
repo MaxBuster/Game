@@ -7,7 +7,6 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.Collection;
 import java.util.HashMap;
 
 import model.Candidate;
@@ -56,13 +55,7 @@ public class ServerIOHandler {
 			while (!model.game_started()) {
 				sleep(200);
 			}
-			model.set_player_info(player);
-			write_player_info();
-			write_game_info(); // FIXME do in response to increment game?
-			write_voter_dist();
-			write_candidate_info();
-			write_winnings();
-			write_round_num();
+			start_new_game();
 			while (true) {
 				int c = in.readInt();
 				while (c != Constants.MESSAGE_START) {
@@ -96,6 +89,16 @@ public class ServerIOHandler {
 	private void write_start_info() {
 		int[] message = new int[]{player.getPlayer_number(), model.get_num_games()};
 		write_message(Constants.START_INFO , message);
+	}
+	
+	private void start_new_game() {
+		model.init_player(player);
+		write_player_info();
+		write_game_info(); // FIXME do in response to increment game?
+		write_voter_dist();
+		write_candidate_info();
+		write_winnings();
+		write_round_num();
 	}
 
 	/**
@@ -161,7 +164,7 @@ public class ServerIOHandler {
 	}
 
 	private void write_round_num() {
-		int[] message = new int[]{model.get_round_num()};
+		int[] message = new int[]{model.get_current_round_index()};
 		write_message(Constants.ROUND_NUMBER, message);
 	}
 
@@ -219,13 +222,16 @@ public class ServerIOHandler {
 				int round_pos = (Integer) PCE.getOldValue();
 				write_message(Constants.ROUND_NUMBER, new int[]{round_pos});
 			} else if (event == Constants.ROUND_OVER) {
-				String previous_round = (String) PCE.getOldValue();
-				if (previous_round == Constants.STRAW_VOTE) {
-					write_message(Constants.VOTES, model.get_current_game().get_votes(Constants.STRAW_VOTE));
-				} else if (previous_round == Constants.FIRST_VOTE) {
-					write_message(Constants.VOTES, model.get_current_game().get_votes(Constants.FIRST_VOTE));
-				} else if (previous_round == Constants.FINAL_VOTE) {
-					write_message(Constants.VOTES, model.get_current_game().get_votes(Constants.FINAL_VOTE));
+				int previous_round = (Integer) PCE.getOldValue();
+				Game current_game = (Game) PCE.getNewValue();
+				String round_name = Constants.LIST_OF_ROUNDS[previous_round];
+				if (round_name == Constants.STRAW_VOTE) {
+					write_message(Constants.VOTES, current_game.get_votes(previous_round));
+				} else if (round_name == Constants.FIRST_VOTE) {
+					write_message(Constants.VOTES, current_game.get_votes(previous_round));
+				} else if (round_name == Constants.FINAL_VOTE) {
+					write_message(Constants.VOTES, current_game.get_votes(previous_round));
+					start_new_game(); // FIXME move to new game
 				}
 				write_round_num();
 			}

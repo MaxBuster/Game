@@ -195,7 +195,7 @@ public class ServerGUI extends JFrame {
 		public void propertyChange(PropertyChangeEvent PCE) {
 			String event = PCE.getPropertyName();
 			if (event == Constants.NEW_GAME) {
-				int current_game = Integer.parseInt((String) PCE.getOldValue());
+				int current_game = (Integer) PCE.getOldValue();
 				int current_game_viewable = current_game + 1;
 				current_game_change.setText(Integer.toString(current_game_viewable));
 			} else if (event == Constants.NEW_ROUND) {
