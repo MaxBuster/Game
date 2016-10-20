@@ -15,6 +15,9 @@ public class Game {
 	private final int budget; // Info purchase budget
 	private HashMap<Integer, Candidate> candidates; // List of candidates in this game
 	
+	private int payoff_multiplier;
+	private int payoff_intercept;
+	
 	public Game(int game_number, 
 				HashMap<Integer, Candidate> candidates, 
 				Distribution distribution, 
@@ -23,6 +26,21 @@ public class Game {
 		this.candidates = candidates;
 		this.distribution = distribution;
 		this.budget = budget;
+	}
+	
+	public void set_payoff_equation(int payoff_multiplier, int payoff_intercept) {
+		this.payoff_multiplier = payoff_multiplier;
+		this.payoff_intercept = payoff_intercept;
+	}
+	
+	/**
+	 * Calculates winnings from the current game by taking the leftover budget and
+	 * multiplying by a constant, adding the diff between the player's ideal point 
+	 * and the candidate's (delta), and adding a constant factor
+	 */
+	public int calculate_payoffs(int delta, int leftover) {
+		int payoffs = (leftover*payoff_multiplier) + delta + payoff_intercept;
+		return payoffs;
 	}
 
 	public int getGameNumber() {

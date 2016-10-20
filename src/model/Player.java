@@ -50,11 +50,11 @@ public class Player {
 		return winnings;
 	}
 	
-	public void setDone(boolean done) {
+	public synchronized void setDone(boolean done) {
 		this.done_with_round = done;
 	}
 	
-	public boolean isDone() {
+	public synchronized boolean isDone() {
 		return this.done_with_round;
 	}
 }

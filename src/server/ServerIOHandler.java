@@ -52,10 +52,6 @@ public class ServerIOHandler {
 	public void handleIO() {
 		try {
 			write_start_info();
-			while (!model.game_started()) {
-				sleep(200);
-			}
-			start_new_game();
 			while (true) {
 				int c = in.readInt();
 				while (c != Constants.MESSAGE_START) {
@@ -68,11 +64,13 @@ public class ServerIOHandler {
 					get_token(message);
 					break;
 				case Constants.END_ROUND:
-					model.set_player_done(player);
+					player.setDone(true);
+					model.attempt_end_round();
 					break;
 				case Constants.VOTE:
 					model.vote_for_candidate(message);
-					model.set_player_done(player);
+					player.setDone(true);
+					model.attempt_end_round();
 					break;
 				default: break;
 				}
@@ -94,10 +92,9 @@ public class ServerIOHandler {
 	private void start_new_game() {
 		model.init_player(player);
 		write_player_info();
-		write_game_info(); // FIXME do in response to increment game?
+		write_game_info(); 
 		write_voter_dist();
 		write_candidate_info();
-		write_winnings();
 		write_round_num();
 	}
 
@@ -168,8 +165,6 @@ public class ServerIOHandler {
 		write_message(Constants.ROUND_NUMBER, message);
 	}
 
-	// TODO write vote results
-
 	// TODO write end game
 
 	// TODO write end all games
@@ -203,14 +198,6 @@ public class ServerIOHandler {
 		return message;
 	}
 
-	private void sleep(long sleep_time_ms) {
-		try {
-			Thread.sleep(sleep_time_ms);
-		} catch (InterruptedException e) {
-			e.printStackTrace(); 
-		}
-	}
-
 	/**
 	 * Listen to changes from the GUI
 	 */
@@ -218,23 +205,29 @@ public class ServerIOHandler {
 		@Override
 		public void propertyChange(PropertyChangeEvent PCE) {
 			String event = PCE.getPropertyName();
-			if (event == Constants.NEW_ROUND) {
-				int round_pos = (Integer) PCE.getOldValue();
-				write_message(Constants.ROUND_NUMBER, new int[]{round_pos});
-			} else if (event == Constants.ROUND_OVER) {
+			if (event == Constants.ROUND_OVER) { // 
 				int previous_round = (Integer) PCE.getOldValue();
 				Game current_game = (Game) PCE.getNewValue();
 				String round_name = Constants.LIST_OF_ROUNDS[previous_round];
-				if (round_name == Constants.STRAW_VOTE) {
-					write_message(Constants.VOTES, current_game.get_votes(previous_round));
-				} else if (round_name == Constants.FIRST_VOTE) {
-					write_message(Constants.VOTES, current_game.get_votes(previous_round));
-				} else if (round_name == Constants.FINAL_VOTE) {
-					write_message(Constants.VOTES, current_game.get_votes(previous_round));
-					start_new_game(); // FIXME move to new game
-				}
-				write_round_num();
+				write_votes(previous_round, round_name, current_game);
+			} else if (event == Constants.NEW_ROUND) { // Write round num
+				int round_pos = (Integer) PCE.getOldValue();
+				write_message(Constants.ROUND_NUMBER, new int[]{round_pos});
+			} else if (event == Constants.NEW_GAME) {
+				start_new_game(); 
 			}
 		}
+	}
+	
+	private void write_votes(int previous_round, String round_name, Game current_game) {
+		if (round_name == Constants.STRAW_VOTE) {
+			write_message(Constants.VOTES, current_game.get_votes(previous_round));
+		} else if (round_name == Constants.FIRST_VOTE) {
+			write_message(Constants.VOTES, current_game.get_votes(previous_round));
+		} else if (round_name == Constants.FINAL_VOTE) {
+			write_message(Constants.VOTES, current_game.get_votes(previous_round));
+//			int diff_to_candidate = player.getIdeal_point() - 
+			// FIXME send payoffs + winner? + end of game message
+		} 
 	}
 }

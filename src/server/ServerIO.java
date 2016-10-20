@@ -25,15 +25,10 @@ public class ServerIO {
 	private static ServerSocket socket;
 	@SuppressWarnings("unused")
 	private static ServerGUI gui;
-	//	private HashMap<Integer, ServerIOHandler> clientHandlers; // FIXME
-	//	private HashMap<Integer, Socket> clientSockets;
 
 	public ServerIO(Game[] games) {
 		this.pcs = new PropertyChangeSupport(this);
 		gui = new ServerGUI(pcs, games.length); // FIXME close gui if socket fails
-
-		//		this.clientHandlers = new HashMap<Integer, ServerIOHandler>(); FIXME
-		//		this.clientSockets = new HashMap<Integer, Socket>();
 		this.model = new Model(games, pcs); // FIXME catch errors?
 	}
 
@@ -72,8 +67,6 @@ public class ServerIO {
 			public void run() {
 				ServerIOHandler serverIOHandler = new ServerIOHandler(model, pcs, clientSocket);
 				serverIOHandler.handleIO();
-				//				clientHandlers.put(serverIOHandler.getPlayerNum(), serverIOHandler); FIXME
-				//				clientSockets.put(serverIOHandler.getPlayerNum(), clientSocket);
 			}
 		};
 		thread.start();

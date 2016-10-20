@@ -43,6 +43,7 @@ public class ConfigReader {
 				// Read each game into a game object
 				while ((line = reader.readLine()) != null && !line.isEmpty()) { 
 					Game game = read_game(reader);
+					game.set_payoff_equation(payoff_multiplier, payoff_intercept);
 					games.add(game);
 				}
 			} catch (Exception e) {

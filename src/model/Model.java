@@ -27,8 +27,8 @@ public class Model {
 		this.pcs = pcs;
 		this.pcs.addPropertyChangeListener(new ChangeListener());
 		this.num_games = games.length;
-		this.current_game = 0;
-		 this.current_round_index = 0;
+		this.current_game = -1;
+		 this.current_round_index = Constants.LIST_OF_ROUNDS.length-1;
 		this.games = games;
 		this.next_player_num = 0;
 		this.players = new ArrayList<Player>();
@@ -44,20 +44,8 @@ public class Model {
 	}
 	
 	public synchronized void init_player(Player player) {
-		Distribution dist = games[current_game].getDistribution();
-		int[] cdf = dist.getCDF();
-		
-		int ideal_point = 100;
+		int ideal_point = get_ideal_point();
 		char party;
-		
-		int sum = cdf[cdf.length-1];
-		int random_point = new Random().nextInt(sum); 
-		for (int i=0; i<cdf.length; i++) {
-			if (cdf[i] > random_point) {
-				ideal_point = i-1; // FIXME corner cases?
-				break;
-			}
-		}
 		if (ideal_point < 50) {
 			party = Constants.Party_2;
 		} else {
@@ -66,14 +54,19 @@ public class Model {
 		player.setPlayerInfo(ideal_point, party);
 	}
 	
-	public synchronized void set_player_done(Player player) {
-		player.setDone(true);
-		for (Player p : players) {
-			if (!p.isDone()) {
-				return;
+	public synchronized int get_ideal_point() {
+		Distribution dist = games[current_game].getDistribution();
+		int[] cdf = dist.getCDF();
+		int ideal_point = 100;
+		int sum = cdf[cdf.length-1];
+		int random_point = new Random().nextInt(sum); 
+		for (int i=0; i<cdf.length; i++) {
+			if (cdf[i] > random_point) {
+				ideal_point = i-1; // FIXME corner cases?
+				break;
 			}
 		}
-		end_round(); // Ends round if all players are done
+		return ideal_point;
 	}
 	
 	// ------------------------- Candidate Stuff ------------------------------ //
@@ -107,7 +100,8 @@ public class Model {
 	}
 	
 	public synchronized boolean game_started() {
-		if (current_round_index == 0) {
+		if (Constants.LIST_OF_ROUNDS[current_round_index]
+				== Constants.NOT_STARTED) {
 			return false;
 		} else {
 			return true;
@@ -122,11 +116,19 @@ public class Model {
 		return Constants.LIST_OF_ROUNDS[current_round_index];
 	}
 	
-	public synchronized void end_round() {
-		Game game = get_current_game();
-		pcs.firePropertyChange(Constants.ROUND_OVER, current_round_index, game);
-		increment_round();
+	public synchronized void attempt_end_round() {
 		for (Player p : players) {
+			if (!p.isDone()) {
+				return;
+			}
+		}
+		end_round(); // Ends round if all players are done
+	}
+	
+	public synchronized void end_round() {
+		pcs.firePropertyChange(Constants.ROUND_OVER, current_round_index, get_current_game());
+		increment_round();
+		for (Player p : players) { // reset players
 			p.setDone(false);
 		}
 	}
@@ -134,22 +136,18 @@ public class Model {
 	public synchronized void increment_round() {
 		int previous_round_index = current_round_index;
 		current_round_index++;
-		// Overflow round if there are games left
+		// Skip edge rounds if there are more games
 		if (current_game < num_games) {
-			current_round_index %= Constants.LIST_OF_ROUNDS.length - 1;
+			current_round_index %= Constants.LIST_OF_ROUNDS.length - 2; // FIXME simplify
 		}
 		// If round overflowed then there is a new game
 		if (current_round_index < previous_round_index) {
-			current_round_index++; // Skip over first if it overflowed
+			current_round_index = 0;
 			current_game++;
+			// FIXME what changes to fire if all games are over
 			pcs.firePropertyChange(Constants.NEW_GAME, current_game, null);
-			// FIXME simplify this method
 		}
-		if (current_round_index == Constants.LIST_OF_ROUNDS.length-1) {
-			// End games
-		} else {
-			pcs.firePropertyChange(Constants.NEW_ROUND, current_round_index, null);
-		}
+		pcs.firePropertyChange(Constants.NEW_ROUND, current_round_index, null);
 	}
 	
 	// ------------------------- Listener Stuff ------------------------------ //

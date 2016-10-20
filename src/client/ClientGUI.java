@@ -62,6 +62,7 @@ public class ClientGUI extends JFrame {
 	private JTable action_table;
 	private JScrollPane action_table_pane;
 	private ChartPanel chart;
+	private ValueMarker marker;
 	private JPanel end_round_panel;
 	
 	// Table data
@@ -124,7 +125,7 @@ public class ClientGUI extends JFrame {
 	// -------------------------------------- Setters ----------------------------------------- //
 	
 	public void set_start_info(int[] start_info) {
-		player_number_change.setText(Integer.toString(start_info[0])); 
+		player_number_change.setText(Integer.toString(start_info[0] + 1)); // Make num readable
 		num_games_change.setText(Integer.toString(start_info[1]));
 	}
 	
@@ -137,7 +138,9 @@ public class ClientGUI extends JFrame {
 	}
 	
 	public void set_game_info(int[] game_info) {
-		current_game_change.setText(Integer.toString(game_info[0]));
+		// TODO clear chart at start of each game
+		chart.removeAll();
+		current_game_change.setText(Integer.toString(game_info[0] + 1));
 		budget_change.setText(Integer.toString(game_info[1]));
 	}
 	
@@ -185,7 +188,7 @@ public class ClientGUI extends JFrame {
 	 * Given candidate #'s and parties, sets them in a chart and tables
 	 * @param candidates - array with alternating candidate #s and parties
 	 */
-	public void add_candidates(int[] candidates, int party) {
+	public void add_candidates(int[] candidates, int party) { // FIXME not adding to graph correctly
 		for (int i=0; i<candidates.length; i+=2) {
 			int candidate_number = candidates[i];
 			add_candidate_data(Constants.ZERO_TOKENS, candidate_number);
@@ -234,7 +237,8 @@ public class ClientGUI extends JFrame {
 	 * @param ideal_point - the point on the x axis to put the line
 	 */
 	private void add_marker(int ideal_point) {
-		ValueMarker marker = new ValueMarker(ideal_point); // Sets the marker at x position ideal_point
+		chart.getChart().getXYPlot().removeDomainMarker(marker);
+		marker = new ValueMarker(ideal_point); // Sets the marker at x position ideal_point
 		marker.setPaint(Color.BLACK);
 		marker.setLabel("You"); // Adds a label next to the marker
 		marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
@@ -270,7 +274,7 @@ public class ClientGUI extends JFrame {
 		IntervalXYDataset chart_dataset = ChartCreator.create_dataset(candidate_data, dataset_name);
 		chart.getChart().getXYPlot().setDataset(dataset_position, chart_dataset); 
 
-		Color dataset_color = Constants.GRAPH_GOLORS[candidate_number]; // FIXME pick from a list
+		Color dataset_color = Constants.GRAPH_GOLORS[candidate_number]; 
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(); 
 		renderer.setSeriesShapesVisible(0, false);
 		renderer.setSeriesPaint(0, dataset_color);
@@ -314,7 +318,7 @@ public class ClientGUI extends JFrame {
 		
 		Label winnings_fixed = new Label("Winnings: ", Label.RIGHT);
 		winnings_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
-		winnings_change = new Label("--");
+		winnings_change = new Label("0");
 		winnings_change.setFont(Constants.MEDIUM_LABEL);
 		JPanel winnings = new JPanel();
 		winnings.add(winnings_fixed);

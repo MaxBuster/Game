@@ -26,13 +26,13 @@ public class Constants {
 	public static final String FINAL_VOTE = "Final Vote";
 
 	// Edge rounds
-	public static final String NOT_STARTED = "Not Started";
 	public static final String ALL_FINISHED = "All Finished";
+	public static final String NOT_STARTED = "Not Started";
 
 	// Round List
 	public static final String[] LIST_OF_ROUNDS = new String[]{
-			NOT_STARTED, FIRST_BUY, STRAW_VOTE,
-			FIRST_VOTE, SECOND_BUY, FINAL_VOTE, ALL_FINISHED
+			FIRST_BUY, STRAW_VOTE, FIRST_VOTE, SECOND_BUY, 
+			FINAL_VOTE, ALL_FINISHED, NOT_STARTED
 	}; 
 
 	// Return codes
