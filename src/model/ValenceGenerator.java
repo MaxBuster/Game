@@ -2,10 +2,10 @@ package model;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
 
-public class PayoffGenerator {
+public class ValenceGenerator {
 	NormalDistribution dist;
 	
-	public PayoffGenerator(double mean, double std_dev) {
+	public ValenceGenerator(double mean, double std_dev) {
 		dist = new NormalDistribution(mean, std_dev);
 	}
 	

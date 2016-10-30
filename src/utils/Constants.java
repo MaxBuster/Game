@@ -27,12 +27,11 @@ public class Constants {
 
 	// Edge rounds
 	public static final String ALL_FINISHED = "All Finished";
-	public static final String NOT_STARTED = "Not Started";
+	public static final int NOT_STARTED = -1;
 
 	// Round List
 	public static final String[] LIST_OF_ROUNDS = new String[]{
-			FIRST_BUY, STRAW_VOTE, FIRST_VOTE, SECOND_BUY, 
-			FINAL_VOTE, ALL_FINISHED, NOT_STARTED
+			FIRST_BUY, STRAW_VOTE, FIRST_VOTE, SECOND_BUY, FINAL_VOTE
 	}; 
 
 	// Return codes
@@ -44,6 +43,7 @@ public class Constants {
 	public static final String END_GAME = "End Game";
 	public static final String WRITE_DATA = "Write Data";
 	public static final String NEW_PLAYER = "New Player";
+	public static final String END_ALL_GAMES = "End All Games";
 
 	// Message Types
 	public static final int MESSAGE_START = -1;
@@ -56,10 +56,14 @@ public class Constants {
 	public static final int WINNINGS = 7;
 	public static final int TOKENS = 8;
 	public static final int VOTES = 9;
+	public static final int END_OF_GAME = 10;
 	
 	public static final int REQUEST_INFO = 20;
 	public static final int END_ROUND = 21;
 	public static final int VOTE = 22;
+	
+	// Empty Message
+	public static final int[] EMPTY_MESSAGE = new int[0];
 
 	// Fonts
 	public static final Font BIG_BOLD_LABEL = new Font("Serif", Font.BOLD, 30);

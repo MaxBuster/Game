@@ -27,8 +27,8 @@ public class Model {
 		this.pcs = pcs;
 		this.pcs.addPropertyChangeListener(new ChangeListener());
 		this.num_games = games.length;
-		this.current_game = -1;
-		this.current_round_index = Constants.LIST_OF_ROUNDS.length-1;
+		this.current_game = Constants.NOT_STARTED;
+		this.current_round_index = Constants.LIST_OF_ROUNDS.length - 1; // This allows a new game to start
 		this.games = games;
 		this.next_player_num = 0;
 		this.players = new ArrayList<Player>();
@@ -51,7 +51,8 @@ public class Model {
 		for (int i=0; i<num_games; i++) {
 			valences[i] = get_payoff_valence();
 		}
-		player.setPlayerInfo(ideal_point, valences);
+		int budget = get_current_game().getBudget();
+		player.setPlayerInfo(ideal_point, valences, budget);
 	}
 	
 	public synchronized int get_ideal_point() {
@@ -100,8 +101,7 @@ public class Model {
 	}
 	
 	public synchronized boolean game_started() {
-		if (Constants.LIST_OF_ROUNDS[current_round_index]
-				== Constants.NOT_STARTED) {
+		if (current_game == Constants.NOT_STARTED) { 
 			return false;
 		} else {
 			return true;
@@ -114,7 +114,7 @@ public class Model {
 	 */
 	public int get_payoff_valence() {
 		int[] payoff_dist = get_current_game().get_payoff_dist();
-		PayoffGenerator generator = new PayoffGenerator(payoff_dist[0], payoff_dist[1]);
+		ValenceGenerator generator = new ValenceGenerator(payoff_dist[0], payoff_dist[1]);
 		int valence = (int) generator.get_payoff(); // FIXME truncate if too low or too high
 		return valence;
 	}
@@ -147,16 +147,16 @@ public class Model {
 	public synchronized void increment_round() {
 		int previous_round_index = current_round_index;
 		current_round_index++;
-		// Skip edge rounds if there are more games
-		if (current_game < num_games) {
-			current_round_index %= Constants.LIST_OF_ROUNDS.length - 2; // FIXME simplify
-		}
-		// If round overflowed then there is a new game
+		current_round_index %= Constants.LIST_OF_ROUNDS.length; 
+		
 		if (current_round_index < previous_round_index) {
-			current_round_index = 0;
-			current_game++;
-			// FIXME what changes to fire if all games are over
-			pcs.firePropertyChange(Constants.NEW_GAME, current_game, null);
+			if (current_game < num_games - 1) {
+				current_game++;
+				pcs.firePropertyChange(Constants.NEW_GAME, current_game, null);
+			} else {
+				pcs.firePropertyChange(Constants.END_ALL_GAMES, null, null);
+				return;
+			}
 		}
 		pcs.firePropertyChange(Constants.NEW_ROUND, current_round_index, null);
 	}

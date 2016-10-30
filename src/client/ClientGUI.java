@@ -179,6 +179,12 @@ public class ClientGUI extends JFrame {
 		}
 	}
 	
+	public void end_game() {
+		set_info_text(Info.FINISHED);
+		set_visible_panels(Constants.END_GAME_VISIBILITY);
+		// TODO add popup with winnings and ending message, show player num, hide other game info
+	}
+	
 	private void set_info_text(String text) {
 		info_block.setText(text);
 	}
@@ -208,6 +214,7 @@ public class ClientGUI extends JFrame {
 		} else if (round == Constants.FIRST_VOTE) {
 			position = 4;
 		} else {
+			// FIXME set visibles
 			return;
 		}
 		for (int i=0; i<votes.length-1; i+=2) {

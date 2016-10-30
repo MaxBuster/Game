@@ -25,10 +25,10 @@ import utils.Constants;
 public class ServerIOHandler {
 	private Model model;
 	private PropertyChangeSupport pcs;
-	private Player player;
-	private PlayerPurchasedInfo info;
 	private DataInputStream in;
 	private DataOutputStream out;
+	private Player player;
+	private PlayerPurchasedInfo info;
 
 	public ServerIOHandler(Model model, PropertyChangeSupport pcs, Socket socket) {
 		this.model = model;
@@ -61,6 +61,7 @@ public class ServerIOHandler {
 				int[] message = read_message();
 				switch(type) {
 				case Constants.REQUEST_INFO:
+					player.subtract_budget(message[1]);
 					get_token(message);
 					break;
 				case Constants.END_ROUND:
@@ -216,19 +217,25 @@ public class ServerIOHandler {
 				write_message(Constants.ROUND_NUMBER, new int[]{round_pos});
 			} else if (event == Constants.NEW_GAME) {
 				start_new_game(); 
+			} else if (event == Constants.END_ALL_GAMES) {
+				write_winnings();
+				write_message(Constants.END_OF_GAME, Constants.EMPTY_MESSAGE);
 			}
 		}
 	}
 	
+	/**
+	 * Writes the vote outcomes if the previous round was a vote or just returns otherwise
+	 */
 	private void write_votes(int previous_round, String round_name, Game current_game) {
 		if (round_name == Constants.STRAW_VOTE) {
 			write_message(Constants.VOTES, current_game.get_votes(previous_round));
 		} else if (round_name == Constants.FIRST_VOTE) {
 			write_message(Constants.VOTES, current_game.get_votes(previous_round));
 		} else if (round_name == Constants.FINAL_VOTE) {
+			// FIXME set winnings?
+			write_winnings();
 			write_message(Constants.VOTES, current_game.get_votes(previous_round));
-//			int diff_to_candidate = player.getIdeal_point() - 
-			// FIXME send payoffs + winner? + end of game message
 		} else {
 			return;
 		}

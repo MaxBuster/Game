@@ -221,7 +221,8 @@ public class ServerGUI extends JFrame {
 			} else if (event == Constants.NEW_PLAYER) {
 				int player_num = (Integer) PCE.getOldValue();
 				add_player_to_table(player_num);
-				// TODO add player to gui with button to remove
+			} else if (event == Constants.END_ALL_GAMES) {
+				// TODO write data, freeze controls
 			}
 		}
 	}

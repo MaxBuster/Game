@@ -8,6 +8,7 @@ public class Player {
 	private int[] payoffs; // FIXME what for?
 	private boolean done_with_round;
 	private int[] valences;
+	private int budget;
 	
 	public Player(int player_number, int num_games) {
 		this.player_number = player_number;
@@ -15,11 +16,13 @@ public class Player {
 		payoffs = new int[num_games];
 		winnings = 0;
 		done_with_round = false;
+		budget = 0;
 	}
 	
-	public void setPlayerInfo(int ideal_point, int[] valences) {
+	public void setPlayerInfo(int ideal_point, int[] valences, int budget) {
 		this.ideal_point = ideal_point;
 		this.valences = valences;
+		this.budget = budget;
 	}
 	
 	public int get_valence_for_cand(int candidate_num) {
@@ -56,5 +59,13 @@ public class Player {
 	
 	public synchronized boolean isDone() {
 		return this.done_with_round;
+	}
+	
+	public void subtract_budget(int price) {
+		budget -= price;
+	}
+	
+	public int get_budget() {
+		return budget;
 	}
 }

@@ -87,14 +87,9 @@ public class ClientIOHandler {
 						// TODO final - wait to update gui, show popup
 						gui.add_votes(message);
 						break;
-						
-					/*
-					 * TODO
-					 * Game over
-					 * All games over
-					 * Removed from game
-					 */
-						
+					case Constants.END_OF_GAME:
+						gui.end_game();
+						break;
 					default: break;
 				}
 			} catch (IOException e) {
@@ -149,7 +144,7 @@ public class ClientIOHandler {
 				if (price <= budget) {
 					budget -= price;
 					gui.set_budget(budget);
-					int[] message = new int[]{candidate_num};
+					int[] message = new int[]{candidate_num, price};
 					write_message(Constants.REQUEST_INFO, message);
 				} else {
 					JOptionPane.showMessageDialog(null, "Insufficient Funds.");
