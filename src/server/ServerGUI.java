@@ -33,21 +33,11 @@ public class ServerGUI extends JFrame {
 	private JPanel content;
 	
 	private JTable player_table;
-	private String[] player_table_column_names;
 	private Object[][] player_table_data;
 	
 	// Changeable labels
 	private Label current_game_change;
 	private Label current_round_change;
-	
-	/**
-	 * TODO:
-	 * Update table on player removed/added
-	 * 
-	 * Style:
-	 * Change text, buttons background style
-	 * Change spacing so it doesn't fit width
-	 */
 	
 	/**
 	 * Initialize the UI with all the needed components
@@ -56,14 +46,14 @@ public class ServerGUI extends JFrame {
 	public ServerGUI(PropertyChangeSupport pcs, int num_games) {
 		this.pcs = pcs;
 		this.pcs.addPropertyChangeListener(new ChangeListener());
-		this.player_table_column_names = new String[]{"Player #", "Remove"}; // FIXME make constants
-		this.player_table_data = new Object[0][2];
+		this.player_table_data = new Object[0][];
 		this.content = new JPanel(new GridLayout(3, 1, 0, 5));
 		this.content.setBorder(new EmptyBorder(100, 100, 100, 100));
 		add_game_label_panel(num_games);
 		add_game_controls_panel();
 		add_players_table();
 		setContentPane(this.content);
+		set_players_table();
 				
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
@@ -158,7 +148,11 @@ public class ServerGUI extends JFrame {
 		panel.repaint();
 	}
 	
-	private void set_players_table(final String[] headers, String[][] data) {
+	
+	
+	private void set_players_table() {
+		final String[] headers = Constants.PLAYER_HEADERS;
+		Object[][] data = player_table_data;
 		DefaultTableModel player_table_model = new DefaultTableModel(data, headers) {
 			private static final long serialVersionUID = 1L;
 
@@ -190,6 +184,30 @@ public class ServerGUI extends JFrame {
 		content.add(scroll_table);
 	}
 	
+	/**
+	 * Add a row to the player table to remove that player
+	 */
+	private void add_player_to_table(int player_num) {
+		int player_visible_num = player_num + 1;
+		String player_string = Integer.toString(player_visible_num);
+		String[] player_row = new String[]{player_string, "Remove"};
+		int current_length = player_table_data.length;
+		add_row_to_table();
+		player_table_data[current_length] = player_row;
+		set_players_table();
+	}
+	
+	/**
+	 * Extend table by a row
+	 */
+	private void add_row_to_table() {
+		Object[][] extended_data = new Object[player_table_data.length+1][];
+		for (int i=0; i<player_table_data.length; i++) {
+			extended_data[i] = player_table_data[i];
+		}
+		player_table_data = extended_data;
+	}
+	
 	class ChangeListener implements PropertyChangeListener {
 		@Override
 		public void propertyChange(PropertyChangeEvent PCE) {
@@ -200,6 +218,10 @@ public class ServerGUI extends JFrame {
 				current_game_change.setText(Integer.toString(current_game_viewable));
 			} else if (event == Constants.NEW_ROUND) {
 				current_round_change.setText(Constants.LIST_OF_ROUNDS[(Integer) PCE.getOldValue()]);
+			} else if (event == Constants.NEW_PLAYER) {
+				int player_num = (Integer) PCE.getOldValue();
+				add_player_to_table(player_num);
+				// TODO add player to gui with button to remove
 			}
 		}
 	}

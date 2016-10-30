@@ -18,11 +18,11 @@ public class Game_Tests {
 
 	@Before
 	public void setUp() throws Exception {
-		Candidate candidate = new Candidate(1, 'R', 45);
+		Candidate candidate = new Candidate(1, 45);
 		HashMap<Integer, Candidate> candidates = new HashMap<Integer, Candidate>();
 		candidates.put(candidate.get_candidate_number(), candidate);
 		Distribution dist = new Distribution(new int[]{15, 5, 80, 10});
-		game = new Game(1, candidates, dist, 100);
+		game = new Game(1, candidates, dist, 100, new int[]{});
 	}
 
 	@After

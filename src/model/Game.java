@@ -18,19 +18,27 @@ public class Game {
 	private int payoff_multiplier;
 	private int payoff_intercept;
 	
+	private int[] payoff_dist;
+	
 	public Game(int game_number, 
 				HashMap<Integer, Candidate> candidates, 
 				Distribution distribution, 
-				int budget) {
+				int budget,
+				int[] payoff_dist) {
 		this.game_number = game_number;
 		this.candidates = candidates;
 		this.distribution = distribution;
 		this.budget = budget;
+		this.payoff_dist = payoff_dist;
 	}
 	
 	public void set_payoff_equation(int payoff_multiplier, int payoff_intercept) {
 		this.payoff_multiplier = payoff_multiplier;
 		this.payoff_intercept = payoff_intercept;
+	}
+	
+	public int[] get_payoff_dist() {
+		return payoff_dist;
 	}
 	
 	/**

@@ -3,11 +3,11 @@ package model;
 public class Player {
 	private final int player_number;
 	private int ideal_point;
-	private char player_party;
 	private int winnings;
 	private PlayerPurchasedInfo ppi;
-	private int[] payoffs;
+	private int[] payoffs; // FIXME what for?
 	private boolean done_with_round;
+	private int[] valences;
 	
 	public Player(int player_number, int num_games) {
 		this.player_number = player_number;
@@ -17,9 +17,13 @@ public class Player {
 		done_with_round = false;
 	}
 	
-	public void setPlayerInfo(int ideal_point, char player_party) {
+	public void setPlayerInfo(int ideal_point, int[] valences) {
 		this.ideal_point = ideal_point;
-		this.player_party = player_party;
+		this.valences = valences;
+	}
+	
+	public int get_valence_for_cand(int candidate_num) {
+		return valences[candidate_num];
 	}
 
 	public int getPlayer_number() {
@@ -28,10 +32,6 @@ public class Player {
 
 	public int getIdeal_point() {
 		return ideal_point;
-	}
-
-	public char getPlayer_party() {
-		return player_party;
 	}
 
 	public PlayerPurchasedInfo getPpi() {

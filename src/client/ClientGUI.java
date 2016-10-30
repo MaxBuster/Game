@@ -7,6 +7,7 @@ import java.awt.Insets;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeSupport;
 
 import javax.swing.BorderFactory;
@@ -23,6 +24,7 @@ import javax.swing.table.DefaultTableModel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.ValueMarker;
+import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.ui.TextAnchor;
@@ -45,7 +47,6 @@ public class ClientGUI extends JFrame {
 	
 	// All player labels
 	private Label player_number_change;
-	private Label player_party_change;
 	private Label ideal_point_change;
 	private Label budget_change;
 	
@@ -130,9 +131,7 @@ public class ClientGUI extends JFrame {
 	}
 	
 	public void set_player_info(int[] player_info) {
-		String party_name = (player_info[0] == Constants.PARTY_1) ? Constants.PARTY_1_NAME : Constants.Party_2_NAME;
-		player_party_change.setText(party_name);
-		int ideal_point = player_info[1];
+		int ideal_point = player_info[0]; 
 		ideal_point_change.setText(Integer.toString(ideal_point));
 		add_marker(ideal_point);
 	}
@@ -188,13 +187,15 @@ public class ClientGUI extends JFrame {
 	 * Given candidate #'s and parties, sets them in a chart and tables
 	 * @param candidates - array with alternating candidate #s and parties
 	 */
-	public void add_candidates(int[] candidates, int party) { // FIXME not adding to graph correctly
+	public void add_candidates(int[] candidates, int ideal_pt) { // FIXME not adding to graph correctly
 		for (int i=0; i<candidates.length; i+=2) {
 			int candidate_number = candidates[i];
-			add_candidate_data(Constants.ZERO_TOKENS, candidate_number);
+			int candidate_ideal_pt = candidates[i+1];
+			// FIXME only add an ideal pt marker
+//			add_candidate_data_to_graph(Constants.ZERO_TOKENS, candidate_number);
 		}
-		info_table_data = TableGenerator.generate_info_table(candidates);
-		buy_table_data = TableGenerator.generate_buy_table(candidates, party);
+		info_table_data = TableGenerator.generate_info_table(candidates, ideal_pt);
+		buy_table_data = TableGenerator.generate_buy_table(candidates);
 		vote_table_data = TableGenerator.generate_vote_table(candidates); 
 	}
 	
@@ -206,8 +207,6 @@ public class ClientGUI extends JFrame {
 			position = 3;
 		} else if (round == Constants.FIRST_VOTE) {
 			position = 4;
-		} else if (round == Constants.FINAL_VOTE) {
-			position = 5;
 		} else {
 			return;
 		}
@@ -220,6 +219,7 @@ public class ClientGUI extends JFrame {
 	
 	/**
 	 * Updates info in the candidate table
+	 * FIXME set expected payoff not info
 	 */
 	public void update_candidate_info(int candidate_number, int position, String info) {
 		int candidate_viewable = candidate_number + 1;
@@ -243,13 +243,20 @@ public class ClientGUI extends JFrame {
 		marker.setLabel("You"); // Adds a label next to the marker
 		marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
 		chart.getChart().getXYPlot().addDomainMarker(marker);
+		
+		
+		
+//		XYPlot plot = (XYPlot) chart.getChart().getPlot();
+//		XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
+//		renderer.setSeriesShapesVisible( 0, true );
+//		renderer.setSeriesShape( 0, new Rectangle2D.Double( ideal_point, 0, 2, 10 ) );
 	}
 	
 	/**
 	 * Given a voter distribution (mean1, std dev1, mean2, std dev2), it generates the data
 	 * to graph the distribution and adds the generated data as a line to the chart
 	 */
-	public void add_voter_data(int[] voter_dist) {
+	public void add_voter_data_to_graph(int[] voter_dist) {
 		int dataset_position = 0;
 		String dataset_name = "Voters";
 		double[] voter_data = VoterDistributionGenerator.generate_data(voter_dist);
@@ -263,28 +270,30 @@ public class ClientGUI extends JFrame {
 		chart.getChart().getXYPlot().setRenderer(dataset_position, renderer);
 	}
 
-	/**
-	 * Given candidate beta information, this generates the data to show the candidate expectations on 
-	 * the graph and adds that data as a line on the graph
-	 */
-	public void add_candidate_data(int[] candidate_tokens, int candidate_number) {
-		int dataset_position = candidate_number + 1; 
-		String dataset_name = "Candidate " + dataset_position;
-		double[] candidate_data = CandidateDistributionGenerator.generate_data(candidate_tokens);
-		IntervalXYDataset chart_dataset = ChartCreator.create_dataset(candidate_data, dataset_name);
-		chart.getChart().getXYPlot().setDataset(dataset_position, chart_dataset); 
-
-		Color dataset_color = Constants.GRAPH_GOLORS[candidate_number]; 
-		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(); 
-		renderer.setSeriesShapesVisible(0, false);
-		renderer.setSeriesPaint(0, dataset_color);
-		chart.getChart().getXYPlot().setRenderer(dataset_position, renderer);
-	}
+//	/**
+//	 * Given candidate beta information, this generates the data to show the candidate expectations on 
+//	 * the graph and adds that data as a line on the graph
+//	 * FIXME no distribution, just the marker
+//	 */
+//	public void add_candidate_data_to_graph(int[] candidate_tokens, int candidate_number) {
+//		int dataset_position = candidate_number + 1; 
+//		String dataset_name = "Candidate " + dataset_position;
+//		double[] candidate_data = CandidateDistributionGenerator.generate_data(candidate_tokens);
+//		IntervalXYDataset chart_dataset = ChartCreator.create_dataset(candidate_data, dataset_name);
+//		chart.getChart().getXYPlot().setDataset(dataset_position, chart_dataset); 
+//
+//		Color dataset_color = Constants.GRAPH_GOLORS[candidate_number]; 
+//		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer(); 
+//		renderer.setSeriesShapesVisible(0, false);
+//		renderer.setSeriesPaint(0, dataset_color);
+//		chart.getChart().getXYPlot().setRenderer(dataset_position, renderer);
+//	}
 	
-	public void update_candidate_expected_point(int[] candidate_info) {
-		int expected_value = ((candidate_info[0]+1)*100)/(candidate_info[1]+2);
-		update_candidate_info(candidate_info[2], 2, Integer.toString(expected_value));
-	}
+//	FIXME update expected value of payoffs
+//	public void update_candidate_expected_point(int[] candidate_info) {
+//		int expected_value = ((candidate_info[0]+1)*100)/(candidate_info[1]+2);
+//		update_candidate_info(candidate_info[2], 2, Integer.toString(expected_value));
+//	}
 
 	// -------------------------------------- Add panes ----------------------------------------- //
 	
@@ -351,14 +360,6 @@ public class ClientGUI extends JFrame {
 		player_number.add(player_number_fixed);
 		player_number.add(player_number_change);
 		
-		Label player_party_fixed = new Label("Party: ", Label.RIGHT);
-		player_party_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
-		player_party_change = new Label("--");
-		player_party_change.setFont(Constants.MEDIUM_LABEL);
-		JPanel player_party = new JPanel();
-		player_party.add(player_party_fixed);
-		player_party.add(player_party_change);
-		
 		Label ideal_point_fixed = new Label("Ideal Point: ", Label.RIGHT);
 		ideal_point_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
 		ideal_point_change = new Label("--");
@@ -382,7 +383,6 @@ public class ClientGUI extends JFrame {
                 TitledBorder.CENTER,
                 TitledBorder.TOP));
 		player_label_panel.add(player_number);
-		player_label_panel.add(player_party);
 		player_label_panel.add(ideal_point);
 		player_label_panel.add(budget);
 		
@@ -412,6 +412,7 @@ public class ClientGUI extends JFrame {
 	 */
 	private JScrollPane add_info_table() {
 		info_table = new JTable(null);
+		info_table.getTableHeader().setReorderingAllowed(false);
 		JScrollPane info_table_scroller = new JScrollPane(info_table);
 		info_table_scroller.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(),
@@ -441,6 +442,7 @@ public class ClientGUI extends JFrame {
 	 */
 	private JScrollPane add_action_table() {
 		action_table = new JTable(null);
+		action_table.getTableHeader().setReorderingAllowed(false);
 		JScrollPane action_table_scroller = new JScrollPane(action_table);
 		action_table_scroller.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(),
@@ -513,9 +515,9 @@ public class ClientGUI extends JFrame {
 		gui.set_start_info(new int[]{5, 2}); // Player 5, 2 games
 		gui.set_player_info(new int[]{2, 23}); // Party 2, Ideal Point 23
 		gui.set_game_info(new int[]{1, 80, 3}); // Game 1, 80 Budget, 3 Candidates
-		gui.add_voter_data(new int[]{40, 5, 80, 5});
-		gui.add_candidates(new int[]{0, 1, 1, 2}, 2); // 2 candidates
-		gui.add_candidate_data(new int[]{3, 2}, 1);
+		gui.add_voter_data_to_graph(new int[]{40, 5, 80, 5});
+//		gui.add_candidates(new int[]{0, 1, 1, 2}, 2, 23); // 2 candidates
+//		gui.add_candidate_data_to_graph(new int[]{3, 2}, 1);
 		gui.update_candidate_info(0, 4, "50%");
 		sleep(3000);
 	}

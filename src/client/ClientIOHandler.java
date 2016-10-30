@@ -24,7 +24,7 @@ public class ClientIOHandler {
 	private DataOutputStream out;
 	private ClientGUI gui;
 	private int budget;
-	private int party;
+	private int ideal_pt;
 
 	public ClientIOHandler(Socket socket) {
 		pcs = new PropertyChangeSupport(this);
@@ -38,7 +38,7 @@ public class ClientIOHandler {
 		}
 		gui = new ClientGUI(pcs);
 		budget = 0;
-		party = -1;
+		ideal_pt = -1;
 	}
 
 	/**
@@ -60,17 +60,17 @@ public class ClientIOHandler {
 						break;
 					case Constants.PLAYER_INFO:
 						gui.set_player_info(message);
-						party = message[0];
+						ideal_pt = message[0];
 						break;
 					case Constants.GAME_INFO:
 						gui.set_game_info(message);
 						budget = message[1];
 						break;
 					case Constants.VOTER_DIST:
-						gui.add_voter_data(message);
+						gui.add_voter_data_to_graph(message);
 						break;
 					case Constants.ALL_CANDIDATES:
-						gui.add_candidates(message, party);
+						gui.add_candidates(message, ideal_pt);
 						break;
 					case Constants.ROUND_NUMBER:
 						gui.set_round(message);
@@ -79,8 +79,8 @@ public class ClientIOHandler {
 						gui.set_winnings(message);
 						break;
 					case Constants.TOKENS:
-						gui.add_candidate_data(message, message[2]);
-						gui.update_candidate_expected_point(message);
+//						gui.add_candidate_data_to_graph(message, message[2]);
+//						gui.update_candidate_expected_point(message);
 						break;
 					case Constants.VOTES:
 						// TODO if first get rid of two, if final show winnings

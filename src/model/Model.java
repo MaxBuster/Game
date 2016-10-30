@@ -28,7 +28,7 @@ public class Model {
 		this.pcs.addPropertyChangeListener(new ChangeListener());
 		this.num_games = games.length;
 		this.current_game = -1;
-		 this.current_round_index = Constants.LIST_OF_ROUNDS.length-1;
+		this.current_round_index = Constants.LIST_OF_ROUNDS.length-1;
 		this.games = games;
 		this.next_player_num = 0;
 		this.players = new ArrayList<Player>();
@@ -40,18 +40,18 @@ public class Model {
 		Player player = new Player(next_player_num, games.length);
 		players.add(player);
 		next_player_num++;
+		pcs.firePropertyChange(Constants.NEW_PLAYER, player.getPlayer_number(), null);
 		return player;
 	}
 	
 	public synchronized void init_player(Player player) {
 		int ideal_point = get_ideal_point();
-		char party;
-		if (ideal_point < 50) {
-			party = Constants.Party_2;
-		} else {
-			party = Constants.PARTY_1;
+		int num_games = get_current_game().getCandidates().size();
+		int[] valences = new int[num_games];
+		for (int i=0; i<num_games; i++) {
+			valences[i] = get_payoff_valence();
 		}
-		player.setPlayerInfo(ideal_point, party);
+		player.setPlayerInfo(ideal_point, valences);
 	}
 	
 	public synchronized int get_ideal_point() {
@@ -106,6 +106,17 @@ public class Model {
 		} else {
 			return true;
 		}
+	}
+	
+	/**
+	 * Use the distribution of valences from the game's config to 
+	 * generate a new valence
+	 */
+	public int get_payoff_valence() {
+		int[] payoff_dist = get_current_game().get_payoff_dist();
+		PayoffGenerator generator = new PayoffGenerator(payoff_dist[0], payoff_dist[1]);
+		int valence = (int) generator.get_payoff(); // FIXME truncate if too low or too high
+		return valence;
 	}
 	
 	public synchronized int get_current_round_index() {

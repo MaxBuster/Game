@@ -84,27 +84,27 @@ public class ConfigReader {
 	 */
 	private Game read_game(BufferedReader reader) throws Exception {
 		String candidate_points = reader.readLine();
-		String candidate_parties = reader.readLine();
 		String game_distribution = reader.readLine();
 		String game_budget = reader.readLine();
+		String game_payoffs = reader.readLine();
 		
 		int[] ideal_points = parse_ints(split_string(candidate_points));
-		int[] parties = parse_ints(split_string(candidate_parties));
 		int[] distribution = parse_ints(split_string(game_distribution));
 		int budget = Integer.parseInt(game_budget);
+		int[] payoffs = parse_ints(split_string(game_payoffs));
 		
-		HashMap<Integer, Candidate> candidates = create_candidates(ideal_points, parties);
-		Game game = new Game(games.size(), candidates, new Distribution(distribution), budget);
+		HashMap<Integer, Candidate> candidates = create_candidates(ideal_points);
+		Game game = new Game(games.size(), candidates, new Distribution(distribution), budget, payoffs);
 		return game;
 	}
 	
 	/**
 	 * Create candidate objects given ideal points and parties from the config
 	 */
-	private HashMap<Integer, Candidate> create_candidates(int[] ideal_points, int[] parties) {
+	private HashMap<Integer, Candidate> create_candidates(int[] ideal_points) {
 		HashMap<Integer, Candidate> candidates = new HashMap<Integer, Candidate>();
 		for (int i=0; i<ideal_points.length; i++) {
-			Candidate candidate = new Candidate(i, parties[i], ideal_points[i]);
+			Candidate candidate = new Candidate(i, ideal_points[i]);
 			candidates.put(i, candidate);
 		}
 		return candidates;

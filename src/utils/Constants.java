@@ -39,16 +39,11 @@ public class Constants {
 	public static final int IOEXCEPTION = 1;
 	public static final int METHOD_SUCCEEDED = 0;
 
-	// Parties
-	public static final int PARTY_1 = 1;
-	public static final int Party_2 = 2;
-	public static final String PARTY_1_NAME = "D";
-	public static final String Party_2_NAME = "R";
-
 	// Server Events
 	public static final String START_GAME = "Start Game";
 	public static final String END_GAME = "End Game";
 	public static final String WRITE_DATA = "Write Data";
+	public static final String NEW_PLAYER = "New Player";
 
 	// Message Types
 	public static final int MESSAGE_START = -1;
@@ -96,7 +91,7 @@ public class Constants {
 
 	// Client table headers
 	public static final String[] INFO_TABLE_HEADERS = new String[] {
-			"Candidate #", "Party", "Best Guess", "Straw Votes", "First Round Votes", "Final Round Votes"
+			"Candidate #", "Position", "Payoff Estimate", "Straw Votes", "First Round Votes"
 	};
 	public static final String[] BUY_TABLE_HEADERS = new String[] {
 			"Candidate #", "Price", "Action"
@@ -104,10 +99,13 @@ public class Constants {
 	public static final String[] VOTE_TABLE_HEADERS = new String[] {
 			"Candidate #", "Action"	
 	};
+	
+	// Server table headers
+	public static final String[] PLAYER_HEADERS = new String[]{"Player #", "Remove"};
 
 	// Client table blank rows
-	// Order: Candidate #, Party, Best Guess, Straw Votes, First Round Votes
-	public static final String[] CLIENT_INFO_ROW = new String[]{"--", "--", "50", "--", "--", "--"};
+	// Order: Candidate #, Position, Payoff Estimate, Straw Votes, First Round Votes
+	public static final String[] CLIENT_INFO_ROW = new String[]{"--", "--", "--", "--", "--"};
 	// Order: Candidate #, Price, Buy Button
 	public static final String[] CLIENT_BUY_ROW = new String[]{"--", "--", "Buy"};
 	// Order: Candidate #, Vote Button
@@ -117,6 +115,5 @@ public class Constants {
 	public static final int[] ZERO_TOKENS = new int[]{0, 0};
 	
 	// Info Prices
-	public static final int SAME_PARTY_PRICE = 10;
-	public static final int OTHER_PARTY_PRICE = 20;
+	public static final int INFO_PRICE = 10;
 }

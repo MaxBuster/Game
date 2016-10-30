@@ -103,7 +103,7 @@ public class ServerIOHandler {
 	 */
 	private void write_player_info() {
 		int[] message = new int[] {
-				player.getPlayer_party(), player.getIdeal_point()
+				player.getIdeal_point()
 		};
 		write_message(Constants.PLAYER_INFO, message);
 	}
@@ -135,11 +135,11 @@ public class ServerIOHandler {
 	private void write_candidate_info() {
 		Game current_game = model.get_current_game();
 		HashMap<Integer, Candidate> candidates = current_game.getCandidates();
-		int[] message = new int[candidates.size() * 2]; // Room to add cand # and party for each
+		int[] message = new int[candidates.size() * 2]; // Room to add cand #, party and ideal point
 		int i = 0;
 		for (Candidate c : candidates.values()) {
 			message[i] = c.get_candidate_number();
-			message[i+1] = c.get_candidate_party(); 
+			message[i+1] = c.get_candidate_ideal_point();
 			i += 2;
 		}
 		write_message(Constants.ALL_CANDIDATES, message);
@@ -150,6 +150,7 @@ public class ServerIOHandler {
 		write_message(Constants.WINNINGS, message);
 	}
 
+	// FIXME get token based on valence
 	private void get_token(int[] request) {
 		int game = model.get_current_game().getGameNumber();
 		int candidate = request[0];
@@ -209,7 +210,7 @@ public class ServerIOHandler {
 				int previous_round = (Integer) PCE.getOldValue();
 				Game current_game = (Game) PCE.getNewValue();
 				String round_name = Constants.LIST_OF_ROUNDS[previous_round];
-				write_votes(previous_round, round_name, current_game);
+				write_votes(previous_round, round_name, current_game); // Writes votes if it was a vote round
 			} else if (event == Constants.NEW_ROUND) { // Write round num
 				int round_pos = (Integer) PCE.getOldValue();
 				write_message(Constants.ROUND_NUMBER, new int[]{round_pos});
@@ -228,6 +229,8 @@ public class ServerIOHandler {
 			write_message(Constants.VOTES, current_game.get_votes(previous_round));
 //			int diff_to_candidate = player.getIdeal_point() - 
 			// FIXME send payoffs + winner? + end of game message
-		} 
+		} else {
+			return;
+		}
 	}
 }

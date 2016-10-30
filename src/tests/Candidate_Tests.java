@@ -14,7 +14,7 @@ public class Candidate_Tests {
 
 	@Before
 	public void setUp() throws Exception {
-		this.candidate = new Candidate(1, 'R', 45);
+		this.candidate = new Candidate(1, 45);
 	}
 
 	@After
