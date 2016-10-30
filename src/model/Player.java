@@ -49,6 +49,10 @@ public class Player {
 		payoffs[gameNum] = payoff;
 	}
 	
+	public void add_winnings(int game_winnings) {
+		winnings += game_winnings;
+	}
+	
 	public int getWinnings() {
 		return winnings;
 	}

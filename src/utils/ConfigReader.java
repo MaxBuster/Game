@@ -71,11 +71,11 @@ public class ConfigReader {
 	 */
 	private void read_multipliers(BufferedReader reader) throws Exception {
 		reader.readLine(); // TODO check it is a comment
-		String payoff_intercept_string = reader.readLine();
 		String payoff_multiplier_string = reader.readLine();
-		
-		payoff_intercept = Integer.parseInt(payoff_intercept_string);
+		String payoff_intercept_string = reader.readLine();
+
 		payoff_multiplier = Integer.parseInt(payoff_multiplier_string);
+		payoff_intercept = Integer.parseInt(payoff_intercept_string);
 	}
 	
 	/**

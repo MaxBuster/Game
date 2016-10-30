@@ -8,8 +8,8 @@ public class VoteHandler {
 	
 	public static int[] get_top_x(int[] candidates_with_votes, int x) {
 		ArrayList<Pair> candidate_list = get_pairs(candidates_with_votes);
-		Collections.sort(candidate_list, new VotesComparator());
-		for (int i=candidate_list.size()-1; i>x+1; i--) {
+		Collections.sort(candidate_list, Collections.reverseOrder(new VotesComparator()));
+		for (int i=candidate_list.size()-1; i>=x; i--) {
 			candidate_list.remove(i);
 		}
 		Collections.sort(candidate_list, new CandidateNumComparator());

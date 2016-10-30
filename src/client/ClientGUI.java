@@ -134,7 +134,7 @@ public class ClientGUI extends JFrame {
 	public void set_player_info(int[] player_info) {
 		int ideal_point = player_info[0]; 
 		ideal_point_change.setText(Integer.toString(ideal_point));
-		add_marker(ideal_point);
+		add_marker(ideal_point, Color.BLACK, "You");
 	}
 	
 	public void set_game_info(int[] game_info) {
@@ -186,7 +186,7 @@ public class ClientGUI extends JFrame {
 		// TODO add popup with winnings and ending message, show player num, hide other game info
 	}
 	
-	private void set_info_text(String text) {
+	public void set_info_text(String text) {
 		info_block.setText(text);
 	}
 	
@@ -197,7 +197,9 @@ public class ClientGUI extends JFrame {
 	public void add_candidates(int[] candidates, int ideal_pt) { // FIXME not adding to graph correctly
 		for (int i=0; i<candidates.length; i+=2) {
 			int candidate_number = candidates[i];
+			String candidate_viewable = Integer.toString(candidate_number+1);
 			int candidate_ideal_pt = candidates[i+1];
+			add_marker(candidate_ideal_pt, Constants.GRAPH_GOLORS[candidate_number], candidate_viewable);
 			// FIXME only add an ideal pt marker
 //			add_candidate_data_to_graph(Constants.ZERO_TOKENS, candidate_number);
 		}
@@ -248,11 +250,11 @@ public class ClientGUI extends JFrame {
 	 * Adds a fixed vertical line to the graph as a marker of the player's ideal point
 	 * @param ideal_point - the point on the x axis to put the line
 	 */
-	private void add_marker(int ideal_point) {
-		chart.getChart().getXYPlot().removeDomainMarker(marker);
+	private void add_marker(int ideal_point, Color color, String label) {
+//		chart.getChart().getXYPlot().removeDomainMarker(marker);
 		marker = new ValueMarker(ideal_point); // Sets the marker at x position ideal_point
-		marker.setPaint(Color.BLACK);
-		marker.setLabel("You"); // Adds a label next to the marker
+		marker.setPaint(color);
+		marker.setLabel(label); // Adds a label next to the marker
 		marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
 		chart.getChart().getXYPlot().addDomainMarker(marker);
 		

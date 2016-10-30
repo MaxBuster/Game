@@ -12,6 +12,7 @@ import java.net.Socket;
 import javax.swing.JOptionPane;
 
 import utils.Constants;
+import utils.Info;
 
 /**
  * Intermediary between the client UI and the server data stream
@@ -77,6 +78,7 @@ public class ClientIOHandler {
 						break;
 					case Constants.WINNINGS:
 						gui.set_winnings(message);
+						show_payoff_popup(message);
 						break;
 					case Constants.TOKENS:
 //						gui.add_candidate_data_to_graph(message, message[2]);
@@ -129,6 +131,14 @@ public class ClientIOHandler {
 		return true;
 	}
 	
+	private void show_payoff_popup(int[] payoff_and_winner) {
+		int winner = payoff_and_winner[1];
+		int winner_viewable = winner + 1;
+		int payoff = payoff_and_winner[2];
+		JOptionPane.showMessageDialog(null, "The winner is: " + winner_viewable + 
+				"\n You got: " + payoff + " units");
+	}
+	
 	/**
 	 * Listens to UI events and passes messages to the server
 	 * through the output stream
@@ -151,11 +161,11 @@ public class ClientIOHandler {
 				}
 			} else if (event.equals(Integer.toString(Constants.END_ROUND))) {
 				gui.set_visible_panels(Constants.END_ROUND_VISIBILITY);
-				// FIXME Set instructions
+				gui.set_info_text(Info.WAIT);
 				write_message(Constants.END_ROUND, new int[0]);
 			} else if (event.equals("Vote")) {
 				gui.set_visible_panels(Constants.END_ROUND_VISIBILITY);
-				// FIXME Set instructions
+				gui.set_info_text(Info.WAIT);
 				int candidate_num = Integer.parseInt((String) PCE.getOldValue()) - 1;
 				int[] message = new int[]{candidate_num};
 				write_message(Constants.VOTE, message);

@@ -16,6 +16,7 @@ import model.Model;
 import model.Player;
 import model.PlayerPurchasedInfo;
 import utils.Constants;
+import utils.VoteHandler;
 
 /**
  * Handles incoming client messages and Server UI events
@@ -146,8 +147,17 @@ public class ServerIOHandler {
 		write_message(Constants.ALL_CANDIDATES, message);
 	}
 
-	private void write_winnings() {
-		int[] message = new int[]{player.getWinnings()};
+	private void write_winnings(int winning_candidate, Game current_game) {
+		Candidate winner = current_game.getCandidates().get(winning_candidate);
+		int winner_ideal = winner.get_candidate_ideal_point();
+		int winner_valence = player.get_valence_for_cand(winning_candidate);
+		int leftover_budget = player.get_budget();
+		int delta = Math.abs(player.getIdeal_point() - winner_ideal) + winner_valence;
+		
+		int game_winnings = current_game.calculate_payoffs(delta, leftover_budget);
+		player.add_winnings(game_winnings);
+		
+		int[] message = new int[]{player.getWinnings(), winning_candidate, game_winnings};
 		write_message(Constants.WINNINGS, message);
 	}
 
@@ -166,10 +176,6 @@ public class ServerIOHandler {
 		int[] message = new int[]{model.get_current_round_index()};
 		write_message(Constants.ROUND_NUMBER, message);
 	}
-
-	// TODO write end game
-
-	// TODO write end all games
 
 	// FIXME don't catch error or respond to the error by removing client
 	private boolean write_message(int message_type, int[] messages) {
@@ -218,7 +224,7 @@ public class ServerIOHandler {
 			} else if (event == Constants.NEW_GAME) {
 				start_new_game(); 
 			} else if (event == Constants.END_ALL_GAMES) {
-				write_winnings();
+//				write_winnings(); FIXME update winnings based on last game
 				write_message(Constants.END_OF_GAME, Constants.EMPTY_MESSAGE);
 			}
 		}
@@ -233,9 +239,9 @@ public class ServerIOHandler {
 		} else if (round_name == Constants.FIRST_VOTE) {
 			write_message(Constants.VOTES, current_game.get_votes(previous_round));
 		} else if (round_name == Constants.FINAL_VOTE) {
-			// FIXME set winnings?
-			write_winnings();
-			write_message(Constants.VOTES, current_game.get_votes(previous_round));
+			int winning_candidate = VoteHandler.get_top_x(current_game.get_votes(previous_round), 1)[0];
+			write_winnings(winning_candidate, current_game);
+//			write_message(Constants.VOTES, current_game.get_votes(previous_round));
 		} else {
 			return;
 		}
