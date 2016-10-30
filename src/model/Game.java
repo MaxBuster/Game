@@ -66,7 +66,7 @@ public class Game {
 		int total_votes = 0;
 		for (int i=0, j=1; i<candidates.size(); i++, j+=2) {
 			Candidate c = candidates.get(i);
-			votes[j-1] = c.get_candidate_number();
+			votes[j-1] = c.get_candidate_number(); // FIXME numbering wrong?
 			votes[j] = c.get_round_votes(round);
 			total_votes += c.get_round_votes(round);
 		}

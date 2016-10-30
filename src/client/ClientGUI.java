@@ -33,6 +33,7 @@ import utils.ButtonEditor;
 import utils.ButtonRenderer;
 import utils.Constants;
 import utils.Info;
+import utils.VoteHandler;
 
 public class ClientGUI extends JFrame {
 	private static final long serialVersionUID = 1L; // Default serial id
@@ -201,8 +202,9 @@ public class ClientGUI extends JFrame {
 //			add_candidate_data_to_graph(Constants.ZERO_TOKENS, candidate_number);
 		}
 		info_table_data = TableGenerator.generate_info_table(candidates, ideal_pt);
-		buy_table_data = TableGenerator.generate_buy_table(candidates);
-		vote_table_data = TableGenerator.generate_vote_table(candidates); 
+		int[] cand_nums = VoteHandler.get_top_x(candidates, candidates.length/2); // FIXME better way to create candidates
+		buy_table_data = TableGenerator.generate_buy_table(cand_nums);
+		vote_table_data = TableGenerator.generate_vote_table(cand_nums); 
 	}
 	
 	public void add_votes(int[] votes) {
@@ -213,6 +215,9 @@ public class ClientGUI extends JFrame {
 			position = 3;
 		} else if (round == Constants.FIRST_VOTE) {
 			position = 4;
+			int[] top_2 = VoteHandler.get_top_x(votes, 2);
+			buy_table_data = TableGenerator.generate_buy_table(top_2); // FIXME figure out how table generator should work
+			vote_table_data = TableGenerator.generate_vote_table(top_2);
 		} else {
 			// FIXME set visibles
 			return;
