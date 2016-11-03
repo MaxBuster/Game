@@ -7,8 +7,8 @@ import java.awt.Insets;
 import java.awt.Label;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.geom.Rectangle2D;
 import java.beans.PropertyChangeSupport;
+import java.util.ArrayList;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -24,7 +24,6 @@ import javax.swing.table.DefaultTableModel;
 
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.ValueMarker;
-import org.jfree.chart.plot.XYPlot;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.ui.TextAnchor;
@@ -65,6 +64,7 @@ public class ClientGUI extends JFrame {
 	private JScrollPane action_table_pane;
 	private ChartPanel chart;
 	private ValueMarker marker;
+	private ArrayList<ValueMarker> all_markers;
 	private JPanel end_round_panel;
 	
 	// Table data
@@ -84,6 +84,8 @@ public class ClientGUI extends JFrame {
 		add_game_label_panel();
 		add_player_label_panel();
 		add_info_panel();
+		
+		this.all_markers = new ArrayList<ValueMarker>();
 		
 		info_table_pane = add_info_table();
 		action_table_pane = add_action_table();
@@ -134,6 +136,7 @@ public class ClientGUI extends JFrame {
 	public void set_player_info(int[] player_info) {
 		int ideal_point = player_info[0]; 
 		ideal_point_change.setText(Integer.toString(ideal_point));
+		remove_all_markers();
 		add_marker(ideal_point, Color.BLACK, "You");
 	}
 	
@@ -251,19 +254,19 @@ public class ClientGUI extends JFrame {
 	 * @param ideal_point - the point on the x axis to put the line
 	 */
 	private void add_marker(int ideal_point, Color color, String label) {
-//		chart.getChart().getXYPlot().removeDomainMarker(marker);
 		marker = new ValueMarker(ideal_point); // Sets the marker at x position ideal_point
 		marker.setPaint(color);
 		marker.setLabel(label); // Adds a label next to the marker
 		marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);
 		chart.getChart().getXYPlot().addDomainMarker(marker);
-		
-		
-		
-//		XYPlot plot = (XYPlot) chart.getChart().getPlot();
-//		XYLineAndShapeRenderer renderer = (XYLineAndShapeRenderer) plot.getRenderer();
-//		renderer.setSeriesShapesVisible( 0, true );
-//		renderer.setSeriesShape( 0, new Rectangle2D.Double( ideal_point, 0, 2, 10 ) );
+		this.all_markers.add(marker);
+	}
+	
+	private void remove_all_markers() {
+		for (ValueMarker marker : all_markers) {
+			chart.getChart().getXYPlot().removeDomainMarker(marker);
+		}
+		all_markers.clear();
 	}
 	
 	/**

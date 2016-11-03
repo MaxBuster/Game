@@ -79,7 +79,7 @@ public class ServerIOHandler {
 			}
 		} catch (IOException e) {
 			e.printStackTrace();
-			// FIXME close server socket?
+			remove_me();
 		}
 	}
 
@@ -159,6 +159,8 @@ public class ServerIOHandler {
 		
 		int[] message = new int[]{player.getWinnings(), winning_candidate, game_winnings};
 		write_message(Constants.WINNINGS, message);
+		int player_viewable_num = player.getPlayer_number() + 1;
+		pcs.firePropertyChange(Constants.PLAYER_WINNINGS, player_viewable_num, player.getWinnings());
 	}
 
 	// FIXME get token based on valence
@@ -175,6 +177,13 @@ public class ServerIOHandler {
 	private void write_round_num() {
 		int[] message = new int[]{model.get_current_round_index()};
 		write_message(Constants.ROUND_NUMBER, message);
+	}
+	
+	private void remove_me() {
+		// TODO
+		// close connection
+		// fire pcs
+		// end thread
 	}
 
 	// FIXME don't catch error or respond to the error by removing client
@@ -226,6 +235,11 @@ public class ServerIOHandler {
 			} else if (event == Constants.END_ALL_GAMES) {
 //				write_winnings(); FIXME update winnings based on last game
 				write_message(Constants.END_OF_GAME, Constants.EMPTY_MESSAGE);
+			} else if (event == Constants.REMOVE_PLAYER) {
+				int remove_player = (Integer) PCE.getOldValue();
+				if (remove_player == player.getPlayer_number()) {
+					remove_me();
+				}
 			}
 		}
 	}

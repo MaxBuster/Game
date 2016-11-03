@@ -105,10 +105,6 @@ public class ServerGUI extends JFrame {
 		start_game.setPreferredSize(Constants.BIG_BUTTON);
 		start_game.setFont(Constants.BIG_LABEL);
 		start_game.setBackground(Constants.GREEN);
-		final Button end_game = new Button(Constants.END_GAME);
-		end_game.setPreferredSize(Constants.BIG_BUTTON);
-		end_game.setFont(Constants.BIG_LABEL);
-		end_game.setBackground(Constants.RED);
 		final Button write_data = new Button(Constants.WRITE_DATA);
 		write_data.setPreferredSize(Constants.BIG_BUTTON);
 		write_data.setFont(Constants.BIG_LABEL);
@@ -116,7 +112,6 @@ public class ServerGUI extends JFrame {
 		
 		final JPanel game_controls_panel = new JPanel();
 		game_controls_panel.add(start_game);
-		game_controls_panel.add(end_game);
 		game_controls_panel.add(write_data);
 		
 		content.add(game_controls_panel);
@@ -125,13 +120,6 @@ public class ServerGUI extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				pcs.firePropertyChange(Constants.START_GAME, null, null);
 				remove_component_and_update(game_controls_panel, start_game);
-			}
-		});
-		end_game.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent arg0) {
-				// FIXME add dialogue to confirm they're sure
-				pcs.firePropertyChange(Constants.END_GAME, null, null);
-				remove_component_and_update(game_controls_panel, end_game);
 			}
 		});
 		write_data.addActionListener(new ActionListener() {
@@ -190,7 +178,7 @@ public class ServerGUI extends JFrame {
 	private void add_player_to_table(int player_num) {
 		int player_visible_num = player_num + 1;
 		String player_string = Integer.toString(player_visible_num);
-		String[] player_row = new String[]{player_string, "Remove"};
+		String[] player_row = new String[]{player_string, "0", "Remove"};
 		int current_length = player_table_data.length;
 		add_row_to_table();
 		player_table_data[current_length] = player_row;
@@ -223,6 +211,15 @@ public class ServerGUI extends JFrame {
 				add_player_to_table(player_num);
 			} else if (event == Constants.END_ALL_GAMES) {
 				// TODO write data, freeze controls
+			} else if (event == Constants.PLAYER_WINNINGS) {
+				String player_num = Integer.toString((Integer) PCE.getOldValue());
+				String winnings = Integer.toString((Integer) PCE.getNewValue());
+				for (int i=0; i<player_table.getRowCount(); i++) {
+					String row_player = (String) player_table.getModel().getValueAt(i, 0);
+					if (row_player.equals(player_num)) {
+						player_table.getModel().setValueAt(winnings, i, 1);
+					}
+				}
 			}
 		}
 	}

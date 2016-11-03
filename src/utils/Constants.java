@@ -40,10 +40,10 @@ public class Constants {
 
 	// Server Events
 	public static final String START_GAME = "Start Game";
-	public static final String END_GAME = "End Game";
 	public static final String WRITE_DATA = "Write Data";
 	public static final String NEW_PLAYER = "New Player";
 	public static final String END_ALL_GAMES = "End All Games";
+	public static final String PLAYER_WINNINGS = "Winnings";
 
 	// Message Types
 	public static final int MESSAGE_START = -1;
@@ -81,9 +81,10 @@ public class Constants {
 	
 	// Graph Colors
 	public static final Color[] GRAPH_GOLORS = new Color[]{
-			Color.BLACK, Color.BLUE, Color.CYAN, Color.DARK_GRAY, 
-			Color.GRAY, Color.GREEN, Color.LIGHT_GRAY, Color.MAGENTA, 
-			Color.ORANGE, Color.PINK, Color.RED, Color.WHITE, Color.YELLOW};
+			Color.GREEN, Color.BLACK, Color.BLUE, Color.ORANGE,
+			Color.PINK, Color.CYAN, Color.DARK_GRAY, Color.RED, 
+			Color.GRAY, Color.LIGHT_GRAY, Color.MAGENTA,
+			Color.WHITE, Color.YELLOW};
 
 	// Panel Visibility
 	// Order: [game_labels, player_labels, all_info, action_table, end_round]
@@ -105,7 +106,9 @@ public class Constants {
 	};
 	
 	// Server table headers
-	public static final String[] PLAYER_HEADERS = new String[]{"Player #", "Remove"};
+	public static final String[] PLAYER_HEADERS = new String[]{
+			"Player #", "Winnings", "Remove"
+	};
 
 	// Client table blank rows
 	// Order: Candidate #, Position, Payoff Estimate, Straw Votes, First Round Votes

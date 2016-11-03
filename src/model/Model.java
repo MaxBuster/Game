@@ -84,9 +84,9 @@ public class Model {
 		int ideal_pt = c.get_candidate_ideal_point();
 		int random_num = new Random().nextInt(100);
 		if (random_num < ideal_pt) {
-			return 0; // FIXME make constant and ensure these are the correct tokens
+			return 1; // FIXME make constant and ensure these are the correct tokens
 		} else {
-			return 1;
+			return 0;
 		}
 	}
 	
@@ -170,7 +170,14 @@ public class Model {
 			if (event == Constants.START_GAME) {
 				increment_round();
 			} else if (event == Constants.REMOVE_PLAYER) {
-				// TODO
+				int player = (Integer) PCE.getOldValue();
+				for (int i=0; i<players.size(); i++) {
+					if (players.get(i).getPlayer_number() == player) {
+						players.remove(i);
+						attempt_end_round();
+						return;
+					}
+				}
 			}
 		}
 	}

@@ -47,7 +47,8 @@ public class Game {
 	 * and the candidate's (delta), and adding a constant factor
 	 */
 	public int calculate_payoffs(int delta, int leftover) {
-		int payoffs = (leftover*payoff_multiplier) + delta + payoff_intercept;
+		// FIXME equation?
+		int payoffs = payoff_intercept - (delta * payoff_multiplier) + leftover;
 		return payoffs;
 	}
 
