@@ -57,7 +57,8 @@ public class ServerGUI extends JFrame {
 				
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
-//		setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); FIXME do this when it's ready
+		
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // FIXME initialize to something else
 	}
 	
 	/**
@@ -168,6 +169,7 @@ public class ServerGUI extends JFrame {
 		player_table = new JTable(null);
 		Dimension d = new Dimension(5, 5);
 		player_table.setPreferredScrollableViewportSize(d);
+		player_table.getTableHeader().setReorderingAllowed(false);
 		JScrollPane scroll_table = new JScrollPane(player_table);
 		content.add(scroll_table);
 	}

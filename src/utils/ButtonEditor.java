@@ -53,7 +53,7 @@ public class ButtonEditor extends DefaultCellEditor {
 			int selected_row = table.getSelectedRow();
 			Object first = table.getModel().getValueAt(selected_row, 0);
 			Object second = table.getModel().getValueAt(selected_row, 1);
-			pcs.firePropertyChange(label, first, second); 
+			pcs.firePropertyChange(label, first, null); // FIXME first and second can't be the same 
 		}
 		isPushed = false;
 		return new String(label);

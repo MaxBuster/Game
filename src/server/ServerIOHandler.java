@@ -8,6 +8,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.HashMap;
+import java.util.Random;
 
 import model.Candidate;
 import model.Distribution;
@@ -15,6 +16,7 @@ import model.Game;
 import model.Model;
 import model.Player;
 import model.PlayerPurchasedInfo;
+import model.ValenceGenerator;
 import utils.Constants;
 import utils.VoteHandler;
 
@@ -63,7 +65,7 @@ public class ServerIOHandler {
 				switch(type) {
 				case Constants.REQUEST_INFO:
 					player.subtract_budget(message[1]);
-					get_token(message);
+					get_valence(message);
 					break;
 				case Constants.END_ROUND:
 					player.setDone(true);
@@ -137,24 +139,19 @@ public class ServerIOHandler {
 	private void write_candidate_info() {
 		Game current_game = model.get_current_game();
 		HashMap<Integer, Candidate> candidates = current_game.getCandidates();
-		int[] message = new int[candidates.size() * 2]; // Room to add cand #, party and ideal point
+		int[] message = new int[candidates.size() * 3]; // Room to add cand #, party and ideal point
 		int i = 0;
 		for (Candidate c : candidates.values()) {
 			message[i] = c.get_candidate_number();
 			message[i+1] = c.get_candidate_ideal_point();
-			i += 2;
+			message[i+2] = get_expected_payoff(c.get_candidate_number());
+			i += 3;
 		}
 		write_message(Constants.ALL_CANDIDATES, message);
 	}
 
 	private void write_winnings(int winning_candidate, Game current_game) {
-		Candidate winner = current_game.getCandidates().get(winning_candidate);
-		int winner_ideal = winner.get_candidate_ideal_point();
-		int winner_valence = player.get_valence_for_cand(winning_candidate);
-		int leftover_budget = player.get_budget();
-		int delta = Math.abs(player.getIdeal_point() - winner_ideal) + winner_valence;
-		
-		int game_winnings = current_game.calculate_payoffs(delta, leftover_budget);
+		int game_winnings = get_expected_payoff(winning_candidate);
 		player.add_winnings(game_winnings);
 		
 		int[] message = new int[]{player.getWinnings(), winning_candidate, game_winnings};
@@ -162,16 +159,32 @@ public class ServerIOHandler {
 		int player_viewable_num = player.getPlayer_number() + 1;
 		pcs.firePropertyChange(Constants.PLAYER_WINNINGS, player_viewable_num, player.getWinnings());
 	}
+	
+	private int get_expected_payoff(int candidate_num) {
+		Game current_game = model.get_current_game();
+		int valence;
+		if (info.purchased_info(current_game.getGameNumber(), candidate_num)) {
+			valence = player.get_valence_for_cand(candidate_num);
+		} else {
+			valence = 0; // FIXME retrieve from 
+		}
+		Candidate candidate = current_game.getCandidates().get(candidate_num);
+		int delta = Math.abs(candidate.get_candidate_ideal_point() - player.getIdeal_point());
+		int budget = player.get_budget();
+		int max = current_game.get_max();
+		int multiplier = current_game.get_multiplier();
+		
+		int estimated_payoff = max + (delta*multiplier) + valence + budget;
+		return estimated_payoff;
+	}
 
-	// FIXME get token based on valence
-	private void get_token(int[] request) {
-		int game = model.get_current_game().getGameNumber();
+	private void get_valence(int[] request) {
+		Game current_game = model.get_current_game();
+		int game_num = current_game.getGameNumber();
 		int candidate = request[0];
-		String round = model.get_current_round();
-		int token = model.get_token(candidate);
-		info.add_token(game, token, round, candidate);
-		int[] all_tokens = info.get_tokens(game, candidate);
-		write_message(Constants.TOKENS, all_tokens);
+		info.add_purchase(game_num, candidate);
+		int expected_payoff = get_expected_payoff(candidate);
+		write_message(Constants.CANDIDATE_PAYOFF, new int[]{candidate, expected_payoff});
 	}
 
 	private void write_round_num() {
@@ -233,7 +246,6 @@ public class ServerIOHandler {
 			} else if (event == Constants.NEW_GAME) {
 				start_new_game(); 
 			} else if (event == Constants.END_ALL_GAMES) {
-//				write_winnings(); FIXME update winnings based on last game
 				write_message(Constants.END_OF_GAME, Constants.EMPTY_MESSAGE);
 			} else if (event == Constants.REMOVE_PLAYER) {
 				int remove_player = (Integer) PCE.getOldValue();
@@ -253,9 +265,8 @@ public class ServerIOHandler {
 		} else if (round_name == Constants.FIRST_VOTE) {
 			write_message(Constants.VOTES, current_game.get_votes(previous_round));
 		} else if (round_name == Constants.FINAL_VOTE) {
-			int winning_candidate = VoteHandler.get_top_x(current_game.get_votes(previous_round), 1)[0];
+			int winning_candidate = VoteHandler.get_top_x(current_game.get_votes(previous_round), 1, 2)[0];
 			write_winnings(winning_candidate, current_game);
-//			write_message(Constants.VOTES, current_game.get_votes(previous_round));
 		} else {
 			return;
 		}

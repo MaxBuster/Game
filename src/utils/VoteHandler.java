@@ -6,8 +6,8 @@ import java.util.Comparator;
 
 public class VoteHandler {
 	
-	public static int[] get_top_x(int[] candidates_with_votes, int x) {
-		ArrayList<Pair> candidate_list = get_pairs(candidates_with_votes);
+	public static int[] get_top_x(int[] candidates_with_votes, int x, int interval) {
+		ArrayList<Pair> candidate_list = get_pairs(candidates_with_votes, interval);
 		Collections.sort(candidate_list, Collections.reverseOrder(new VotesComparator()));
 		for (int i=candidate_list.size()-1; i>=x; i--) {
 			candidate_list.remove(i);
@@ -20,9 +20,9 @@ public class VoteHandler {
 		return top_x;
 	}
 	
-	public static ArrayList<Pair> get_pairs(int[] candidates_with_votes) {
+	public static ArrayList<Pair> get_pairs(int[] candidates_with_votes, int interval) {
 		ArrayList<Pair> candidate_list = new ArrayList<Pair>();
-		for (int i=0, j=1; j<candidates_with_votes.length; i+=2, j+=2) {
+		for (int i=0, j=1; j<candidates_with_votes.length; i+=interval, j+=interval) {
 			Pair p = new Pair(candidates_with_votes[i], candidates_with_votes[j]);
 			candidate_list.add(p);
 		}

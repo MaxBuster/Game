@@ -115,7 +115,7 @@ public class Model {
 	public int get_payoff_valence() {
 		int[] payoff_dist = get_current_game().get_payoff_dist();
 		ValenceGenerator generator = new ValenceGenerator(payoff_dist[0], payoff_dist[1]);
-		int valence = (int) generator.get_payoff(); // FIXME truncate if too low or too high
+		int valence = (int) generator.get_payoff(); 
 		return valence;
 	}
 	

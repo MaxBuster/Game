@@ -80,13 +80,11 @@ public class ClientIOHandler {
 						gui.set_winnings(message);
 						show_payoff_popup(message);
 						break;
-					case Constants.TOKENS:
-//						gui.add_candidate_data_to_graph(message, message[2]);
-//						gui.update_candidate_expected_point(message);
+					case Constants.CANDIDATE_PAYOFF:
+						gui.update_expected_payoff(message);
+						// TODO update lines on graph?
 						break;
 					case Constants.VOTES:
-						// TODO if first get rid of two, if final show winnings
-						// TODO final - wait to update gui, show popup
 						gui.add_votes(message);
 						break;
 					case Constants.END_OF_GAME:
@@ -149,7 +147,8 @@ public class ClientIOHandler {
 			String event = PCE.getPropertyName();
 			if (event.equals("Buy")) { // FIXME Constant
 				int candidate_num = Integer.parseInt((String) PCE.getOldValue()) - 1;
-				int price = Integer.parseInt((String) PCE.getNewValue());
+//				int price = Integer.parseInt((String) PCE.getNewValue());
+				int price = Constants.INFO_PRICE;
 				// TODO parse into method
 				if (price <= budget) {
 					budget -= price;

@@ -14,6 +14,7 @@ public class Game {
 	private final Distribution distribution; // Distribution of voters
 	private final int budget; // Info purchase budget
 	private HashMap<Integer, Candidate> candidates; // List of candidates in this game
+	private ValenceGenerator valenceGenerator;
 	
 	private int payoff_multiplier;
 	private int payoff_intercept;
@@ -30,11 +31,24 @@ public class Game {
 		this.distribution = distribution;
 		this.budget = budget;
 		this.payoff_dist = payoff_dist;
+		this.valenceGenerator = new ValenceGenerator(payoff_dist[0], payoff_dist[1]);
+	}
+	
+	public ValenceGenerator get_val_gen() {
+		return valenceGenerator;
 	}
 	
 	public void set_payoff_equation(int payoff_multiplier, int payoff_intercept) {
 		this.payoff_multiplier = payoff_multiplier;
 		this.payoff_intercept = payoff_intercept;
+	}
+	
+	public int get_max() {
+		return payoff_intercept;
+	}
+	
+	public int get_multiplier() {
+		return payoff_multiplier;
 	}
 	
 	public int[] get_payoff_dist() {

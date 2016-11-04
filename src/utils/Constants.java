@@ -54,7 +54,7 @@ public class Constants {
 	public static final int ALL_CANDIDATES = 5;
 	public static final int ROUND_NUMBER = 6;
 	public static final int WINNINGS = 7;
-	public static final int TOKENS = 8;
+	public static final int CANDIDATE_PAYOFF = 8;
 	public static final int VOTES = 9;
 	public static final int END_OF_GAME = 10;
 	
@@ -96,7 +96,7 @@ public class Constants {
 
 	// Client table headers
 	public static final String[] INFO_TABLE_HEADERS = new String[] {
-			"Candidate #", "Position", "Payoff Estimate", "Straw Votes", "First Round Votes"
+			"Candidate #", "Position", "Estimated Payoff", "Straw Votes", "First Round Votes"
 	};
 	public static final String[] BUY_TABLE_HEADERS = new String[] {
 			"Candidate #", "Price", "Action"
@@ -122,5 +122,5 @@ public class Constants {
 	public static final int[] ZERO_TOKENS = new int[]{0, 0};
 	
 	// Info Prices
-	public static final int INFO_PRICE = 10;
+	public static final int INFO_PRICE = 1;
 }
