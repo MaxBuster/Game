@@ -1,5 +1,6 @@
 package client;
 
+import java.awt.BasicStroke;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
@@ -210,7 +211,7 @@ public class ClientGUI extends JFrame {
 			int candidate_number = candidates[i];
 			String candidate_viewable = Integer.toString(candidate_number+1);
 			int candidate_ideal_pt = candidates[i+1];
-			add_marker(candidate_ideal_pt, Constants.GRAPH_GOLORS[candidate_number], candidate_viewable);
+			add_marker(candidate_ideal_pt, Color.BLACK, candidate_viewable);
 		}
 		info_table_data = TableGenerator.generate_info_table(candidates, ideal_pt);
 		int[] cand_nums = VoteHandler.get_top_x(candidates, candidates.length/3, 3); // FIXME better way to create candidates
@@ -261,6 +262,8 @@ public class ClientGUI extends JFrame {
 	 */
 	private void add_marker(int ideal_point, Color color, String label) {
 		marker = new ValueMarker(ideal_point); // Sets the marker at x position ideal_point
+		marker.setStroke(new BasicStroke(2));
+		marker.setAlpha(1);
 		marker.setPaint(color);
 		marker.setLabel(label); // Adds a label next to the marker
 		marker.setLabelTextAnchor(TextAnchor.TOP_RIGHT);

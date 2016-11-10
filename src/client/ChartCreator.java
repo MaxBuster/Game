@@ -1,5 +1,7 @@
 package client;
 
+import java.awt.Color;
+
 import org.jfree.chart.ChartFactory;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.JFreeChart;
@@ -16,6 +18,7 @@ public class ChartCreator {
 				"Expectations", "Ideal Point", "Distribution", null,
 				PlotOrientation.VERTICAL, true, false, false);
 		XYPlot plot = (XYPlot) chart.getPlot();
+		plot.setBackgroundPaint(Color.white);
 		plot.getDomainAxis().setRange(0.00, 100);
 		final ChartPanel chartPanel = new ChartPanel(chart);
 		chartPanel.setPreferredSize(new java.awt.Dimension(500, 270));

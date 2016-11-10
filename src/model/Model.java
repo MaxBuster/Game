@@ -70,6 +70,11 @@ public class Model {
 		return ideal_point;
 	}
 	
+	// Get list of all players
+	public synchronized ArrayList<Player> get_players() {
+		return players;
+	}
+	
 	// ------------------------- Candidate Stuff ------------------------------ //
 	
 	public synchronized void vote_for_candidate(int[] vote_message) {
@@ -92,6 +97,10 @@ public class Model {
 	
 	// ------------------------- Game Stuff ------------------------------ //
 
+	public synchronized Game[] get_all_games() {
+		return games;
+	}
+	
 	public synchronized int get_num_games() {
 		return num_games;
 	}

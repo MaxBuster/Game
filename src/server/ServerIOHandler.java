@@ -174,7 +174,7 @@ public class ServerIOHandler {
 		int max = current_game.get_max();
 		int multiplier = current_game.get_multiplier();
 		
-		int estimated_payoff = max + (delta*multiplier) + valence + budget;
+		int estimated_payoff = max - (delta*multiplier) + valence + budget;
 		return estimated_payoff;
 	}
 
