@@ -1,56 +1,63 @@
 package model;
 
+import java.util.ArrayList;
+import java.util.Random;
+
 public class Player {
 	private final int player_number;
-	private int ideal_point;
 	private int winnings;
-	private PlayerPurchasedInfo ppi;
-	private int[] payoffs; // FIXME what for?
+	private ArrayList<PlayerGameInfo> pgi_list;
+	private PlayerGameInfo current_pgi;
 	private boolean done_with_round;
-	private int[] valences;
-	private int budget;
 	
-	public Player(int player_number, int num_games) {
+	public Player(int player_number) {
 		this.player_number = player_number;
-		ppi = new PlayerPurchasedInfo(num_games);
-		payoffs = new int[num_games];
 		winnings = 0;
 		done_with_round = false;
-		budget = 0;
 	}
 	
-	public void setPlayerInfo(int ideal_point, int[] valences, int budget) {
-		this.ideal_point = ideal_point;
-		this.valences = valences;
-		this.budget = budget;
+	public PlayerGameInfo new_pgi(Game game) {
+		int ideal_point = new_ideal_point(game);
+		int num_candidates = game.getCandidates().size();
+		int[] valences = new int[num_candidates];
+		for (int i=0; i<num_candidates; i++) {
+			valences[i] = get_payoff_valence(game);
+		}
+		int budget = game.getBudget();
+		PlayerGameInfo pgi = new PlayerGameInfo(ideal_point, budget, valences);
+		this.current_pgi = pgi;
+		this.pgi_list.add(pgi);
+		return pgi;
 	}
 	
-	public int get_valence_for_cand(int candidate_num) {
-		return valences[candidate_num];
+	public int new_ideal_point(Game game) {
+		Distribution dist = game.getDistribution();
+		int[] cdf = dist.getCDF();
+		int ideal_point = 100;
+		int sum = cdf[cdf.length-1];
+		int random_point = new Random().nextInt(sum); 
+		for (int i=0; i<cdf.length; i++) {
+			if (cdf[i] > random_point) {
+				ideal_point = i-1; // FIXME corner cases?
+				break;
+			}
+		}
+		return ideal_point;
+	}
+	
+	public int get_payoff_valence(Game game) {
+		int[] payoff_dist = game.get_payoff_dist();
+		ValenceGenerator generator = new ValenceGenerator(payoff_dist[0], payoff_dist[1]);
+		int valence = (int) generator.get_payoff(); 
+		return valence;
 	}
 
 	public int getPlayer_number() {
 		return player_number;
 	}
-
-	public int getIdeal_point() {
-		return ideal_point;
-	}
-
-	public PlayerPurchasedInfo getPpi() {
-		return ppi;
-	}
-
-	public int[] getPayoffs() {
-		return payoffs;
-	}
 	
-	public void setPayoff(int gameNum, int payoff) {
-		payoffs[gameNum] = payoff;
-	}
-	
-	public void add_winnings(int game_winnings) {
-		winnings += game_winnings;
+	public void addWinnings(int payoff) {
+		winnings += payoff;
 	}
 	
 	public int getWinnings() {
@@ -63,13 +70,5 @@ public class Player {
 	
 	public synchronized boolean isDone() {
 		return this.done_with_round;
-	}
-	
-	public void subtract_budget(int price) {
-		budget -= price;
-	}
-	
-	public int get_budget() {
-		return budget;
 	}
 }

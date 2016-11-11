@@ -37,37 +37,11 @@ public class Model {
 	// ------------------------- Player Stuff ------------------------------ //
 	
 	public synchronized Player new_player() {
-		Player player = new Player(next_player_num, games.length);
+		Player player = new Player(next_player_num);
 		players.add(player);
 		next_player_num++;
 		pcs.firePropertyChange(Constants.NEW_PLAYER, player.getPlayer_number(), null);
 		return player;
-	}
-	
-	public synchronized void init_player(Player player) {
-		int ideal_point = get_ideal_point();
-		int num_games = get_current_game().getCandidates().size();
-		int[] valences = new int[num_games];
-		for (int i=0; i<num_games; i++) {
-			valences[i] = get_payoff_valence();
-		}
-		int budget = get_current_game().getBudget();
-		player.setPlayerInfo(ideal_point, valences, budget);
-	}
-	
-	public synchronized int get_ideal_point() {
-		Distribution dist = games[current_game].getDistribution();
-		int[] cdf = dist.getCDF();
-		int ideal_point = 100;
-		int sum = cdf[cdf.length-1];
-		int random_point = new Random().nextInt(sum); 
-		for (int i=0; i<cdf.length; i++) {
-			if (cdf[i] > random_point) {
-				ideal_point = i-1; // FIXME corner cases?
-				break;
-			}
-		}
-		return ideal_point;
 	}
 	
 	// Get list of all players
@@ -97,16 +71,7 @@ public class Model {
 		}
 	}
 	
-	/**
-	 * Use the distribution of valences from the game's config to 
-	 * generate a new valence
-	 */
-	public int get_payoff_valence() {
-		int[] payoff_dist = get_current_game().get_payoff_dist();
-		ValenceGenerator generator = new ValenceGenerator(payoff_dist[0], payoff_dist[1]);
-		int valence = (int) generator.get_payoff(); 
-		return valence;
-	}
+	// ------------------------- Rounds ------------------------------ //
 	
 	public synchronized int get_current_round_index() {
 		return current_round_index;
@@ -158,7 +123,7 @@ public class Model {
 			String event = PCE.getPropertyName();
 			if (event == Constants.START_GAME) {
 				increment_round();
-			} else if (event == Constants.REMOVE_PLAYER) {
+			} else if (event == Constants.GUI_REMOVE) {
 				int player = (Integer) PCE.getOldValue();
 				for (int i=0; i<players.size(); i++) {
 					if (players.get(i).getPlayer_number() == player) {
@@ -167,6 +132,9 @@ public class Model {
 						return;
 					}
 				}
+			} else if (event == Constants.SERVERIO_REMOVE) {
+				Player player_to_remove = (Player) PCE.getOldValue();
+				players.remove(player_to_remove);
 			}
 		}
 	}

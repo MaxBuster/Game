@@ -33,8 +33,9 @@ public class ClientIOHandler {
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
 		} catch (IOException e) {
-			// TODO error message, close client
 			e.printStackTrace();
+			JOptionPane.showMessageDialog(null, "Removed due to IOException");
+			return;
 		}
 		gui = new ClientGUI(pcs);
 		budget = 0;
@@ -95,7 +96,9 @@ public class ClientIOHandler {
 					default: break;
 				}
 			} catch (IOException e) {
-
+				e.printStackTrace();
+				JOptionPane.showMessageDialog(null, "Removed due to IOException");
+				return;
 			}
 		}
 	}

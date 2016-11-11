@@ -18,6 +18,7 @@ import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
+import model.Player;
 import utils.ButtonEditor;
 import utils.ButtonRenderer;
 import utils.Constants;
@@ -180,7 +181,7 @@ public class ServerGUI extends JFrame {
 	private void add_player_to_table(int player_num) {
 		int player_visible_num = player_num + 1;
 		String player_string = Integer.toString(player_visible_num);
-		String[] player_row = new String[]{player_string, "0", "Remove"};
+		String[] player_row = new String[]{player_string, "0", Constants.GUI_REMOVE};
 		int current_length = player_table_data.length;
 		add_row_to_table();
 		player_table_data[current_length] = player_row;
@@ -222,6 +223,12 @@ public class ServerGUI extends JFrame {
 						player_table.getModel().setValueAt(winnings, i, 1);
 					}
 				}
+			} else if (event == Constants.SERVERIO_REMOVE) {
+				Player player_to_remove = (Player) PCE.getOldValue();
+				// TODO remove player from table
+			} else if (event == Constants.GUI_REMOVE) {
+				int player_number = (Integer) PCE.getOldValue();
+				// TODO remove player from table
 			}
 		}
 	}

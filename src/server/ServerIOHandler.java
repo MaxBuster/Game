@@ -7,6 +7,7 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Random;
@@ -16,7 +17,7 @@ import model.Distribution;
 import model.Game;
 import model.Model;
 import model.Player;
-import model.PlayerPurchasedInfo;
+import model.PlayerGameInfo;
 import model.ValenceGenerator;
 import utils.Constants;
 
@@ -31,7 +32,7 @@ public class ServerIOHandler {
 	private DataInputStream in;
 	private DataOutputStream out;
 	private Player player;
-	private PlayerPurchasedInfo info;
+	private PlayerGameInfo pgi;
 	private Game current_game;
 	private String current_round;
 
@@ -40,14 +41,12 @@ public class ServerIOHandler {
 		this.pcs = pcs;
 		this.pcs.addPropertyChangeListener(new ChangeListener());
 		this.player = model.new_player();
-		this.info = player.getPpi();
 
 		try {
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
 		} catch (IOException e) {
 			e.printStackTrace();
-			// FIXME crash the client handler
 		}
 	}
 
@@ -66,16 +65,18 @@ public class ServerIOHandler {
 				int[] message = read_message();
 				switch(type) {
 				case Constants.REQUEST_INFO:
-					player.subtract_budget(message[1]);
-					get_valence(message);
+					int candidate_num = message[0];
+					pgi.purchase_valence(current_round, candidate_num);
+					write_message(Constants.CANDIDATE_PAYOFF, new int[]{candidate_num, pgi.get_expected_payoff(current_game, candidate_num)});
 					break;
 				case Constants.END_ROUND:
 					player.setDone(true);
 					model.attempt_end_round();
 					break;
 				case Constants.VOTE:
-					int candidate_num = message[0];
-					current_game.vote(current_round, candidate_num);
+					int candidate = message[0];
+					current_game.vote(current_round, candidate);
+					pgi.vote(current_round, candidate);
 					player.setDone(true);
 					model.attempt_end_round();
 					break;
@@ -85,6 +86,7 @@ public class ServerIOHandler {
 		} catch (IOException e) {
 			e.printStackTrace();
 			remove_me();
+			return;
 		}
 	}
 
@@ -98,7 +100,7 @@ public class ServerIOHandler {
 	
 	private void start_new_game() {
 		current_game = model.get_current_game();
-		model.init_player(player);
+		pgi = player.new_pgi(current_game);
 		write_player_info();
 		write_game_info(); 
 		write_voter_dist();
@@ -111,7 +113,7 @@ public class ServerIOHandler {
 	 */
 	private void write_player_info() {
 		int[] message = new int[] {
-				player.getIdeal_point()
+				pgi.get_ideal_pt()
 		};
 		write_message(Constants.PLAYER_INFO, message);
 	}
@@ -150,7 +152,7 @@ public class ServerIOHandler {
 			candidate_nums[c.get_candidate_number()] = c.get_candidate_number();
 			message[i] = c.get_candidate_number();
 			message[i+1] = c.get_candidate_ideal_point();
-			message[i+2] = get_expected_payoff(c.get_candidate_number());
+			message[i+2] = pgi.get_expected_payoff(current_game, c.get_candidate_number());
 			i += 3;
 		}
 		write_message(Constants.ALL_CANDIDATES, message);
@@ -158,40 +160,12 @@ public class ServerIOHandler {
 	}
 
 	private void write_winnings(int winning_candidate, Game current_game) {
-		int game_winnings = get_expected_payoff(winning_candidate);
-		player.add_winnings(game_winnings);
+		int game_winnings = pgi.set_winnings(current_game, winning_candidate);
 		
 		int[] message = new int[]{player.getWinnings(), winning_candidate, game_winnings};
 		write_message(Constants.WINNINGS, message);
 		int player_viewable_num = player.getPlayer_number() + 1; // FIXME don't set viewable here
 		pcs.firePropertyChange(Constants.PLAYER_WINNINGS, player_viewable_num, player.getWinnings());
-	}
-	
-	private int get_expected_payoff(int candidate_num) {
-		Game current_game = model.get_current_game();
-		int valence;
-		if (info.purchased_info(current_game.getGameNumber(), candidate_num)) {
-			valence = player.get_valence_for_cand(candidate_num);
-		} else {
-			valence = 0; // FIXME retrieve from 
-		}
-		Candidate candidate = current_game.getCandidates().get(candidate_num);
-		int delta = Math.abs(candidate.get_candidate_ideal_point() - player.getIdeal_point());
-		int budget = player.get_budget();
-		int max = current_game.get_max();
-		int multiplier = current_game.get_multiplier();
-		
-		int estimated_payoff = max - (delta*multiplier) + valence + budget;
-		return estimated_payoff;
-	}
-
-	private void get_valence(int[] request) {
-		Game current_game = model.get_current_game();
-		int game_num = current_game.getGameNumber();
-		int candidate = request[0];
-		info.add_purchase(game_num, candidate);
-		int expected_payoff = get_expected_payoff(candidate);
-		write_message(Constants.CANDIDATE_PAYOFF, new int[]{candidate, expected_payoff});
 	}
 
 	private void write_round_num() {
@@ -200,13 +174,9 @@ public class ServerIOHandler {
 	}
 	
 	private void remove_me() {
-		// TODO
-		// close connection
-		// fire pcs
-		// end thread
+		pcs.firePropertyChange(Constants.SERVERIO_REMOVE, player, null);
 	}
 
-	// FIXME don't catch error or respond to the error by removing client
 	private boolean write_message(int message_type, int[] messages) {
 		try {
 			out.writeInt(Constants.MESSAGE_START);
@@ -256,10 +226,10 @@ public class ServerIOHandler {
 				start_new_game(); 
 			} else if (event == Constants.END_ALL_GAMES) {
 				write_message(Constants.END_OF_GAME, Constants.EMPTY_MESSAGE);
-			} else if (event == Constants.REMOVE_PLAYER) {
-				int remove_player = (Integer) PCE.getOldValue();
-				if (remove_player == player.getPlayer_number()) {
-					remove_me();
+			} else if (event == Constants.GUI_REMOVE) {
+				int player_to_remove = (Integer) PCE.getOldValue();
+				if (player_to_remove == player.getPlayer_number()) {
+					// TODO end thread somehow
 				}
 			}
 		}
