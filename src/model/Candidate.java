@@ -12,17 +12,10 @@ import utils.Constants;
 public class Candidate {
 	private final int candidate_number;
 	private final int ideal_point;
-	private HashMap<String, Integer> votes; // Map from round name to # votes candidate received
 
 	public Candidate(int candidate_number, int ideal_point) {
 		this.candidate_number = candidate_number;
 		this.ideal_point = ideal_point;
-		
-		this.votes = new HashMap<String, Integer>();
-		// Initialize all rounds to 0 votes
-		votes.put(Constants.STRAW_VOTE, 0);
-		votes.put(Constants.FIRST_VOTE, 0);
-		votes.put(Constants.FINAL_VOTE, 0);
 	}
 	
 	public int get_candidate_number() {
@@ -31,19 +24,5 @@ public class Candidate {
 	
 	public int get_candidate_ideal_point() {
 		return this.ideal_point;
-	}
-	
-	/**
-	 * Add one vote for this candidate for the round
-	 * @param round to add a value for
-	 */
-	public synchronized void increment_round_votes(String round) {
-		int round_votes = votes.get(round);
-		round_votes += 1;
-		votes.put(round, round_votes);
-	}
-	
-	public synchronized int get_round_votes(String round) {
-		return votes.get(round);
 	}
 }

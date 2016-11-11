@@ -75,26 +75,6 @@ public class Model {
 		return players;
 	}
 	
-	// ------------------------- Candidate Stuff ------------------------------ //
-	
-	public synchronized void vote_for_candidate(int[] vote_message) {
-		int candidate_number = vote_message[0];
-		Candidate candidate = games[current_game].getCandidates().get(candidate_number);
-		String current_round = Constants.LIST_OF_ROUNDS[current_round_index];
-		candidate.increment_round_votes(current_round);
-	}
-	
-	public int get_token(int candidate_num) {
-		Candidate c = get_current_game().getCandidates().get(candidate_num);
-		int ideal_pt = c.get_candidate_ideal_point();
-		int random_num = new Random().nextInt(100);
-		if (random_num < ideal_pt) {
-			return 1; // FIXME make constant and ensure these are the correct tokens
-		} else {
-			return 0;
-		}
-	}
-	
 	// ------------------------- Game Stuff ------------------------------ //
 
 	public synchronized Game[] get_all_games() {

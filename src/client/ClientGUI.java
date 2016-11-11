@@ -38,8 +38,7 @@ import org.jfree.ui.TextAnchor;
 import utils.ButtonEditor;
 import utils.ButtonRenderer;
 import utils.Constants;
-import utils.Info;
-import utils.VoteHandler;
+import utils.ClientGuiInfo;
 
 public class ClientGUI extends JFrame {
 	private static final long serialVersionUID = 1L; // Default serial id
@@ -150,7 +149,6 @@ public class ClientGUI extends JFrame {
 	}
 	
 	public void set_game_info(int[] game_info) {
-		// TODO clear chart at start of each game
 		chart.removeAll();
 		current_game_change.setText(Integer.toString(game_info[0] + 1));
 		budget_change.setText(Integer.toString(game_info[1]));
@@ -171,31 +169,30 @@ public class ClientGUI extends JFrame {
 		if (round == Constants.FIRST_BUY) {
 			set_info_table(Constants.INFO_TABLE_HEADERS, info_table_data);
 			set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
-			set_info_text(Info.BUY_1);
+			set_info_text(ClientGuiInfo.BUY_1);
 			set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
 		} else if (round == Constants.STRAW_VOTE) {
 			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
-			set_info_text(Info.STRAW);
+			set_info_text(ClientGuiInfo.STRAW);
 			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
 		} else if (round == Constants.FIRST_VOTE) {
 			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
-			set_info_text(Info.FIRST);
+			set_info_text(ClientGuiInfo.FIRST);
 			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
 		} else if (round == Constants.SECOND_BUY) {
 			set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
-			set_info_text(Info.BUY_2);
+			set_info_text(ClientGuiInfo.BUY_2);
 			set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
 		} else if (round == Constants.FINAL_VOTE) {
 			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
-			set_info_text(Info.FINAL);
+			set_info_text(ClientGuiInfo.FINAL);
 			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
 		}
 	}
 	
 	public void end_game() {
-		set_info_text(Info.FINISHED);
+		set_info_text(ClientGuiInfo.FINISHED);
 		set_visible_panels(Constants.END_GAME_VISIBILITY);
-		// TODO add popup with winnings and ending message, show player num, hide other game info
 	}
 	
 	public void set_info_text(String text) {
@@ -206,38 +203,27 @@ public class ClientGUI extends JFrame {
 	 * Given candidate #'s and parties, sets them in a chart and tables
 	 * @param candidates - array with alternating candidate #s and parties
 	 */
-	public void add_candidates(int[] candidates, int ideal_pt) { // FIXME not adding to graph correctly
+	public void add_candidates(int[] candidates) { 
 		for (int i=0; i<candidates.length; i+=3) {
 			int candidate_number = candidates[i];
 			String candidate_viewable = Integer.toString(candidate_number+1);
 			int candidate_ideal_pt = candidates[i+1];
 			add_marker(candidate_ideal_pt, Color.BLACK, candidate_viewable);
 		}
-		info_table_data = TableGenerator.generate_info_table(candidates, ideal_pt);
-		int[] cand_nums = VoteHandler.get_top_x(candidates, candidates.length/3, 3); // FIXME better way to create candidates
-		buy_table_data = TableGenerator.generate_buy_table(cand_nums);
-		vote_table_data = TableGenerator.generate_vote_table(cand_nums); 
+		info_table_data = TableGenerator.generate_info_table(candidates);
 	}
 	
-	public void add_votes(int[] votes) {
-		int round_num = votes[votes.length-1];
-		String round = Constants.LIST_OF_ROUNDS[round_num];
-		int position;
-		if (round == Constants.STRAW_VOTE) {
-			position = 3;
-		} else if (round == Constants.FIRST_VOTE) {
-			position = 4;
-			int[] top_2 = VoteHandler.get_top_x(votes, 2, 2);
-			buy_table_data = TableGenerator.generate_buy_table(top_2); // FIXME figure out how table generator should work
-			vote_table_data = TableGenerator.generate_vote_table(top_2);
-		} else {
-			// FIXME set visibles
-			return;
-		}
-		for (int i=0; i<votes.length-1; i+=2) {
-			int candidate_number = votes[i];
-			int vote_percentage = votes[i+1];
-			update_candidate_info(candidate_number, position, vote_percentage + "%");
+	// Sets the action tables with a row for each candidate
+	public void set_action_tables(int[] candidate_nums) {
+		buy_table_data = TableGenerator.generate_buy_table(candidate_nums); 
+		vote_table_data = TableGenerator.generate_vote_table(candidate_nums);
+	}
+	
+	// Adds the vote percentages into the position on the info table
+	public void add_votes(int position, int[] votes) {
+		for (int i=0; i<votes.length; i++) {
+			String vote_percentage = votes[i] + "%";
+			update_candidate_info(i, position, vote_percentage);
 		}
 	}
 	
@@ -400,7 +386,7 @@ public class ClientGUI extends JFrame {
 	 * Add the text box that provides round info
 	 */
 	private void add_info_panel() {
-		info_block = new JTextArea(Info.NOT_STARTED);
+		info_block = new JTextArea(ClientGuiInfo.NOT_STARTED);
 		info_block.setEditable(false);
 		info_block.setMargin(new Insets(20, 50, 20, 50));
 		JPanel info_panel = new JPanel(new GridLayout(1,1));

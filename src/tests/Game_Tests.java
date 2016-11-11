@@ -18,28 +18,39 @@ public class Game_Tests {
 
 	@Before
 	public void setUp() throws Exception {
-		Candidate candidate = new Candidate(1, 45);
 		HashMap<Integer, Candidate> candidates = new HashMap<Integer, Candidate>();
-		candidates.put(candidate.get_candidate_number(), candidate);
+		candidates.put(0, new Candidate(0, 45));
+		candidates.put(1, new Candidate(1, 20));
+		candidates.put(2, new Candidate(2, 37));
 		Distribution dist = new Distribution(new int[]{15, 5, 80, 10});
-		game = new Game(1, candidates, dist, 100, new int[]{});
+		game = new Game(1, candidates, dist, 100, new int[]{0,2});
+		// Add votes
+		game.vote(Constants.STRAW_VOTE, 0);
+		game.vote(Constants.STRAW_VOTE, 0);
+		game.vote(Constants.STRAW_VOTE, 0);
+		game.vote(Constants.STRAW_VOTE, 2);
+		game.vote(Constants.STRAW_VOTE, 2);
 	}
 
 	@After
 	public void tearDown() throws Exception {
 		game = null;
 	}
+	
+	@Test
+	public void test_vote_insertions() {
+		Integer[] straw_votes = game.get_round_votes(Constants.STRAW_VOTE);
+		assert straw_votes[0]==3 && straw_votes[1]==0 && straw_votes[2]==2;
+		Integer[] first_votes = game.get_round_votes(Constants.FIRST_VOTE);
+		assert first_votes[0]==0 && first_votes[1]==0 && first_votes[2]==0;
+	}
 
 	@Test
-	public void test() {
-		HashMap<Integer, Candidate> candidates = game.getCandidates();
-		Candidate first = candidates.get(1);
-		first.increment_round_votes(Constants.STRAW_VOTE);
-		
-		HashMap<Integer, Candidate> updatedCandidates = game.getCandidates();
-		Candidate updatedFirst = updatedCandidates.get(1);
-		
-		assert updatedFirst.get_round_votes(Constants.STRAW_VOTE) == 1;
+	public void test_straw_vote_percents() {
+		int[] straw_votes = game.get_round_votes_percent(Constants.STRAW_VOTE);
+		assert straw_votes[0]==((3*100)/5) && straw_votes[1]==0 && straw_votes[2]==((2*100)/5);
+		int[] top_two = game.get_top_x_candidates(2, Constants.STRAW_VOTE);
+		assert top_two[0]==0 && top_two[1]==2;
 	}
 
 }

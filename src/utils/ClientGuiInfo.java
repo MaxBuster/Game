@@ -1,6 +1,6 @@
 package utils;
 
-public class Info {
+public class ClientGuiInfo {
 	
 	public static final String NOT_STARTED = 
 			"Please wait for the game to begin.";

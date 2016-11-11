@@ -12,7 +12,7 @@ import java.net.Socket;
 import javax.swing.JOptionPane;
 
 import utils.Constants;
-import utils.Info;
+import utils.ClientGuiInfo;
 
 /**
  * Intermediary between the client UI and the server data stream
@@ -25,7 +25,6 @@ public class ClientIOHandler {
 	private DataOutputStream out;
 	private ClientGUI gui;
 	private int budget;
-	private int ideal_pt;
 
 	public ClientIOHandler(Socket socket) {
 		pcs = new PropertyChangeSupport(this);
@@ -39,7 +38,6 @@ public class ClientIOHandler {
 		}
 		gui = new ClientGUI(pcs);
 		budget = 0;
-		ideal_pt = -1;
 	}
 
 	/**
@@ -61,7 +59,6 @@ public class ClientIOHandler {
 						break;
 					case Constants.PLAYER_INFO:
 						gui.set_player_info(message);
-						ideal_pt = message[0];
 						break;
 					case Constants.GAME_INFO:
 						gui.set_game_info(message);
@@ -71,7 +68,7 @@ public class ClientIOHandler {
 						gui.add_voter_data_to_graph(message);
 						break;
 					case Constants.ALL_CANDIDATES:
-						gui.add_candidates(message, ideal_pt);
+						gui.add_candidates(message);
 						break;
 					case Constants.ROUND_NUMBER:
 						gui.set_round(message);
@@ -82,10 +79,15 @@ public class ClientIOHandler {
 						break;
 					case Constants.CANDIDATE_PAYOFF:
 						gui.update_expected_payoff(message);
-						// TODO update lines on graph?
 						break;
-					case Constants.VOTES:
-						gui.add_votes(message);
+					case Constants.STRAW_VOTES:
+						gui.add_votes(3, message);
+						break;
+					case Constants.FIRST_VOTES:
+						gui.add_votes(4, message);
+						break;
+					case Constants.CANDIDATE_NUMS:
+						gui.set_action_tables(message);
 						break;
 					case Constants.END_OF_GAME:
 						gui.end_game();
@@ -123,6 +125,7 @@ public class ClientIOHandler {
 			for (int i=0; i<messages.length; i++) {
 				out.writeInt(messages[i]);
 			}
+			out.flush();
 		} catch (IOException e) {
 			return false;
 		}
@@ -160,11 +163,11 @@ public class ClientIOHandler {
 				}
 			} else if (event.equals(Integer.toString(Constants.END_ROUND))) {
 				gui.set_visible_panels(Constants.END_ROUND_VISIBILITY);
-				gui.set_info_text(Info.WAIT);
+				gui.set_info_text(ClientGuiInfo.WAIT);
 				write_message(Constants.END_ROUND, new int[0]);
 			} else if (event.equals("Vote")) {
 				gui.set_visible_panels(Constants.END_ROUND_VISIBILITY);
-				gui.set_info_text(Info.WAIT);
+				gui.set_info_text(ClientGuiInfo.WAIT);
 				int candidate_num = Integer.parseInt((String) PCE.getOldValue()) - 1;
 				int[] message = new int[]{candidate_num};
 				write_message(Constants.VOTE, message);

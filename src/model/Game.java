@@ -1,5 +1,6 @@
 package model;
 
+import java.util.Arrays;
 import java.util.HashMap;
 
 import utils.Constants;
@@ -15,6 +16,8 @@ public class Game {
 	private final int budget; // Info purchase budget
 	private HashMap<Integer, Candidate> candidates; // List of candidates in this game
 	private ValenceGenerator valenceGenerator;
+	
+	private HashMap<String, Integer[]> candidate_votes; // Keeps track of candidate votes each game
 	
 	private int payoff_multiplier;
 	private int payoff_intercept;
@@ -32,7 +35,64 @@ public class Game {
 		this.budget = budget;
 		this.payoff_dist = payoff_dist;
 		this.valenceGenerator = new ValenceGenerator(payoff_dist[0], payoff_dist[1]);
+		
+		// Initialize vote map for each round
+		candidate_votes = new HashMap<String, Integer[]>();
+		int num_candidates = candidates.size();
+		Integer[] empty_array = new Integer[num_candidates];
+		Arrays.fill(empty_array, 0);
+		candidate_votes.put(Constants.STRAW_VOTE, empty_array.clone());
+		candidate_votes.put(Constants.FIRST_VOTE, empty_array.clone());
+		candidate_votes.put(Constants.FINAL_VOTE, empty_array.clone());
 	}
+	
+	// Increments the number of votes for the candidate that round
+	public synchronized void vote(String round, int candidate_num) {
+		Integer[] round_votes = candidate_votes.get(round);
+		round_votes[candidate_num] = round_votes[candidate_num]+1;
+	}
+	
+	// Get vote array mostly for testing
+	public synchronized Integer[] get_round_votes(String round) {
+		return candidate_votes.get(round).clone();
+	}
+	
+	// Deep copy votes for that round
+	public synchronized int[] get_round_votes_percent(String round) {
+		Integer[] integer_round_votes = candidate_votes.get(round);
+		int vote_sum = 0;
+		for (int i=0; i<integer_round_votes.length; i++) {
+			vote_sum += integer_round_votes[i];
+		}
+		int[] int_round_votes = new int[integer_round_votes.length];
+		for (int i=0; i<int_round_votes.length; i++) {
+			int_round_votes[i] = (integer_round_votes[i]*100)/vote_sum;
+		}
+		return int_round_votes;
+	}
+	
+	// Gets top x candidates by votes for a specific round
+	public synchronized int[] get_top_x_candidates(int num_candidates, String round) {
+		int[] round_votes = get_round_votes_percent(round);
+		int[] top_x = new int[num_candidates];
+		for (int i=0; i<num_candidates; i++) { 
+			int current_max = -1;
+			int current_candidate = -1;
+			for (int j=0; j<round_votes.length; j++) { // Find current max value 
+				if (round_votes[j] > current_max) {
+					current_max = round_votes[j];
+					current_candidate = j;
+				}
+			}
+			round_votes[current_candidate] = -1; // Set previous max value to -1
+			top_x[i] = current_candidate;
+		}
+		return top_x;
+	}
+	
+	
+	
+	
 	
 	public ValenceGenerator get_val_gen() {
 		return valenceGenerator;
@@ -72,24 +132,6 @@ public class Game {
 
 	public HashMap<Integer, Candidate> getCandidates() {
 		return candidates;
-	}
-	
-	public int[] get_votes(int round_num) {
-		String round = Constants.LIST_OF_ROUNDS[round_num];
-		int array_length = (candidates.size()*2) + 1;
-		int[] votes = new int[array_length];
-		int total_votes = 0;
-		for (int i=0, j=1; i<candidates.size(); i++, j+=2) {
-			Candidate c = candidates.get(i);
-			votes[j-1] = c.get_candidate_number(); // FIXME numbering wrong?
-			votes[j] = c.get_round_votes(round);
-			total_votes += c.get_round_votes(round);
-		}
-		for (int i=1; i<votes.length; i+=2) {
-			votes[i] = (votes[i]/total_votes)*100;
-		}
-		votes[votes.length-1] = round_num;
-		return votes;
 	}
 
 	public Distribution getDistribution() {

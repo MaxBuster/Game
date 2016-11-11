@@ -4,7 +4,7 @@ import utils.Constants;
 
 public class TableGenerator {
 
-	public static String[][] generate_info_table(int[] candidate_info, int ideal_pt) {
+	public static String[][] generate_info_table(int[] candidate_info) {
 		String[][] info_table_data = new String[candidate_info.length/3][];
 		for (int i=0, j=0; i<candidate_info.length; i+=3, j++) {
 			int candidate_number = candidate_info[i];
