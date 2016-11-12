@@ -13,6 +13,7 @@ public class Player {
 	public Player(int player_number) {
 		this.player_number = player_number;
 		winnings = 0;
+		pgi_list = new ArrayList<PlayerGameInfo>();
 		done_with_round = false;
 	}
 	

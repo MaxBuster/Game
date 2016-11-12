@@ -215,11 +215,12 @@ public class ServerGUI extends JFrame {
 			} else if (event == Constants.END_ALL_GAMES) {
 				// TODO write data, freeze controls
 			} else if (event == Constants.PLAYER_WINNINGS) {
-				String player_num = Integer.toString((Integer) PCE.getOldValue());
+				String player_viewable_num = Integer.toString((Integer) PCE.getOldValue() + 1);
+				
 				String winnings = Integer.toString((Integer) PCE.getNewValue());
 				for (int i=0; i<player_table.getRowCount(); i++) {
 					String row_player = (String) player_table.getModel().getValueAt(i, 0);
-					if (row_player.equals(player_num)) {
+					if (row_player.equals(player_viewable_num)) {
 						player_table.getModel().setValueAt(winnings, i, 1);
 					}
 				}

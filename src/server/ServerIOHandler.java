@@ -161,11 +161,11 @@ public class ServerIOHandler {
 
 	private void write_winnings(int winning_candidate, Game current_game) {
 		int game_winnings = pgi.set_winnings(current_game, winning_candidate);
+		player.addWinnings(game_winnings);
 		
 		int[] message = new int[]{player.getWinnings(), winning_candidate, game_winnings};
 		write_message(Constants.WINNINGS, message);
-		int player_viewable_num = player.getPlayer_number() + 1; // FIXME don't set viewable here
-		pcs.firePropertyChange(Constants.PLAYER_WINNINGS, player_viewable_num, player.getWinnings());
+		pcs.firePropertyChange(Constants.PLAYER_WINNINGS, player.getPlayer_number(), player.getWinnings());
 	}
 
 	private void write_round_num() {
