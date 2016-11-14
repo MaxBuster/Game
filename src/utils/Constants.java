@@ -14,8 +14,8 @@ public class Constants {
 	public static final String NEW_GAME = "New Game";
 	public static final String NEW_ROUND = "New Round";
 	public static final String ROUND_OVER = "Round Over";
-	public static final String GUI_REMOVE = "Remove";
-	public static final String SERVERIO_REMOVE = "Server Remove";
+	public static final String REMOVE_PLAYER = "Remove";
+	public static final String IO_REMOVE_PLAYER = "IO_Remove";
 
 	// Buy round names
 	public static final String FIRST_BUY = "Buy 1";

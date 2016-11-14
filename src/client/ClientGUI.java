@@ -520,7 +520,6 @@ public class ClientGUI extends JFrame {
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 		renderer.setSeriesPaint(0, Color.blue);
 		gui.chart.getChart().getXYPlot().setRenderer(1, renderer);
-		
 //		gui.add_candidates(new int[]{0, 1, 1, 2}, 2, 23); // 2 candidates
 //		gui.add_candidate_data_to_graph(new int[]{3, 2}, 1);
 //		gui.update_candidate_info(0, 4, "50%");

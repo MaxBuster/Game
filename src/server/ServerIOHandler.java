@@ -29,8 +29,10 @@ import utils.Constants;
 public class ServerIOHandler {
 	private Model model;
 	private PropertyChangeSupport pcs;
+	private Socket socket;
 	private DataInputStream in;
 	private DataOutputStream out;
+	private boolean thread_alive;
 	private Player player;
 	private PlayerGameInfo pgi;
 	private Game current_game;
@@ -42,6 +44,8 @@ public class ServerIOHandler {
 		this.pcs.addPropertyChangeListener(new ChangeListener());
 		this.player = model.new_player();
 
+		this.thread_alive = true;
+		this.socket = socket;
 		try {
 			in = new DataInputStream(socket.getInputStream());
 			out = new DataOutputStream(socket.getOutputStream());
@@ -59,6 +63,10 @@ public class ServerIOHandler {
 			while (true) {
 				int c = in.readInt();
 				while (c != Constants.MESSAGE_START) {
+					if (!thread_alive) {
+						socket.close(); // FIXME?
+						return;
+					}
 					c = (char) in.readChar();
 				}
 				int type = in.readInt();
@@ -97,7 +105,7 @@ public class ServerIOHandler {
 		int[] message = new int[]{player.getPlayer_number(), model.get_num_games()};
 		write_message(Constants.START_INFO , message);
 	}
-	
+
 	private void start_new_game() {
 		current_game = model.get_current_game();
 		pgi = player.new_pgi(current_game);
@@ -162,7 +170,7 @@ public class ServerIOHandler {
 	private void write_winnings(int winning_candidate, Game current_game) {
 		int game_winnings = pgi.set_winnings(current_game, winning_candidate);
 		player.addWinnings(game_winnings);
-		
+
 		int[] message = new int[]{player.getWinnings(), winning_candidate, game_winnings};
 		write_message(Constants.WINNINGS, message);
 		pcs.firePropertyChange(Constants.PLAYER_WINNINGS, player.getPlayer_number(), player.getWinnings());
@@ -172,9 +180,17 @@ public class ServerIOHandler {
 		int[] message = new int[]{model.get_current_round_index()};
 		write_message(Constants.ROUND_NUMBER, message);
 	}
-	
+
 	private void remove_me() {
-		pcs.firePropertyChange(Constants.SERVERIO_REMOVE, player, null);
+		try {
+			if (!socket.isClosed()) {
+				socket.close();
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
+			// TODO 
+		}
+		pcs.firePropertyChange(Constants.IO_REMOVE_PLAYER, Integer.toString(player.getPlayer_number()+1), null);
 	}
 
 	private boolean write_message(int message_type, int[] messages) {
@@ -213,7 +229,8 @@ public class ServerIOHandler {
 		@Override
 		public void propertyChange(PropertyChangeEvent PCE) {
 			String event = PCE.getPropertyName();
-			if (event == Constants.ROUND_OVER) { // 
+			if (event == Constants.ROUND_OVER) { 
+				// FIXME synchronize this stuff
 				int previous_round = (Integer) PCE.getOldValue();
 				String previous_round_name = Constants.LIST_OF_ROUNDS[previous_round];
 				Game current_game = (Game) PCE.getNewValue();
@@ -226,15 +243,16 @@ public class ServerIOHandler {
 				start_new_game(); 
 			} else if (event == Constants.END_ALL_GAMES) {
 				write_message(Constants.END_OF_GAME, Constants.EMPTY_MESSAGE);
-			} else if (event == Constants.GUI_REMOVE) {
-				int player_to_remove = (Integer) PCE.getOldValue();
-				if (player_to_remove == player.getPlayer_number()) {
-					// TODO end thread somehow
+			} else if (event == Constants.REMOVE_PLAYER) {
+				int player_viewable_num = Integer.parseInt((String) PCE.getOldValue());
+				int player_num = player_viewable_num-1;
+				if (player_num == player.getPlayer_number()) {
+					remove_me();
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * Writes the vote outcomes if the previous round was a vote or just returns otherwise
 	 */

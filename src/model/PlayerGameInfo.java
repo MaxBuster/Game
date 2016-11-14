@@ -38,6 +38,26 @@ public class PlayerGameInfo {
 	public void vote(String round, int candidate_num) {
 		votes.put(round, candidate_num);
 	}
+	
+	public int[] get_valences() {
+		return valences;
+	}
+	
+	public boolean[] get_purchases(String round) {
+		if (round == Constants.FIRST_BUY) {
+			return purchased_valences_1;
+		} else {
+			return purchased_valences_2;
+		}
+	}
+	
+	public HashMap<String, Integer> get_votes() {
+		return votes;
+	}
+	
+	public int get_winnings() {
+		return winnings;
+	}
 
 	// Get ideal point for that round
 	public int get_ideal_pt() {

@@ -90,10 +90,6 @@ public class Game {
 		return top_x;
 	}
 	
-	
-	
-	
-	
 	public ValenceGenerator get_val_gen() {
 		return valenceGenerator;
 	}
@@ -113,17 +109,6 @@ public class Game {
 	
 	public int[] get_payoff_dist() {
 		return payoff_dist;
-	}
-	
-	/**
-	 * Calculates winnings from the current game by taking the leftover budget and
-	 * multiplying by a constant, adding the diff between the player's ideal point 
-	 * and the candidate's (delta), and adding a constant factor
-	 */
-	public int calculate_payoffs(int delta, int leftover) {
-		// FIXME equation?
-		int payoffs = payoff_intercept - (delta * payoff_multiplier) + leftover;
-		return payoffs;
 	}
 
 	public int getGameNumber() {

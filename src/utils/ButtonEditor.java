@@ -20,7 +20,7 @@ public class ButtonEditor extends DefaultCellEditor {
 	private String label;
 	private boolean isPushed;
 
-	public ButtonEditor(PropertyChangeSupport pcs, JTable table) {
+	public ButtonEditor(final PropertyChangeSupport pcs, final JTable table) {
 		super(CHECK_BOX);
 		this.pcs = pcs;
 		this.table = table;
@@ -28,7 +28,11 @@ public class ButtonEditor extends DefaultCellEditor {
 		button.setOpaque(true);
 		button.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				int selected_row = table.getSelectedRow();
+				Object first = table.getModel().getValueAt(selected_row, 0);
+				Object second = table.getModel().getValueAt(selected_row, 1);
 				fireEditingStopped();
+				pcs.firePropertyChange(label, first, null); // old value and new value can't be the same
 			}
 		});
 	}
@@ -49,12 +53,6 @@ public class ButtonEditor extends DefaultCellEditor {
 	}
 
 	public Object getCellEditorValue() {
-		if (isPushed) {
-			int selected_row = table.getSelectedRow();
-			Object first = table.getModel().getValueAt(selected_row, 0);
-			Object second = table.getModel().getValueAt(selected_row, 1);
-			pcs.firePropertyChange(label, first, null); // FIXME first and second can't be the same 
-		}
 		isPushed = false;
 		return new String(label);
 	}

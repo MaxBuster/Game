@@ -18,6 +18,8 @@ public class ChartCreator {
 				"Expectations", "Ideal Point", "Distribution", null,
 				PlotOrientation.VERTICAL, true, false, false);
 		XYPlot plot = (XYPlot) chart.getPlot();
+		plot.getRangeAxis().setTickMarksVisible(false);
+		plot.getRangeAxis().setTickLabelsVisible(false);
 		plot.setBackgroundPaint(Color.white);
 		plot.getDomainAxis().setRange(0.00, 100);
 		final ChartPanel chartPanel = new ChartPanel(chart);

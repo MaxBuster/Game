@@ -7,7 +7,6 @@ public class Player {
 	private final int player_number;
 	private int winnings;
 	private ArrayList<PlayerGameInfo> pgi_list;
-	private PlayerGameInfo current_pgi;
 	private boolean done_with_round;
 	
 	public Player(int player_number) {
@@ -26,9 +25,12 @@ public class Player {
 		}
 		int budget = game.getBudget();
 		PlayerGameInfo pgi = new PlayerGameInfo(ideal_point, budget, valences);
-		this.current_pgi = pgi;
 		this.pgi_list.add(pgi);
 		return pgi;
+	}
+	
+	public PlayerGameInfo get_pgi(int game_num) {
+		return pgi_list.get(game_num);
 	}
 	
 	public int new_ideal_point(Game game) {

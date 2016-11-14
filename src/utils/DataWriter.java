@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import model.Game;
 import model.Model;
 import model.Player;
+import model.PlayerGameInfo;
 
 public class DataWriter {
 	
@@ -25,8 +26,8 @@ public class DataWriter {
 					write_break(writer);
 					for (Player p : players) {
 						write_player_info_for_game(p, current_game.getGameNumber(), writer);
-					}
-					write_break(writer);
+						write_break(writer);
+					}	
 				}
 			} catch (IOException e) {
 				// FIXME return false?
@@ -52,8 +53,11 @@ public class DataWriter {
 			// Valence dist
 			// Candidate points
 			// Straw votes
+			Integer[] straw_votes = game.get_round_votes(Constants.STRAW_VOTE);
 			// Round 1 votes
+			Integer[] first_votes = game.get_round_votes(Constants.FIRST_VOTE);
 			// Round 2 votes
+			Integer[] final_votes = game.get_round_votes(Constants.FINAL_VOTE);
 		} catch (IOException e) {
 			// FIXME react
 		}
@@ -63,17 +67,25 @@ public class DataWriter {
 		try {
 			writer.write("// Player: " + player.getPlayer_number());
 			write_break(writer);
+			
+			PlayerGameInfo pgi = player.get_pgi(game_num);
 			// Ideal point
+			pgi.get_ideal_pt();
 			// Actual valences
+			pgi.get_valences();
 			// Initial expected payoffs
 			// Buy 1 purchases
+			pgi.get_purchases(Constants.FIRST_BUY);
 			// Expected payoffs
 			// Straw vote
 			// First vote
 			// Buy 2 purchases
+			pgi.get_purchases(Constants.SECOND_BUY);
 			// Expected payoffs
 			// Last vote
+			pgi.get_votes();
 			// Winnings
+			pgi.get_winnings();
 		} catch (IOException e) {
 			// FIXME react
 		}

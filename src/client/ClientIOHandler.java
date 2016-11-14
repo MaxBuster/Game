@@ -97,7 +97,7 @@ public class ClientIOHandler {
 				}
 			} catch (IOException e) {
 				e.printStackTrace();
-				JOptionPane.showMessageDialog(null, "Removed due to IOException");
+				JOptionPane.showMessageDialog(null, "Removed from game due to IOException");
 				return;
 			}
 		}
@@ -150,6 +150,7 @@ public class ClientIOHandler {
 	class ChangeListener implements PropertyChangeListener {
 		@Override
 		public void propertyChange(PropertyChangeEvent PCE) {
+			// FIXME everything in synchronized method
 			String event = PCE.getPropertyName();
 			if (event.equals("Buy")) { // FIXME Constant
 				int candidate_num = Integer.parseInt((String) PCE.getOldValue()) - 1;

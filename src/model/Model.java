@@ -18,7 +18,7 @@ public class Model {
 	private int num_games;
 	private int current_game;
 	private int current_round_index;
-	
+
 	private Game[] games;
 	private int next_player_num;
 	private ArrayList<Player> players;
@@ -33,9 +33,9 @@ public class Model {
 		this.next_player_num = 0;
 		this.players = new ArrayList<Player>();
 	}
-	
+
 	// ------------------------- Player Stuff ------------------------------ //
-	
+
 	public synchronized Player new_player() {
 		Player player = new Player(next_player_num);
 		players.add(player);
@@ -43,26 +43,26 @@ public class Model {
 		pcs.firePropertyChange(Constants.NEW_PLAYER, player.getPlayer_number(), null);
 		return player;
 	}
-	
+
 	// Get list of all players
 	public synchronized ArrayList<Player> get_players() {
 		return players;
 	}
-	
+
 	// ------------------------- Game Stuff ------------------------------ //
 
 	public synchronized Game[] get_all_games() {
 		return games;
 	}
-	
+
 	public synchronized int get_num_games() {
 		return num_games;
 	}
-	
+
 	public synchronized Game get_current_game() {
 		return games[current_game];
 	}
-	
+
 	public synchronized boolean game_started() {
 		if (current_game == Constants.NOT_STARTED) { 
 			return false;
@@ -70,17 +70,17 @@ public class Model {
 			return true;
 		}
 	}
-	
+
 	// ------------------------- Rounds ------------------------------ //
-	
+
 	public synchronized int get_current_round_index() {
 		return current_round_index;
 	}
-	
+
 	public synchronized String get_current_round() {
 		return Constants.LIST_OF_ROUNDS[current_round_index];
 	}
-	
+
 	public synchronized void attempt_end_round() {
 		for (Player p : players) {
 			if (!p.isDone()) {
@@ -89,7 +89,7 @@ public class Model {
 		}
 		end_round(); // Ends round if all players are done
 	}
-	
+
 	public synchronized void end_round() {
 		pcs.firePropertyChange(Constants.ROUND_OVER, current_round_index, get_current_game());
 		increment_round();
@@ -97,12 +97,12 @@ public class Model {
 			p.setDone(false);
 		}
 	}
-	
+
 	public synchronized void increment_round() {
 		int previous_round_index = current_round_index;
 		current_round_index++;
 		current_round_index %= Constants.LIST_OF_ROUNDS.length; 
-		
+
 		if (current_round_index < previous_round_index) {
 			if (current_game < num_games - 1) {
 				current_game++;
@@ -114,27 +114,28 @@ public class Model {
 		}
 		pcs.firePropertyChange(Constants.NEW_ROUND, current_round_index, null);
 	}
-	
+
 	// ------------------------- Listener Stuff ------------------------------ //
-	
+
 	class ChangeListener implements PropertyChangeListener {
 		@Override
 		public void propertyChange(PropertyChangeEvent PCE) {
 			String event = PCE.getPropertyName();
 			if (event == Constants.START_GAME) {
 				increment_round();
-			} else if (event == Constants.GUI_REMOVE) {
-				int player = (Integer) PCE.getOldValue();
+			} else if (event == Constants.REMOVE_PLAYER || event == Constants.IO_REMOVE_PLAYER) {
+				// FIXME put in synchronized method
+				int player_viewable_num = Integer.parseInt((String) PCE.getOldValue());
+				int player_num = player_viewable_num-1;
 				for (int i=0; i<players.size(); i++) {
-					if (players.get(i).getPlayer_number() == player) {
+					if (players.get(i).getPlayer_number() == player_num) {
 						players.remove(i);
-						attempt_end_round();
+						if (game_started()) {
+							attempt_end_round();
+						}
 						return;
 					}
 				}
-			} else if (event == Constants.SERVERIO_REMOVE) {
-				Player player_to_remove = (Player) PCE.getOldValue();
-				players.remove(player_to_remove);
 			}
 		}
 	}

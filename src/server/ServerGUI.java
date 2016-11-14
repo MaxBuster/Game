@@ -181,10 +181,20 @@ public class ServerGUI extends JFrame {
 	private void add_player_to_table(int player_num) {
 		int player_visible_num = player_num + 1;
 		String player_string = Integer.toString(player_visible_num);
-		String[] player_row = new String[]{player_string, "0", Constants.GUI_REMOVE};
+		String[] player_row = new String[]{player_string, "0", Constants.REMOVE_PLAYER};
 		int current_length = player_table_data.length;
 		add_row_to_table();
 		player_table_data[current_length] = player_row;
+		set_players_table();
+	}
+	
+	private void remove_player_from_table(int player_num) {
+		String player_string = Integer.toString(player_num);
+		for (int i=0; i<player_table_data.length; i++) {
+			if (player_table_data[i][0].equals(player_string)) {
+				remove_row_from_table(i);
+			}
+		}
 		set_players_table();
 	}
 	
@@ -197,6 +207,17 @@ public class ServerGUI extends JFrame {
 			extended_data[i] = player_table_data[i];
 		}
 		player_table_data = extended_data;
+	}
+	
+	private void remove_row_from_table(int player_index) {
+		Object[][] subtracted_data = new Object[player_table_data.length-1][];
+		for (int i=0, j=0; i<player_table_data.length; i++) {
+			if (i != player_index) {
+				subtracted_data[j] = player_table_data[i];
+				j++;
+			}
+		}
+		player_table_data = subtracted_data;
 	}
 	
 	class ChangeListener implements PropertyChangeListener {
@@ -224,12 +245,9 @@ public class ServerGUI extends JFrame {
 						player_table.getModel().setValueAt(winnings, i, 1);
 					}
 				}
-			} else if (event == Constants.SERVERIO_REMOVE) {
-				Player player_to_remove = (Player) PCE.getOldValue();
-				// TODO remove player from table
-			} else if (event == Constants.GUI_REMOVE) {
-				int player_number = (Integer) PCE.getOldValue();
-				// TODO remove player from table
+			} else if (event == Constants.REMOVE_PLAYER || event == Constants.IO_REMOVE_PLAYER) {
+				int player_viewable_number = Integer.parseInt((String) PCE.getOldValue());
+				remove_player_from_table(player_viewable_number);
 			}
 		}
 	}
