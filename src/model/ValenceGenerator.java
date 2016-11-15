@@ -17,6 +17,10 @@ public class ValenceGenerator {
 		return std_dev;
 	}
 	
+	public int get_max() {
+		return (int) (3*std_dev);
+	}
+	
 	public double get_payoff() {
 		double sample = dist.sample();
 		double upper_bound = mean + (3*std_dev);

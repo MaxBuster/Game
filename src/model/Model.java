@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 import utils.Constants;
+import utils.DataWriter;
 
 /**
  * Keep track of game info and current game status
@@ -136,6 +137,10 @@ public class Model {
 						return;
 					}
 				}
+			} else if (event == Constants.END_ALL_GAMES) {
+				DataWriter.write_data("data.csv", Model.this);
+			} else if (event == Constants.WRITE_DATA) {
+				DataWriter.write_data("data.csv", Model.this);
 			}
 		}
 	}

@@ -44,21 +44,22 @@ public class ClientGUI extends JFrame {
 	private static final long serialVersionUID = 1L; // Default serial id
 	private PropertyChangeSupport pcs;
 	private JPanel content; // Panel that holds all of the UI
-	
+
 	// All game labels
 	private Label current_game_change;
 	private Label num_games_change;
 	private Label current_round_change;
 	private Label winnings_change;
-	
+
 	// All player labels
 	private Label player_number_change;
 	private Label ideal_point_change;
 	private Label budget_change;
-	
+
 	// Info text
 	private JTextArea info_block;
-	
+	private String buy_info;
+
 	// All containers
 	private JPanel game_label_panel;
 	private JPanel player_label_panel;
@@ -72,31 +73,31 @@ public class ClientGUI extends JFrame {
 	private ValueMarker marker;
 	private ArrayList<ValueMarker> all_markers;
 	private JPanel end_round_panel;
-	
+
 	// Table data
 	String[][] info_table_data;
 	String[][] buy_table_data;
 	String[][] vote_table_data;
-	
+
 	/**
 	 * Initialize the Swing GUI with all the components
 	 */
 	public ClientGUI(PropertyChangeSupport pcs) {
 		this.pcs = pcs;
-		
+
 		this.content = new JPanel();
 		this.content.setLayout(new BoxLayout(content, BoxLayout.Y_AXIS));
 		this.content.setBorder(new EmptyBorder(100, 100, 100, 100));
 		add_game_label_panel();
 		add_player_label_panel();
 		add_info_panel();
-		
+
 		this.all_markers = new ArrayList<ValueMarker>();
-		
+
 		info_table_pane = add_info_table();
 		action_table_pane = add_action_table();
 		chart = add_chart();
-		
+
 		tables = new JPanel();
 		tables.setLayout(new BoxLayout(tables, BoxLayout.Y_AXIS));
 		tables.add(info_table_pane);
@@ -106,19 +107,19 @@ public class ClientGUI extends JFrame {
 		all_info.add(tables);
 		all_info.add(chart);
 		content.add(all_info);
-		
+
 		add_end_round_panel();
 		setContentPane(this.content);
-				
+
 		setExtendedState(JFrame.MAXIMIZED_BOTH);
 		setVisible(true);
 		set_visible_panels(Constants.START_GAME_VISIBILITY);
-		
-		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE); // FIXME initialize to something else
+
+		this.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE); // FIXME initialize to something else
 	}
-	
+
 	// -------------------------------------- General Pane ----------------------------------------- //
-	
+
 	/**
 	 * Takes a constant boolean array and sets the visibility of the panels
 	 * according to the values in the array
@@ -133,35 +134,42 @@ public class ClientGUI extends JFrame {
 		content.revalidate();
 		content.repaint();
 	}
-	
+
+	public void set_default_close() {
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+	}
+
 	// -------------------------------------- Setters ----------------------------------------- //
-	
+
 	public void set_start_info(int[] start_info) {
 		player_number_change.setText(Integer.toString(start_info[0] + 1)); // Make num readable
 		num_games_change.setText(Integer.toString(start_info[1]));
 	}
-	
+
 	public void set_player_info(int[] player_info) {
 		int ideal_point = player_info[0]; 
 		ideal_point_change.setText(Integer.toString(ideal_point));
 		remove_all_markers();
 		add_marker(ideal_point, Color.BLACK, "You");
 	}
-	
+
 	public void set_game_info(int[] game_info) {
 		chart.removeAll();
 		current_game_change.setText(Integer.toString(game_info[0] + 1));
 		budget_change.setText(Integer.toString(game_info[1]));
+		buy_info = ClientGuiInfo.BUY_1 + "between -" + game_info[2] + " and " + game_info[2] + " with a greater chance closer to 0";
 	}
-	
+
 	public void set_budget(int new_budget) {
 		budget_change.setText(Integer.toString(new_budget));
 	}
-	
+
 	public void set_winnings(int[] winnings) {
-		winnings_change.setText(Integer.toString(winnings[0]));
+		if (winnings[3] != 0) {
+			winnings_change.setText(Integer.toString(winnings[0]));
+		}
 	}
-	
+
 	public void set_round(int[] round_message) {
 		String round = Constants.LIST_OF_ROUNDS[round_message[0]];
 		System.out.println(round);
@@ -169,7 +177,7 @@ public class ClientGUI extends JFrame {
 		if (round == Constants.FIRST_BUY) {
 			set_info_table(Constants.INFO_TABLE_HEADERS, info_table_data);
 			set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
-			set_info_text(ClientGuiInfo.BUY_1);
+			set_info_text(this.buy_info); 
 			set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
 		} else if (round == Constants.STRAW_VOTE) {
 			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
@@ -189,36 +197,40 @@ public class ClientGUI extends JFrame {
 			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
 		}
 	}
-	
+
 	public void end_game() {
 		set_info_text(ClientGuiInfo.FINISHED);
 		set_visible_panels(Constants.END_GAME_VISIBILITY);
+		set_default_close();
 	}
-	
+
 	public void set_info_text(String text) {
 		info_block.setText(text);
 	}
-	
+
 	/**
 	 * Given candidate #'s and parties, sets them in a chart and tables
 	 * @param candidates - array with alternating candidate #s and parties
 	 */
-	public void add_candidates(int[] candidates) { 
+	public void add_candidates(int[] candidates, int max_valence) { 
 		for (int i=0; i<candidates.length; i+=3) {
 			int candidate_number = candidates[i];
 			String candidate_viewable = Integer.toString(candidate_number+1);
 			int candidate_ideal_pt = candidates[i+1];
 			add_marker(candidate_ideal_pt, Color.BLACK, candidate_viewable);
 		}
-		info_table_data = TableGenerator.generate_info_table(candidates);
+		info_table_data = TableGenerator.generate_info_table(candidates, max_valence);
 	}
 	
-	// Sets the action tables with a row for each candidate
-	public void set_action_tables(int[] candidate_nums) {
+	public void set_buy_table(int[] candidate_nums) {
 		buy_table_data = TableGenerator.generate_buy_table(candidate_nums); 
+	}
+
+	// Sets the action tables with a row for each candidate
+	public void set_vote_table(int[] candidate_nums) {
 		vote_table_data = TableGenerator.generate_vote_table(candidate_nums);
 	}
-	
+
 	// Adds the vote percentages into the position on the info table
 	public void add_votes(int position, int[] votes) {
 		for (int i=0; i<votes.length; i++) {
@@ -226,7 +238,7 @@ public class ClientGUI extends JFrame {
 			update_candidate_info(i, position, vote_percentage);
 		}
 	}
-	
+
 	/**
 	 * Updates info in the candidate table
 	 * FIXME set expected payoff not info
@@ -241,7 +253,7 @@ public class ClientGUI extends JFrame {
 			}
 		}
 	}
-	
+
 	/**
 	 * Adds a fixed vertical line to the graph as a marker of the player's ideal point
 	 * @param ideal_point - the point on the x axis to put the line
@@ -256,14 +268,14 @@ public class ClientGUI extends JFrame {
 		chart.getChart().getXYPlot().addDomainMarker(marker);
 		this.all_markers.add(marker);
 	}
-	
+
 	private void remove_all_markers() {
 		for (ValueMarker marker : all_markers) {
 			chart.getChart().getXYPlot().removeDomainMarker(marker);
 		}
 		all_markers.clear();
 	}
-	
+
 	/**
 	 * Given a voter distribution (mean1, std dev1, mean2, std dev2), it generates the data
 	 * to graph the distribution and adds the generated data as a line to the chart
@@ -281,15 +293,38 @@ public class ClientGUI extends JFrame {
 		renderer.setSeriesPaint(0, dataset_color);
 		chart.getChart().getXYPlot().setRenderer(dataset_position, renderer);
 	}
-	
-	public void update_expected_payoff(int[] candidate_info) {
-		int candidate_num = candidate_info[0];
-		int expected_delta = candidate_info[1];
-		update_candidate_info(candidate_num, 2, Integer.toString(expected_delta));
+
+	public void update_expected_payoff(int[] candidate_payoffs, int max_valence, int[] purchases) {
+		for (int candidate_num=0; candidate_num<candidate_payoffs.length; candidate_num++) {
+			int expected_payoff = candidate_payoffs[candidate_num];
+			String expectation_string = Integer.toString(expected_payoff);
+			expectation_string += purchases[candidate_num] == 0 ? " +/- " + max_valence : "";
+			update_candidate_info(candidate_num, 2, expectation_string);
+		}
+	}
+
+	public void remove_candidate_from_buy(String candidate_num) {
+		for (int i=0; i<buy_table_data.length; i++) {
+			if (buy_table_data[i][0].equals(candidate_num)) {
+				remove_row_from_table(i);
+			}
+		}
+		set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
+	}
+
+	private void remove_row_from_table(int candidate_index) {
+		String[][] subtracted_data = new String[buy_table_data.length-1][];
+		for (int i=0, j=0; i<buy_table_data.length; i++) {
+			if (i != candidate_index) {
+				subtracted_data[j] = buy_table_data[i];
+				j++;
+			}
+		}
+		buy_table_data = subtracted_data;
 	}
 
 	// -------------------------------------- Add panes ----------------------------------------- //
-	
+
 	/**
 	 * Add the labels that describe the game
 	 */
@@ -301,7 +336,7 @@ public class ClientGUI extends JFrame {
 		JPanel current_game = new JPanel();
 		current_game.add(current_game_fixed);
 		current_game.add(current_game_change);
-		
+
 		Label num_games_fixed = new Label("Total Games: ", Label.RIGHT); 
 		num_games_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
 		num_games_change = new Label("--");
@@ -309,7 +344,7 @@ public class ClientGUI extends JFrame {
 		JPanel num_games = new JPanel();
 		num_games.add(num_games_fixed);
 		num_games.add(num_games_change);
-		
+
 		Label current_round_fixed = new Label("Current Round: ", Label.RIGHT);
 		current_round_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
 		current_round_change = new Label("--");
@@ -317,7 +352,7 @@ public class ClientGUI extends JFrame {
 		JPanel current_round = new JPanel();
 		current_round.add(current_round_fixed);
 		current_round.add(current_round_change);
-		
+
 		Label winnings_fixed = new Label("Winnings: ", Label.RIGHT);
 		winnings_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
 		winnings_change = new Label("0");
@@ -325,21 +360,21 @@ public class ClientGUI extends JFrame {
 		JPanel winnings = new JPanel();
 		winnings.add(winnings_fixed);
 		winnings.add(winnings_change);
-		
+
 		game_label_panel = new JPanel();
 		game_label_panel.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(),
-                "Game Info",
-                TitledBorder.CENTER,
-                TitledBorder.TOP));
+				"Game Info",
+				TitledBorder.CENTER,
+				TitledBorder.TOP));
 		game_label_panel.add(current_game);
 		game_label_panel.add(num_games);
 		game_label_panel.add(current_round);
 		game_label_panel.add(winnings);
-		
+
 		content.add(game_label_panel);
 	}
-	
+
 	/**
 	 * Add the labels that describe the player info
 	 */
@@ -352,7 +387,7 @@ public class ClientGUI extends JFrame {
 		JPanel player_number = new JPanel();
 		player_number.add(player_number_fixed);
 		player_number.add(player_number_change);
-		
+
 		Label ideal_point_fixed = new Label("Ideal Point: ", Label.RIGHT);
 		ideal_point_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
 		ideal_point_change = new Label("--");
@@ -360,7 +395,7 @@ public class ClientGUI extends JFrame {
 		JPanel ideal_point = new JPanel();
 		ideal_point.add(ideal_point_fixed);
 		ideal_point.add(ideal_point_change);
-		
+
 		Label budget_fixed = new Label("Budget: ", Label.RIGHT);
 		budget_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
 		budget_change = new Label("--");
@@ -372,16 +407,16 @@ public class ClientGUI extends JFrame {
 		player_label_panel = new JPanel();
 		player_label_panel.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(),
-                "Player Info",
-                TitledBorder.CENTER,
-                TitledBorder.TOP));
+				"Player Info",
+				TitledBorder.CENTER,
+				TitledBorder.TOP));
 		player_label_panel.add(player_number);
 		player_label_panel.add(ideal_point);
 		player_label_panel.add(budget);
-		
+
 		content.add(player_label_panel);
 	}
-	
+
 	/**
 	 * Add the text box that provides round info
 	 */
@@ -392,14 +427,14 @@ public class ClientGUI extends JFrame {
 		JPanel info_panel = new JPanel(new GridLayout(1,1));
 		info_panel.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(),
-                "Instructions",
-                TitledBorder.CENTER,
-                TitledBorder.TOP));
+				"Instructions",
+				TitledBorder.CENTER,
+				TitledBorder.TOP));
 		info_panel.add(info_block);
-		
+
 		content.add(info_panel);
 	}
-	
+
 	/**
 	 * Add the table with candidate info
 	 */
@@ -409,12 +444,12 @@ public class ClientGUI extends JFrame {
 		JScrollPane info_table_scroller = new JScrollPane(info_table);
 		info_table_scroller.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(),
-                "Candidate Info",
-                TitledBorder.CENTER,
-                TitledBorder.TOP));
+				"Candidate Info",
+				TitledBorder.CENTER,
+				TitledBorder.TOP));
 		return info_table_scroller;
 	}
-	
+
 	/**
 	 * Sets the info table headers and data
 	 */
@@ -429,7 +464,7 @@ public class ClientGUI extends JFrame {
 		};
 		info_table.setModel(info_table_model);
 	}
-	
+
 	/**
 	 * Add the table with buy/vote buttons
 	 */
@@ -439,12 +474,12 @@ public class ClientGUI extends JFrame {
 		JScrollPane action_table_scroller = new JScrollPane(action_table);
 		action_table_scroller.setBorder(BorderFactory.createTitledBorder(
 				BorderFactory.createEtchedBorder(),
-                "Action Table",
-                TitledBorder.CENTER,
-                TitledBorder.TOP));
+				"Action Table",
+				TitledBorder.CENTER,
+				TitledBorder.TOP));
 		return action_table_scroller;
 	}
-	
+
 	/**
 	 * Sets the action table headers and data
 	 * Sets the last column to have buttons
@@ -462,7 +497,7 @@ public class ClientGUI extends JFrame {
 			}
 		};
 		action_table.setModel(action_table_model);
-		
+
 		int button_column = headers.length - 1;
 		String column_name = headers[button_column];
 		action_table.getColumn(column_name).setCellRenderer(new ButtonRenderer());
@@ -477,7 +512,7 @@ public class ClientGUI extends JFrame {
 		ChartPanel chart_panel = ChartCreator.create_blank_chart();
 		return chart_panel;
 	}
-	
+
 	/**
 	 * Add the button to end buy rounds
 	 */
@@ -496,9 +531,9 @@ public class ClientGUI extends JFrame {
 		end_round_panel.add(end_round);
 		content.add(end_round_panel);
 	}
-	
+
 	// -------------------------------------- Testing ----------------------------------------- //
-	
+
 	/**
 	 * Main method to test ui on its own
 	 */
@@ -509,23 +544,23 @@ public class ClientGUI extends JFrame {
 		gui.set_player_info(new int[]{2, 23}); // Party 2, Ideal Point 23
 		gui.set_game_info(new int[]{1, 80, 3}); // Game 1, 80 Budget, 3 Candidates
 		gui.add_voter_data_to_graph(new int[]{40, 5, 80, 5});
-		
+
 		final XYSeries series = new XYSeries("Candidate 1");
 		series.add(50, 0);
 		series.add(50, 1);
 		final XYSeriesCollection dataset = new XYSeriesCollection(series);
 
-		
+
 		gui.chart.getChart().getXYPlot().setDataset(1, dataset); 
 		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
 		renderer.setSeriesPaint(0, Color.blue);
 		gui.chart.getChart().getXYPlot().setRenderer(1, renderer);
-//		gui.add_candidates(new int[]{0, 1, 1, 2}, 2, 23); // 2 candidates
-//		gui.add_candidate_data_to_graph(new int[]{3, 2}, 1);
-//		gui.update_candidate_info(0, 4, "50%");
+		//		gui.add_candidates(new int[]{0, 1, 1, 2}, 2, 23); // 2 candidates
+		//		gui.add_candidate_data_to_graph(new int[]{3, 2}, 1);
+		//		gui.update_candidate_info(0, 4, "50%");
 		sleep(3000);
 	}
-	
+
 	private static void sleep(long ms) {
 		try {
 			Thread.sleep(ms);

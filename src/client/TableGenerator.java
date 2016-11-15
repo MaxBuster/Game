@@ -4,7 +4,7 @@ import utils.Constants;
 
 public class TableGenerator {
 
-	public static String[][] generate_info_table(int[] candidate_info) {
+	public static String[][] generate_info_table(int[] candidate_info, int max_valence) {
 		String[][] info_table_data = new String[candidate_info.length/3][];
 		for (int i=0, j=0; i<candidate_info.length; i+=3, j++) {
 			int candidate_number = candidate_info[i];
@@ -15,7 +15,7 @@ public class TableGenerator {
 			String[] blank_row = Constants.CLIENT_INFO_ROW.clone();
 			blank_row[0] = Integer.toString(candidate_viewable_number);
 			blank_row[1] = Integer.toString(candidate_ideal_pt);
-			blank_row[2] = Integer.toString(expected_payoff);
+			blank_row[2] = Integer.toString(expected_payoff) + " +/- " + max_valence;
 			info_table_data[j] = blank_row;
 		}
 		return info_table_data;

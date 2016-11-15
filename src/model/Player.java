@@ -33,6 +33,10 @@ public class Player {
 		return pgi_list.get(game_num);
 	}
 	
+	public int num_games_played() {
+		return pgi_list.size();
+	}
+	
 	public int new_ideal_point(Game game) {
 		Distribution dist = game.getDistribution();
 		int[] cdf = dist.getCDF();

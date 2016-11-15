@@ -75,7 +75,7 @@ public class ServerIOHandler {
 				case Constants.REQUEST_INFO:
 					int candidate_num = message[0];
 					pgi.purchase_valence(current_round, candidate_num);
-					write_message(Constants.CANDIDATE_PAYOFF, new int[]{candidate_num, pgi.get_expected_payoff(current_game, candidate_num)});
+					write_message(Constants.CANDIDATE_PAYOFF, pgi.get_expected_payoffs(current_game));
 					break;
 				case Constants.END_ROUND:
 					player.setDone(true);
@@ -132,7 +132,7 @@ public class ServerIOHandler {
 	private void write_game_info() {
 		Game current_game = model.get_current_game();
 		int[] message = new int[] {
-				current_game.getGameNumber(), current_game.getBudget()
+				current_game.getGameNumber(), current_game.getBudget(), current_game.get_val_gen().get_max()
 		};
 		write_message(Constants.GAME_INFO, message);
 	}
@@ -169,11 +169,12 @@ public class ServerIOHandler {
 
 	private void write_winnings(int winning_candidate, Game current_game) {
 		int game_winnings = pgi.set_winnings(current_game, winning_candidate);
-		player.addWinnings(game_winnings);
-
-		int[] message = new int[]{player.getWinnings(), winning_candidate, game_winnings};
+		if (current_game.getGameNumber() != 0) {
+			player.addWinnings(game_winnings);
+			pcs.firePropertyChange(Constants.PLAYER_WINNINGS, player.getPlayer_number(), player.getWinnings());
+		}
+		int[] message = new int[]{player.getWinnings(), winning_candidate, game_winnings, current_game.getGameNumber()};
 		write_message(Constants.WINNINGS, message);
-		pcs.firePropertyChange(Constants.PLAYER_WINNINGS, player.getPlayer_number(), player.getWinnings());
 	}
 
 	private void write_round_num() {
@@ -266,7 +267,7 @@ public class ServerIOHandler {
 			// Write the top two that will move on
 			int[] top_two = current_game.get_top_x_candidates(2, previous_round_name);
 			Arrays.sort(top_two);
-			write_message(Constants.CANDIDATE_NUMS, top_two);
+			write_message(Constants.TOP_TWO, top_two);
 		} else if (previous_round_name == Constants.FINAL_VOTE) {
 			int winning_candidate = current_game.get_top_x_candidates(1, previous_round_name)[0];
 			write_winnings(winning_candidate, current_game);

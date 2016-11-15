@@ -59,7 +59,8 @@ public class Constants {
 	public static final int STRAW_VOTES = 9;
 	public static final int FIRST_VOTES = 10;
 	public static final int CANDIDATE_NUMS = 11;
-	public static final int END_OF_GAME = 12;
+	public static final int TOP_TWO = 12;
+	public static final int END_OF_GAME = 13;
 	
 	public static final int REQUEST_INFO = 20;
 	public static final int END_ROUND = 21;

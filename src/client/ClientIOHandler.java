@@ -25,6 +25,8 @@ public class ClientIOHandler {
 	private DataOutputStream out;
 	private ClientGUI gui;
 	private int budget;
+	private int[] purchases;
+	private int max_valence;
 
 	public ClientIOHandler(Socket socket) {
 		pcs = new PropertyChangeSupport(this);
@@ -62,6 +64,7 @@ public class ClientIOHandler {
 						gui.set_player_info(message);
 						break;
 					case Constants.GAME_INFO:
+						this.max_valence = message[2];
 						gui.set_game_info(message);
 						budget = message[1];
 						break;
@@ -69,7 +72,8 @@ public class ClientIOHandler {
 						gui.add_voter_data_to_graph(message);
 						break;
 					case Constants.ALL_CANDIDATES:
-						gui.add_candidates(message);
+						this.purchases = new int[message.length/3];
+						gui.add_candidates(message, max_valence);
 						break;
 					case Constants.ROUND_NUMBER:
 						gui.set_round(message);
@@ -79,7 +83,7 @@ public class ClientIOHandler {
 						show_payoff_popup(message);
 						break;
 					case Constants.CANDIDATE_PAYOFF:
-						gui.update_expected_payoff(message);
+						gui.update_expected_payoff(message, max_valence, purchases);
 						break;
 					case Constants.STRAW_VOTES:
 						gui.add_votes(3, message);
@@ -88,7 +92,11 @@ public class ClientIOHandler {
 						gui.add_votes(4, message);
 						break;
 					case Constants.CANDIDATE_NUMS:
-						gui.set_action_tables(message);
+						gui.set_buy_table(message);
+						gui.set_vote_table(message);
+						break;
+					case Constants.TOP_TWO:
+						gui.set_vote_table(message);
 						break;
 					case Constants.END_OF_GAME:
 						gui.end_game();
@@ -98,6 +106,7 @@ public class ClientIOHandler {
 			} catch (IOException e) {
 				e.printStackTrace();
 				JOptionPane.showMessageDialog(null, "Removed from game due to IOException");
+				gui.set_default_close();
 				return;
 			}
 		}
@@ -158,8 +167,10 @@ public class ClientIOHandler {
 				int price = Constants.INFO_PRICE;
 				// TODO parse into method
 				if (price <= budget) {
+					gui.remove_candidate_from_buy((String) PCE.getOldValue());
 					budget -= price;
 					gui.set_budget(budget);
+					purchases[candidate_num] = 1;
 					int[] message = new int[]{candidate_num, price};
 					write_message(Constants.REQUEST_INFO, message);
 				} else {
