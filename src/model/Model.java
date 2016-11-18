@@ -63,6 +63,10 @@ public class Model {
 	public synchronized Game get_current_game() {
 		return games[current_game];
 	}
+	
+	public synchronized int get_current_game_num() {
+		return current_game;
+	}
 
 	public synchronized boolean game_started() {
 		if (current_game == Constants.NOT_STARTED) { 

@@ -61,6 +61,7 @@ public class ClientGUI extends JFrame {
 	private String buy_info;
 
 	// All containers
+	private JPanel current_round;
 	private JPanel game_label_panel;
 	private JPanel player_label_panel;
 	private JPanel tables;
@@ -179,11 +180,11 @@ public class ClientGUI extends JFrame {
 			set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
 			set_info_text(this.buy_info); 
 			set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
-		} else if (round == Constants.STRAW_VOTE) {
+		} else if (round == Constants.POLL) {
 			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
 			set_info_text(ClientGuiInfo.STRAW);
 			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
-		} else if (round == Constants.FIRST_VOTE) {
+		} else if (round == Constants.PRIMARY) {
 			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
 			set_info_text(ClientGuiInfo.FIRST);
 			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
@@ -191,7 +192,7 @@ public class ClientGUI extends JFrame {
 			set_action_table(Constants.BUY_TABLE_HEADERS, buy_table_data);
 			set_info_text(ClientGuiInfo.BUY_2);
 			set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
-		} else if (round == Constants.FINAL_VOTE) {
+		} else if (round == Constants.ELECTION) {
 			set_action_table(Constants.VOTE_TABLE_HEADERS, vote_table_data);
 			set_info_text(ClientGuiInfo.FINAL);
 			set_visible_panels(Constants.VOTE_ROUND_VISIBILITY);
@@ -200,6 +201,7 @@ public class ClientGUI extends JFrame {
 
 	public void end_game() {
 		set_info_text(ClientGuiInfo.FINISHED);
+		current_round.setVisible(false);
 		set_visible_panels(Constants.END_GAME_VISIBILITY);
 		set_default_close();
 	}
@@ -349,7 +351,7 @@ public class ClientGUI extends JFrame {
 		current_round_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
 		current_round_change = new Label("--");
 		current_round_change.setFont(Constants.MEDIUM_LABEL);
-		JPanel current_round = new JPanel();
+		current_round = new JPanel();
 		current_round.add(current_round_fixed);
 		current_round.add(current_round_change);
 
@@ -388,7 +390,7 @@ public class ClientGUI extends JFrame {
 		player_number.add(player_number_fixed);
 		player_number.add(player_number_change);
 
-		Label ideal_point_fixed = new Label("Ideal Point: ", Label.RIGHT);
+		Label ideal_point_fixed = new Label("Your Position: ", Label.RIGHT);
 		ideal_point_fixed.setFont(Constants.MEDIUM_BOLD_LABEL);
 		ideal_point_change = new Label("--");
 		ideal_point_change.setFont(Constants.MEDIUM_LABEL);
@@ -540,24 +542,8 @@ public class ClientGUI extends JFrame {
 	public static void main(String[] args) {
 		ClientGUI gui = new ClientGUI(new PropertyChangeSupport(new Object()));
 		gui.set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
-		gui.set_start_info(new int[]{5, 2}); // Player 5, 2 games
-		gui.set_player_info(new int[]{2, 23}); // Party 2, Ideal Point 23
-		gui.set_game_info(new int[]{1, 80, 3}); // Game 1, 80 Budget, 3 Candidates
 		gui.add_voter_data_to_graph(new int[]{40, 5, 80, 5});
 
-		final XYSeries series = new XYSeries("Candidate 1");
-		series.add(50, 0);
-		series.add(50, 1);
-		final XYSeriesCollection dataset = new XYSeriesCollection(series);
-
-
-		gui.chart.getChart().getXYPlot().setDataset(1, dataset); 
-		XYLineAndShapeRenderer renderer = new XYLineAndShapeRenderer();
-		renderer.setSeriesPaint(0, Color.blue);
-		gui.chart.getChart().getXYPlot().setRenderer(1, renderer);
-		//		gui.add_candidates(new int[]{0, 1, 1, 2}, 2, 23); // 2 candidates
-		//		gui.add_candidate_data_to_graph(new int[]{3, 2}, 1);
-		//		gui.update_candidate_info(0, 4, "50%");
 		sleep(3000);
 	}
 

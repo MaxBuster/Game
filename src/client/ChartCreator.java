@@ -15,7 +15,7 @@ public class ChartCreator {
 
 	public static ChartPanel create_blank_chart() {
 		final JFreeChart chart = ChartFactory.createXYLineChart(
-				"Expectations", "Ideal Point", "Distribution", null,
+				"Expectations", "Position", "Likelihood", null,
 				PlotOrientation.VERTICAL, true, false, false);
 		XYPlot plot = (XYPlot) chart.getPlot();
 		plot.getRangeAxis().setTickMarksVisible(false);

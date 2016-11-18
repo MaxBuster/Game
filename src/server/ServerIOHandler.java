@@ -258,17 +258,17 @@ public class ServerIOHandler {
 	 * Writes the vote outcomes if the previous round was a vote or just returns otherwise
 	 */
 	private void write_votes(String previous_round_name, Game current_game) {
-		if (previous_round_name == Constants.STRAW_VOTE) {
+		if (previous_round_name == Constants.POLL) {
 			int[] round_votes = current_game.get_round_votes_percent(previous_round_name);
 			write_message(Constants.STRAW_VOTES, round_votes);
-		} else if (previous_round_name == Constants.FIRST_VOTE) {
+		} else if (previous_round_name == Constants.PRIMARY) {
 			int[] round_votes = current_game.get_round_votes_percent(previous_round_name);
 			write_message(Constants.FIRST_VOTES, round_votes);
 			// Write the top two that will move on
 			int[] top_two = current_game.get_top_x_candidates(2, previous_round_name);
 			Arrays.sort(top_two);
 			write_message(Constants.TOP_TWO, top_two);
-		} else if (previous_round_name == Constants.FINAL_VOTE) {
+		} else if (previous_round_name == Constants.ELECTION) {
 			int winning_candidate = current_game.get_top_x_candidates(1, previous_round_name)[0];
 			write_winnings(winning_candidate, current_game);
 		} else {

@@ -41,9 +41,9 @@ public class Game {
 		int num_candidates = candidates.size();
 		Integer[] empty_array = new Integer[num_candidates];
 		Arrays.fill(empty_array, 0);
-		candidate_votes.put(Constants.STRAW_VOTE, empty_array.clone());
-		candidate_votes.put(Constants.FIRST_VOTE, empty_array.clone());
-		candidate_votes.put(Constants.FINAL_VOTE, empty_array.clone());
+		candidate_votes.put(Constants.POLL, empty_array.clone());
+		candidate_votes.put(Constants.PRIMARY, empty_array.clone());
+		candidate_votes.put(Constants.ELECTION, empty_array.clone());
 	}
 	
 	// Increments the number of votes for the candidate that round

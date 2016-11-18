@@ -25,11 +25,11 @@ public class Game_Tests {
 		Distribution dist = new Distribution(new int[]{15, 5, 80, 10});
 		game = new Game(1, candidates, dist, 100, new int[]{0,2});
 		// Add votes
-		game.vote(Constants.STRAW_VOTE, 0);
-		game.vote(Constants.STRAW_VOTE, 0);
-		game.vote(Constants.STRAW_VOTE, 0);
-		game.vote(Constants.STRAW_VOTE, 2);
-		game.vote(Constants.STRAW_VOTE, 2);
+		game.vote(Constants.POLL, 0);
+		game.vote(Constants.POLL, 0);
+		game.vote(Constants.POLL, 0);
+		game.vote(Constants.POLL, 2);
+		game.vote(Constants.POLL, 2);
 	}
 
 	@After
@@ -39,17 +39,17 @@ public class Game_Tests {
 	
 	@Test
 	public void test_vote_insertions() {
-		Integer[] straw_votes = game.get_round_votes(Constants.STRAW_VOTE);
+		Integer[] straw_votes = game.get_round_votes(Constants.POLL);
 		assert straw_votes[0]==3 && straw_votes[1]==0 && straw_votes[2]==2;
-		Integer[] first_votes = game.get_round_votes(Constants.FIRST_VOTE);
+		Integer[] first_votes = game.get_round_votes(Constants.PRIMARY);
 		assert first_votes[0]==0 && first_votes[1]==0 && first_votes[2]==0;
 	}
 
 	@Test
 	public void test_straw_vote_percents() {
-		int[] straw_votes = game.get_round_votes_percent(Constants.STRAW_VOTE);
+		int[] straw_votes = game.get_round_votes_percent(Constants.POLL);
 		assert straw_votes[0]==((3*100)/5) && straw_votes[1]==0 && straw_votes[2]==((2*100)/5);
-		int[] top_two = game.get_top_x_candidates(2, Constants.STRAW_VOTE);
+		int[] top_two = game.get_top_x_candidates(2, Constants.POLL);
 		assert top_two[0]==0 && top_two[1]==2;
 	}
 

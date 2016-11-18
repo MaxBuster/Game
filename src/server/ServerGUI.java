@@ -134,7 +134,6 @@ public class ServerGUI extends JFrame {
 			public void actionPerformed(ActionEvent arg0) {
 				remove_component_and_update(game_controls_panel, end_game);
 				pcs.firePropertyChange(Constants.END_ALL_GAMES, null, null);
-				setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			}
 		});
 		write_data.addActionListener(new ActionListener() {
@@ -246,7 +245,7 @@ public class ServerGUI extends JFrame {
 				int player_num = (Integer) PCE.getOldValue();
 				add_player_to_table(player_num);
 			} else if (event == Constants.END_ALL_GAMES) {
-				// TODO write data, freeze controls
+				setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 			} else if (event == Constants.PLAYER_WINNINGS) {
 				String player_viewable_num = Integer.toString((Integer) PCE.getOldValue() + 1);
 

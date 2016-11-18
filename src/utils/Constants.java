@@ -18,13 +18,13 @@ public class Constants {
 	public static final String IO_REMOVE_PLAYER = "IO_Remove";
 
 	// Buy round names
-	public static final String FIRST_BUY = "Buy 1";
-	public static final String SECOND_BUY = "Buy 2";
+	public static final String FIRST_BUY = "First Info";
+	public static final String SECOND_BUY = "Second Info";
 
 	// Vote round names
-	public static final String STRAW_VOTE = "Straw Vote";
-	public static final String FIRST_VOTE = "First Vote";
-	public static final String FINAL_VOTE = "Final Vote";
+	public static final String POLL = "Poll";
+	public static final String PRIMARY = "Primary";
+	public static final String ELECTION = "Election";
 
 	// Edge rounds
 	public static final String ALL_FINISHED = "All Finished";
@@ -32,7 +32,7 @@ public class Constants {
 
 	// Round List
 	public static final String[] LIST_OF_ROUNDS = new String[]{
-			FIRST_BUY, STRAW_VOTE, FIRST_VOTE, SECOND_BUY, FINAL_VOTE
+			FIRST_BUY, POLL, PRIMARY, SECOND_BUY, ELECTION
 	}; 
 
 	// Return codes
@@ -100,7 +100,7 @@ public class Constants {
 
 	// Client table headers
 	public static final String[] INFO_TABLE_HEADERS = new String[] {
-			"Candidate #", "Position", "Estimated Payoff", "Straw Votes", "First Round Votes"
+			"Candidate #", "Candidate Position", "Estimated Payoff", "Poll Votes", "Primary Votes"
 	};
 	public static final String[] BUY_TABLE_HEADERS = new String[] {
 			"Candidate #", "Price", "Action"

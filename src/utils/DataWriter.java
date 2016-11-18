@@ -22,7 +22,7 @@ public class DataWriter {
 			writer = new BufferedWriter(new FileWriter(file));
 			ArrayList<Player> players = model.get_players();
 			for (int i=0; i<players.size(); i++) {
-				write_player_info_for_game(players.get(i), writer);
+				write_player_info_for_game(players.get(i), writer, model);
 				write_break(writer);
 			}
 			writer.flush();
@@ -46,13 +46,14 @@ public class DataWriter {
 		write_break(writer);
 	}
 
-	public static void write_player_info_for_game(Player player, BufferedWriter writer) throws IOException {
+	public static void write_player_info_for_game(Player player, BufferedWriter writer, Model model) throws IOException {
 		writer.write("// Player: " + player.getPlayer_number());
-		for (int i=0; i<player.num_games_played(); i++) {
+		write_break(writer);
+		for (int i=0; i<model.get_current_game_num(); i++) {
 			PlayerGameInfo pgi = player.get_pgi(i);
 			writer.write("// Game: " + i);
 			write_break(writer);
-			writer.write("// Ideal point: " + pgi.get_ideal_pt());
+			writer.write("// Player Position: " + pgi.get_ideal_pt());
 			write_break(writer);
 			writer.write("// Valences: " + implode(pgi.get_valences()));
 			write_break(writer);

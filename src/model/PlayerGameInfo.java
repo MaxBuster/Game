@@ -53,9 +53,9 @@ public class PlayerGameInfo {
 	
 	public int[] get_votes() {
 		int[] votes = new int[3];
-		votes[0] = this.votes.get(Constants.STRAW_VOTE);
-		votes[1] = this.votes.get(Constants.FIRST_VOTE);
-		votes[2] = this.votes.get(Constants.FINAL_VOTE);
+		votes[0] = this.votes.get(Constants.POLL);
+		votes[1] = this.votes.get(Constants.PRIMARY);
+		votes[2] = this.votes.get(Constants.ELECTION);
 		return votes;
 	}
 	
