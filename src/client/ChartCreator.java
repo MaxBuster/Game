@@ -1,3 +1,7 @@
+/**
+ * This is where we generate JFreeChart objects to display on the client UI
+ */
+
 package client;
 
 import java.awt.Color;
@@ -13,6 +17,10 @@ import org.jfree.data.xy.XYSeriesCollection;
 
 public class ChartCreator {
 
+	/**
+	 * Creates a complete blank JChart that is ready to add to the UI
+	 * @return A ChartPanel object representing the blank chart
+	 */
 	public static ChartPanel create_blank_chart() {
 		final JFreeChart chart = ChartFactory.createXYLineChart(
 				"Expectations", "Position", "Likelihood", null,
@@ -27,6 +35,12 @@ public class ChartCreator {
 		return chartPanel;
 	}
 
+	/**
+	 * Creates a JFreeChart dataset from an array of doubles and a string title
+	 * @param data - array of data where position=x value and value at position=y value
+	 * @param name - the title of the dataset
+	 * @return JFreeChart compatible dataset
+	 */
 	public static IntervalXYDataset create_dataset(double[] data, String name) {
 		final XYSeries series = new XYSeries(name);
 		for (int i = 0; i < data.length; i++) {
