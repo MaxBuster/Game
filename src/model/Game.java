@@ -2,6 +2,7 @@ package model;
 
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Random;
 
 import utils.Constants;
 
@@ -82,6 +83,12 @@ public class Game {
 				if (round_votes[j] > current_max) {
 					current_max = round_votes[j];
 					current_candidate = j;
+				} else if (round_votes[j] == current_max) {
+					/* Pick one of the two candidates randomly if tied */
+					if (new Random().nextBoolean()) {
+						current_max = round_votes[j];
+						current_candidate = j;
+					}
 				}
 			}
 			round_votes[current_candidate] = -1; // Set previous max value to -1

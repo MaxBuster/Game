@@ -43,7 +43,7 @@ public class Player {
 		int ideal_point = 100;
 		int sum = cdf[cdf.length-1];
 		int random_point = new Random().nextInt(sum); 
-		for (int i=0; i<cdf.length; i++) {
+		for (int i=1; i<cdf.length; i++) {
 			if (cdf[i] > random_point) {
 				ideal_point = i-1; // FIXME corner cases?
 				break;
