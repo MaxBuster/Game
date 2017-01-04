@@ -1,0 +1,20 @@
+{
+  "payoff_multiplier" : 4,
+  "payoff_max" : 100,
+  "games" : [
+    {
+      "candidate_positions" : [20, 35, 80],
+      "voter_distribution" : {
+        "std_dev_1" : 5,
+        "mean_1" : 30,
+        "std_dev_2" : 10,
+        "mean_2" : 70
+      },
+      "budget" : 3,
+      "bias_distribution" : {
+        "std_dev" : 3,
+        "mean" : 0
+      }
+    }
+  ]
+}

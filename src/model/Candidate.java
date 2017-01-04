@@ -1,28 +1,20 @@
-package model;
-
-import java.util.HashMap;
-
-import utils.Constants;
-
 /**
- * Contains a candidate's data and number of votes
+ * Contains candidate data
  * @author Max Buster
  */
 
+package model;
+
 public class Candidate {
 	private final int candidate_number;
-	private final int ideal_point;
+	private final int position;
 
-	public Candidate(int candidate_number, int ideal_point) {
+	public Candidate(int candidate_number, int position) {
 		this.candidate_number = candidate_number;
-		this.ideal_point = ideal_point;
+		this.position = position;
 	}
 	
-	public int get_candidate_number() {
-		return this.candidate_number;
-	}
+	public int get_candidate_num() { return this.candidate_number; }
 	
-	public int get_candidate_ideal_point() {
-		return this.ideal_point;
-	}
+	public int get_position() { return this.position; }
 }

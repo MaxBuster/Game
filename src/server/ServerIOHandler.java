@@ -7,10 +7,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
-import java.util.Random;
 
 import model.Candidate;
 import model.Distribution;
@@ -18,7 +16,6 @@ import model.Game;
 import model.Model;
 import model.Player;
 import model.PlayerGameInfo;
-import model.ValenceGenerator;
 import utils.Constants;
 
 /**
@@ -157,10 +154,10 @@ public class ServerIOHandler {
 		int[] message = new int[candidates.size() * 3]; // Room to add cand #, party and ideal point
 		int i = 0;
 		for (Candidate c : candidates.values()) {
-			candidate_nums[c.get_candidate_number()] = c.get_candidate_number();
-			message[i] = c.get_candidate_number();
-			message[i+1] = c.get_candidate_ideal_point();
-			message[i+2] = pgi.get_expected_payoff(current_game, c.get_candidate_number());
+			candidate_nums[c.get_candidate_num()] = c.get_candidate_num();
+			message[i] = c.get_candidate_num();
+			message[i+1] = c.get_position();
+			message[i+2] = pgi.get_expected_payoff(current_game, c.get_candidate_num());
 			i += 3;
 		}
 		write_message(Constants.ALL_CANDIDATES, message);

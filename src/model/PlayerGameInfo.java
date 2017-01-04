@@ -73,7 +73,7 @@ public class PlayerGameInfo {
 		int max = game.get_max();
 		int multiplier = game.get_multiplier();
 		Candidate candidate = game.getCandidates().get(candidate_num);
-		int candidate_ideal = candidate.get_candidate_ideal_point();
+		int candidate_ideal = candidate.get_position();
 		int delta = Math.abs(candidate_ideal-ideal_point);
 		int valence = valences[candidate_num];
 		return max - (delta*multiplier) + valence + budget;
@@ -83,7 +83,7 @@ public class PlayerGameInfo {
 	public int[] get_expected_payoffs(Game game) {
 		int[] expected_payoffs = new int[game.getCandidates().size()];
 		for (Candidate c : game.getCandidates().values()) {
-			int candidate_num = c.get_candidate_number();
+			int candidate_num = c.get_candidate_num();
 			expected_payoffs[candidate_num] = get_expected_payoff(game, candidate_num);
 		}
 		return expected_payoffs;
@@ -94,8 +94,8 @@ public class PlayerGameInfo {
 		int max = game.get_max();
 		int multiplier = game.get_multiplier();
 		Candidate winner = game.getCandidates().get(winning_candidate);
-		int candidate_num = winner.get_candidate_number();
-		int candidate_ideal = winner.get_candidate_ideal_point();
+		int candidate_num = winner.get_candidate_num();
+		int candidate_ideal = winner.get_position();
 		int delta = Math.abs(candidate_ideal-ideal_point);
 		int valence = valences[candidate_num];
 		this.winnings = max - (delta*multiplier) + valence + budget;

@@ -1,133 +1,132 @@
-package utils;
-
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileReader;
-import java.util.ArrayList;
-import java.util.HashMap;
-
-import model.Candidate;
-import model.Distribution;
-import model.Game;
-
 /**
- * Reads a config file in and convert the info into game objects
+ * Reads a json formatted config file in and convert the info into game objects
  * @author Max Buster
  */
 
+package utils;
+
+import java.io.*;
+import java.util.ArrayList;
+
+import model.Candidate;
+import model.Distributions.BiasDistribution;
+import model.Distributions.VoterDistribution;
+import org.json.*;
+
+import model.Game;
+
 public class ConfigReader {
-	private int payoff_intercept;
-	private int payoff_multiplier;
-	private ArrayList<Game> games;
-	
-	public ConfigReader() {
-		this.games = new ArrayList<Game>();
-	}
-	
-	/**
-	 * FIXME handle extra commas and spaces and stuff
-	 */
 
 	/**
-	 * Read a csv file as game objects
+	 * @param file_name - the config file in the same directory as the program
+	 * @return a list of game objects that are configured according to the input file
+	 * @throws IOException if there is an error finding or reading from the file
+	 * @throws JSONException if the file is not correctly json formatted
 	 */
-	public boolean read_config(String file_name) {
-		File file = new File(file_name);
-		if (file.canRead()) {
-			try {
-				FileReader fReader = new FileReader(file);
-				BufferedReader reader = new BufferedReader(fReader);
-				read_multipliers(reader); 
-				
-				String line;
-				// Read each game into a game object
-				while ((line = reader.readLine()) != null && !line.isEmpty()) { 
-					Game game = read_game(reader);
-					game.set_payoff_equation(payoff_multiplier, payoff_intercept);
-					games.add(game);
-				}
-			} catch (Exception e) {
-				e.printStackTrace();
-				return false;
-			} 
+	public static ArrayList<Game> get_games_from_config(String file_name) throws IOException, JSONException {
+		ArrayList<Game> all_games = new ArrayList<>();
+
+		String file_contents = get_file_contents(file_name);
+		JSONObject json_contents = convert_string_to_json(file_contents);
+
+		int games_payoff_multiplier = json_contents.getInt("payoff_multiplier");
+		int games_payoff_max = json_contents.getInt("payoff_max");
+
+		JSONArray games = json_contents.getJSONArray("games");
+		for (int game_num=0; game_num<games.length(); game_num++) {
+			JSONObject json_game = games.getJSONObject(game_num);
+			Game game = get_game_from_json(game_num, json_game);
+			game.with_payoff_multiplier(games_payoff_multiplier).with_payoff_max(games_payoff_max);
+			all_games.add(game);
 		}
-		return true;
-	}
-	
-	public ArrayList<Game> get_games() {
-		return this.games;
-	}
-	
-	public int get_payoff_intercept() {
-		return this.payoff_intercept;
-	}
-	
-	public int get_payoff_multiplier() {
-		return this.payoff_multiplier;
-	}
-	
-	/**
-	 * Read the multiplier and intercept that manipulate payoffs
-	 */
-	private void read_multipliers(BufferedReader reader) throws Exception {
-		reader.readLine(); // TODO check it is a comment
-		String payoff_multiplier_string = reader.readLine();
-		String payoff_intercept_string = reader.readLine();
 
-		payoff_multiplier = Integer.parseInt(payoff_multiplier_string);
-		payoff_intercept = Integer.parseInt(payoff_intercept_string);
+		return all_games;
 	}
-	
+
 	/**
-	 * Read and parse lines into game info
-	 * @throws Exception if reading or parsing goes wrong
+	 * @param json_game - a single game's configuration json formatted
+	 * @return a Game object containing the information from the config
+	 * @throws JSONException if json cannot be parsed into objects
 	 */
-	private Game read_game(BufferedReader reader) throws Exception {
-		String candidate_points = reader.readLine();
-		String game_distribution = reader.readLine();
-		String game_budget = reader.readLine();
-		String game_payoffs = reader.readLine();
-		
-		int[] ideal_points = parse_ints(split_string(candidate_points));
-		int[] distribution = parse_ints(split_string(game_distribution));
-		int budget = Integer.parseInt(game_budget);
-		int[] payoffs = parse_ints(split_string(game_payoffs));
-		
-		HashMap<Integer, Candidate> candidates = create_candidates(ideal_points);
-		Game game = new Game(games.size(), candidates, new Distribution(distribution), budget, payoffs);
-		return game;
+	public static Game get_game_from_json(int game_num, JSONObject json_game) throws JSONException {
+		JSONArray candidate_json_info = json_game.getJSONArray("candidate_positions");
+		ArrayList<Candidate> candidates = get_candidates_from_json(candidate_json_info);
+
+		JSONObject json_voter_dist = json_game.getJSONObject("voter_distribution");
+		VoterDistribution voter_distribution = get_voter_dist_from_json(json_voter_dist);
+
+		int budget = json_game.getInt("budget");
+
+		JSONObject json_bias_dist = json_game.getJSONObject("bias_distribution");
+		BiasDistribution bias_distribution = get_bias_dist_from_json(json_bias_dist);
+
+		return new Game(game_num, candidates, voter_distribution, bias_distribution, budget);
 	}
-	
+
 	/**
-	 * Create candidate objects given ideal points and parties from the config
+	 * @param candidate_list - a json array containing candidate positions
+	 * @return an ArrayList of candidate objects with positions from config
+	 * @throws JSONException if json read fails
 	 */
-	private HashMap<Integer, Candidate> create_candidates(int[] ideal_points) {
-		HashMap<Integer, Candidate> candidates = new HashMap<Integer, Candidate>();
-		for (int i=0; i<ideal_points.length; i++) {
-			Candidate candidate = new Candidate(i, ideal_points[i]);
-			candidates.put(i, candidate);
+	public static ArrayList<Candidate> get_candidates_from_json(JSONArray candidate_list) throws JSONException {
+		ArrayList<Candidate> candidates = new ArrayList<>();
+		for (int candidate_num=0; candidate_num<candidate_list.length(); candidate_num++) {
+			int candidate_position = candidate_list.getInt(candidate_num);
+			candidates.add(new Candidate(candidate_num, candidate_position));
 		}
 		return candidates;
 	}
-	
+
 	/**
-	 * Convert strings into ints
+	 * @param distribution_object - json object containing voter distribution info
+	 * @return generated VoterDistribution object from the config
+	 * @throws JSONException on malformed json object
 	 */
-	private int[] parse_ints(String[] split_string) {
-		int[] parsed_ints = new int[split_string.length];
-		for (int i=0; i<split_string.length; i++) {
-			parsed_ints[i] = Integer.parseInt(split_string[i]);
-		}
-		return parsed_ints;
+	public static VoterDistribution get_voter_dist_from_json(JSONObject distribution_object) throws JSONException {
+		int voter_std_dev_1 = distribution_object.getInt("std_dev_1");
+		int voter_mean_1 = distribution_object.getInt("mean_1");
+		int voter_std_dev_2 = distribution_object.getInt("std_dev_2");
+		int voter_mean_2 = distribution_object.getInt("mean_2");
+		return new VoterDistribution(voter_std_dev_1, voter_mean_1, voter_std_dev_2, voter_mean_2);
 	}
-	
+
 	/**
-	 * Split a csv string into an array of strings
+	 * @param bias_distribution - json object containing candidate bias distribution info
+	 * @return generated BiasDistribution object from the config
+	 * @throws JSONException on malformed json object
 	 */
-	private String[] split_string(String s) {
-		s = s.replaceAll("\\s", "");
-		s = s.replaceAll(",", " ");
-		String[] s_split = s.split("\\s");
-		return s_split;
+	public static BiasDistribution get_bias_dist_from_json(JSONObject bias_distribution) throws JSONException {
+		int bias_std_dev = bias_distribution.getInt("std_dev");
+		int bias_mean = bias_distribution.getInt("mean");
+		return new BiasDistribution(bias_std_dev, bias_mean);
+	}
+
+	/**
+	 * @param file_name - The path to the text file to read from
+	 * @return A string containing the contents of the file
+	 * @throws IOException - On file read error
+	 */
+	public static String get_file_contents(String file_name) throws IOException {
+		InputStream file_input = new FileInputStream(file_name);
+		BufferedReader buff_reader = new BufferedReader(new InputStreamReader(file_input));
+
+		String line = buff_reader.readLine();
+		StringBuilder file_contents_builder = new StringBuilder();
+
+		while(line != null) {
+			file_contents_builder.append(line);
+			line = buff_reader.readLine();
+		}
+
+		return file_contents_builder.toString();
+	}
+
+	/**
+	 * @param json_string - json formatted string
+	 * @return a JSON object formatted from the json string
+	 * @throws JSONException - if input string is not correctly formatted json
+	 */
+	public static JSONObject convert_string_to_json(String json_string) throws JSONException {
+		return new JSONObject(json_string);
 	}
 }
