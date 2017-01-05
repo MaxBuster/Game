@@ -57,3 +57,6 @@ out
 # Config and Data Files
 *.csv
 *.txt
+
+# Development Files
+TODO

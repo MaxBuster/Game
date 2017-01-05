@@ -27,17 +27,12 @@ public class Constants {
 	public static final String ELECTION = "Election";
 
 	// Edge rounds
-	public static final String ALL_FINISHED = "All Finished";
 	public static final int NOT_STARTED = -1;
 
 	// Round List
 	public static final String[] LIST_OF_ROUNDS = new String[]{
 			FIRST_BUY, POLL, PRIMARY, SECOND_BUY, ELECTION
-	}; 
-
-	// Return codes
-	public static final int IOEXCEPTION = 1;
-	public static final int METHOD_SUCCEEDED = 0;
+	};
 
 	// Server Events
 	public static final String START_GAME = "Start Game";
@@ -48,6 +43,7 @@ public class Constants {
 
 	// Message Types
 	public static final int MESSAGE_START = -1;
+
 	public static final int START_INFO = 1;
 	public static final int PLAYER_INFO = 2;
 	public static final int GAME_INFO = 3;
@@ -82,13 +78,6 @@ public class Constants {
 	public static final Color GREEN = new Color(153, 255, 153);
 	public static final Color RED = new Color(255, 153, 153);
 	public static final Color BLUE = new Color(153, 204, 255);
-	
-	// Graph Colors
-	public static final Color[] GRAPH_GOLORS = new Color[]{
-			Color.GREEN, Color.BLACK, Color.BLUE, Color.ORANGE,
-			Color.PINK, Color.CYAN, Color.DARK_GRAY, Color.RED, 
-			Color.GRAY, Color.LIGHT_GRAY, Color.MAGENTA,
-			Color.WHITE, Color.YELLOW};
 
 	// Panel Visibility
 	// Order: [game_labels, player_labels, all_info, action_table, end_round]
@@ -121,9 +110,6 @@ public class Constants {
 	public static final String[] CLIENT_BUY_ROW = new String[]{"--", "--", "Buy"};
 	// Order: Candidate #, Vote Button
 	public static final String[] CLIENT_VOTE_ROW = new String[]{"--", "Vote"};
-
-	// Zero token array for candidate beta distribution
-	public static final int[] ZERO_TOKENS = new int[]{0, 0};
 	
 	// Info Prices
 	public static final int INFO_PRICE = 1;

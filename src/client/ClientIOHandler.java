@@ -11,8 +11,8 @@ import java.net.Socket;
 
 import javax.swing.JOptionPane;
 
+import client.UIHelpers.ClientGuiInfo;
 import utils.Constants;
-import utils.ClientGuiInfo;
 
 /**
  * Intermediary between the client UI and the server data stream

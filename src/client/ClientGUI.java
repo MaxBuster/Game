@@ -27,16 +27,19 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
+import client.UIHelpers.ChartCreator;
+import client.UIHelpers.ClientGuiInfo;
+import client.UIHelpers.TableGenerator;
+import model.Distributions.VoterDistribution;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
 import org.jfree.data.xy.IntervalXYDataset;
 import org.jfree.ui.TextAnchor;
 
-import utils.ButtonEditor;
-import utils.ButtonRenderer;
+import utils.UI.ButtonEditor;
+import utils.UI.ButtonRenderer;
 import utils.Constants;
-import utils.ClientGuiInfo;
 
 public class ClientGUI extends JFrame {
 	private static final long serialVersionUID = 1L; // Default serial id
@@ -340,9 +343,16 @@ public class ClientGUI extends JFrame {
 	 * to graph the distribution and adds the generated data as a line to the chart
 	 */
 	public void add_voter_data_to_graph(int[] voter_dist) {
+		int mean1 = voter_dist[0];
+		int stdDev1 = voter_dist[1];
+		int mean2 = voter_dist[2];
+		int stdDev2 = voter_dist[3];
+		VoterDistribution voter_distribution = new VoterDistribution(stdDev1, mean1, stdDev2, mean2);
+		double[] voter_data = voter_distribution.get_pdf();
+
 		int dataset_position = 0;
 		String dataset_name = "Voters";
-		double[] voter_data = VoterDistributionGenerator.generate_data(voter_dist);
+
 		IntervalXYDataset chart_dataset = ChartCreator.create_dataset(voter_data, dataset_name);
 		chart.getChart().getXYPlot().setDataset(dataset_position, chart_dataset); 
 

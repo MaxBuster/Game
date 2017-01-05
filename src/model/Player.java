@@ -1,5 +1,8 @@
 package model;
 
+import model.Distributions.BiasDistribution;
+import model.Distributions.VoterDistribution;
+
 import java.util.ArrayList;
 import java.util.Random;
 
@@ -18,12 +21,12 @@ public class Player {
 	
 	public PlayerGameInfo new_pgi(Game game) {
 		int ideal_point = new_ideal_point(game);
-		int num_candidates = game.getCandidates().size();
+		int num_candidates = game.get_candidates().size();
 		int[] valences = new int[num_candidates];
 		for (int i=0; i<num_candidates; i++) {
 			valences[i] = get_payoff_valence(game);
 		}
-		int budget = game.getBudget();
+		int budget = game.get_budget();
 		PlayerGameInfo pgi = new PlayerGameInfo(ideal_point, budget, valences);
 		this.pgi_list.add(pgi);
 		return pgi;
@@ -38,11 +41,12 @@ public class Player {
 	}
 	
 	public int new_ideal_point(Game game) {
-		Distribution dist = game.getDistribution();
-		int[] cdf = dist.getCDF();
+		VoterDistribution voter_distribution = game.get_voter_distribution();
+		double[] cdf = voter_distribution.get_cdf();
+		double max_value = voter_distribution.get_pdf_integral();
+
 		int ideal_point = 100;
-		int sum = cdf[cdf.length-1];
-		int random_point = new Random().nextInt(sum); 
+		double random_point = new Random().nextInt((int) max_value); // FIXME ranges?
 		for (int i=1; i<cdf.length; i++) {
 			if (cdf[i] > random_point) {
 				ideal_point = i-1; // FIXME corner cases?
@@ -53,10 +57,9 @@ public class Player {
 	}
 	
 	public int get_payoff_valence(Game game) {
-		int[] payoff_dist = game.get_payoff_dist();
-		ValenceGenerator generator = new ValenceGenerator(payoff_dist[0], payoff_dist[1]);
-		int valence = (int) generator.get_payoff(); 
-		return valence;
+		BiasDistribution bias_distribution = game.get_bias_distribution();
+		int bias = (int) bias_distribution.generate_bias();
+		return bias;
 	}
 
 	public int getPlayer_number() {

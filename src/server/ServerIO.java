@@ -1,3 +1,9 @@
+/**
+ * Starting point for the game server
+ * Reads config, intializes data model, server GUI and accepts client connections
+ * @author Max Buster
+ */
+
 package server;
 
 import java.beans.PropertyChangeSupport;
@@ -10,78 +16,82 @@ import javax.swing.JOptionPane;
 
 import model.Game;
 import model.Model;
-import utils.ConfigReader;
-import utils.Constants;
 
-/**
- * Create a server socket, server GUI, data model 
- * and accepts client connections
- * @author Max Buster
- */
+import org.json.JSONException;
+import utils.FileIO.ConfigReader;
 
 public class ServerIO {
 	private final PropertyChangeSupport pcs;
-	private Model model;
-	private static ServerSocket socket;
 	@SuppressWarnings("unused")
 	private static ServerGUI gui;
+	private Model model;
+	private ServerSocket server_socket;
 
-	public ServerIO(Game[] games) {
+	public ServerIO(ArrayList<Game> games) throws IOException {
 		this.pcs = new PropertyChangeSupport(this);
-		gui = new ServerGUI(pcs, games.length); // FIXME close gui if socket fails
+		this.gui = new ServerGUI(pcs, games.size()); // FIXME close gui if server_socket fails
 		this.model = new Model(games, pcs); // FIXME catch errors?
+		open_socket(10501);
 	}
 
 	/**
-	 * Initialize the server socket and connect to clients
+	 * @param port - the port on the computer that accepts the socket connection
+	 * @throws IOException - If socket creation fails
 	 */
-	public int run() {
-		try {
-			socket = new ServerSocket(10501);
-		} catch (IOException e) {
-			JOptionPane.showMessageDialog(null, "Problem opening server");
-			e.printStackTrace();
-			return Constants.IOEXCEPTION;
-		}
-		Socket clientSocket = null;
+	public void open_socket(int port) throws IOException{
+		this.server_socket = new ServerSocket(port);
+	}
+
+	/**
+	 * Continually loops to accept clients and pass them off to client handler threads
+	 * Rejects a client connection if the game has already begun
+	 * @throws IOException - If accepting a client fails
+	 */
+	public void run() throws IOException {
 		while (true) {
-			try {
-				clientSocket = socket.accept();
-				if (!model.game_started()) {
-					newThread(clientSocket);
-				} else {
-					clientSocket.close();
-				}
-			} catch (IOException e) {
-				e.printStackTrace();
-				return Constants.IOEXCEPTION; 
+			Socket client_socket = server_socket.accept();
+			if (!model.game_started()) {
+				start_client_handler_thread(client_socket);
+			} else {
+				// TODO write a message
+				client_socket.close();
 			}
 		} 
 	}
 
 	/**
-	 * Start a new thread to handle a client connection
+	 * Begins a new thread for client socket IO
+	 * @param client_socket - the socket with which the new thread should communicate with
 	 */
-	public void newThread(final Socket clientSocket) {
+	public void start_client_handler_thread(final Socket client_socket) {
 		Thread thread = new Thread() {
 			public void run() {
-				ServerIOHandler serverIOHandler = new ServerIOHandler(model, pcs, clientSocket);
-				serverIOHandler.handleIO();
+				ServerIOHandler server_IO_handler = new ServerIOHandler(model, pcs, client_socket);
+				server_IO_handler.handleIO();
 			}
 		};
 		thread.start();
 	}
 
 	public static void main(String[] args) {
-		ConfigReader config = new ConfigReader();
-		boolean config_read_successfully = config.read_config("config.csv");
-		if (config_read_successfully) {
-			ArrayList<Game> games = config.get_games();
-			Game[] games_array = games.toArray(new Game[games.size()]);
-			ServerIO server = new ServerIO(games_array);
+		String filename = "test_resources/test_config.json"; // FIXME change location
+		ArrayList<Game> games;
+
+		try {
+			games = ConfigReader.get_games_from_config(filename);
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "Problem finding config file: " + filename);
+			return;
+		} catch (JSONException j) {
+			JOptionPane.showMessageDialog(null, "Problem parsing json format of file");
+			return;
+		}
+
+		try {
+			ServerIO server = new ServerIO(games);
 			server.run();
-		} else {
-			JOptionPane.showMessageDialog(null, "Problem reading config file");
+		} catch (IOException e) {
+			JOptionPane.showMessageDialog(null, "IO Exception running server");
 		}
 	}
 

@@ -12,16 +12,14 @@ import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 
 import javax.swing.JFrame;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.border.EmptyBorder;
 import javax.swing.table.DefaultTableModel;
 
-import model.Player;
-import utils.ButtonEditor;
-import utils.ButtonRenderer;
+import utils.UI.ButtonEditor;
+import utils.UI.ButtonRenderer;
 import utils.Constants;
 
 /**

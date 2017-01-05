@@ -10,12 +10,12 @@ import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import utils.ConfigReader;
+import utils.FileIO.ConfigReader;
 
 import java.io.IOException;
 import java.util.ArrayList;
 
-public class Config_Reader_Tests {
+public class ConfigReaderTests {
     private String file_name;
 
     @Before

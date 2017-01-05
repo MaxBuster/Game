@@ -70,9 +70,9 @@ public class PlayerGameInfo {
 	
 	// Get the expected payoff for a specific candidate
 	public int get_expected_payoff(Game game, int candidate_num) {
-		int max = game.get_max();
-		int multiplier = game.get_multiplier();
-		Candidate candidate = game.getCandidates().get(candidate_num);
+		int max = game.get_payoff_max();
+		int multiplier = game.get_payoff_multiplier();
+		Candidate candidate = game.get_candidates().get(candidate_num);
 		int candidate_ideal = candidate.get_position();
 		int delta = Math.abs(candidate_ideal-ideal_point);
 		int valence = valences[candidate_num];
@@ -81,8 +81,8 @@ public class PlayerGameInfo {
 
 	// Get expected payoffs for each candidate given purchased valences
 	public int[] get_expected_payoffs(Game game) {
-		int[] expected_payoffs = new int[game.getCandidates().size()];
-		for (Candidate c : game.getCandidates().values()) {
+		int[] expected_payoffs = new int[game.get_candidates().size()];
+		for (Candidate c : game.get_candidates()) {
 			int candidate_num = c.get_candidate_num();
 			expected_payoffs[candidate_num] = get_expected_payoff(game, candidate_num);
 		}
@@ -91,9 +91,9 @@ public class PlayerGameInfo {
 
 	// Calculate the winnings for the winning candidate
 	public int set_winnings(Game game, int winning_candidate) {
-		int max = game.get_max();
-		int multiplier = game.get_multiplier();
-		Candidate winner = game.getCandidates().get(winning_candidate);
+		int max = game.get_payoff_max();
+		int multiplier = game.get_payoff_multiplier();
+		Candidate winner = game.get_candidates().get(winning_candidate);
 		int candidate_num = winner.get_candidate_num();
 		int candidate_ideal = winner.get_position();
 		int delta = Math.abs(candidate_ideal-ideal_point);
