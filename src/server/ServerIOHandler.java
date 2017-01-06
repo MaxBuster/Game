@@ -8,7 +8,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.Socket;
 import java.util.ArrayList;
-import java.util.Arrays;
 
 import model.Candidate;
 import model.Distributions.VoterDistribution;
@@ -76,14 +75,14 @@ public class ServerIOHandler {
 					break;
 				case Constants.END_ROUND:
 					player.setDone(true);
-					model.attempt_end_round();
+					model.continue_game_if_all_players_done();
 					break;
 				case Constants.VOTE:
 					int candidate = message[0];
 //					current_game.vote(current_round, candidate);
 					pgi.vote(current_round, candidate);
 					player.setDone(true);
-					model.attempt_end_round();
+					model.continue_game_if_all_players_done();
 					break;
 				default: break;
 				}
@@ -228,7 +227,7 @@ public class ServerIOHandler {
 		public void propertyChange(PropertyChangeEvent PCE) {
 			String event = PCE.getPropertyName();
 			if (event == Constants.ROUND_OVER) { 
-				// FIXME synchronize this stuff
+				// FIXME synchronize this stuff, make it clear this is just for votes
 				int previous_round = (Integer) PCE.getOldValue();
 				String previous_round_name = Constants.LIST_OF_ROUNDS[previous_round];
 				Game current_game = (Game) PCE.getNewValue();

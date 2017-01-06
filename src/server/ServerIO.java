@@ -50,7 +50,7 @@ public class ServerIO {
 	public void run() throws IOException {
 		while (true) {
 			Socket client_socket = server_socket.accept();
-			if (!model.game_started()) {
+			if (!model.experiment_started()) {
 				start_client_handler_thread(client_socket);
 			} else {
 				// TODO write a message
