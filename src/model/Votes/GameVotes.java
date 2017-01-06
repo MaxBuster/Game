@@ -15,7 +15,7 @@ public class GameVotes {
 
     public GameVotes(int game_num) {
         this.game_num = game_num;
-        this.round_votes = new HashMap<>();
+        this.round_votes = new HashMap<String, RoundVotes>();
 
         this.round_votes.put(Constants.POLL, new RoundVotes(Constants.POLL));
         this.round_votes.put(Constants.PRIMARY, new RoundVotes(Constants.PRIMARY));

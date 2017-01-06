@@ -14,7 +14,7 @@ public class VoteCounter {
      * @return a map of candidate nums to round results
      */
     public static HashMap<Integer, VoteResults> get_vote_counts(RoundVotes round_votes) {
-        HashMap<Integer, VoteResults> round_results = new HashMap<>();
+        HashMap<Integer, VoteResults> round_results = new HashMap<Integer, VoteResults>();
         int sum_of_votes = 0;
         for (Vote vote : round_votes.get_votes()) {
             int cand_num = vote.get_candidate_num();

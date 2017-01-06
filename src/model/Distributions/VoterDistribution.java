@@ -51,4 +51,12 @@ public class VoterDistribution {
     public double[] get_cdf() { return cdf; }
 
     public int get_pdf_integral() { return pdf_integral; }
+
+    public int get_std_dev_1() { return std_dev_1; }
+
+    public int get_mean_1() { return mean_1; }
+
+    public int get_std_dev_2() { return std_dev_2; }
+
+    public int get_mean_2() { return mean_2; }
 }

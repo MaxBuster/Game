@@ -10,10 +10,12 @@ import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import model.Votes.GameVotes;
+import model.Votes.VoteResults;
 import utils.Constants;
-import utils.FileIO.DataWriter;
+import utils.IO.DataWriter;
 
 public class Model {
 	private ArrayList<Game> games;
@@ -23,7 +25,6 @@ public class Model {
 	private int next_player_num;
 
 	private ArrayList<GameVotes> votes;
-	private GameVotes current_game_votes;
 
 	private int num_games;
 	private int current_game_num;
@@ -35,10 +36,10 @@ public class Model {
 		this.pcs = pcs;
 		this.pcs.addPropertyChangeListener(new ChangeListener());
 
-		this.players = new ArrayList<>();
+		this.players = new ArrayList<Player>();
 		this.next_player_num = 0;
 
-		this.votes = new ArrayList<>();
+		this.votes = make_vote_list();
 
 		this.num_games = games.size();
 		this.current_game_num = Constants.NOT_STARTED;
@@ -83,6 +84,38 @@ public class Model {
 
 	public synchronized ArrayList<Player> get_players() { return players; }
 
+	// ------------------------- Vote Handling ----------------------------- //
+
+	/**
+	 * @return A list of blank GameVote objects - one for each game
+	 */
+	private ArrayList<GameVotes> make_vote_list() {
+		ArrayList<GameVotes> game_votes = new ArrayList<GameVotes>();
+		for (int i=0; i<games.size(); i++) {
+			game_votes.add(new GameVotes(i));
+		}
+		return game_votes;
+	}
+
+	/**
+	 * Adds a vote to the current round of the current game for the specified candidate
+	 * @param candidate_num - the candidate to vote for
+	 * @param player_num - the player sending the vote
+	 */
+	public synchronized void vote(int candidate_num, int player_num) {
+		String current_round_name = Constants.LIST_OF_ROUNDS[current_round_index];
+		votes.get(current_game_num).vote(current_round_name, candidate_num, player_num);
+	}
+
+	/**
+	 * @param game_num - game you want votes for
+	 * @param round_name - round you want votes for
+	 * @return A map of candidate numbers to their vote results of the specified round
+	 */
+	public HashMap<Integer, VoteResults> get_round_vote_results(int game_num, String round_name) {
+		return votes.get(game_num).get_round_votes(round_name).get_vote_results();
+	}
+
 	// ------------------------- Game Acccess ------------------------------ //
 
 	/**
@@ -96,6 +129,10 @@ public class Model {
 		}
 	}
 
+	/**
+	 * Called when "Start Game" is pressed on the server
+	 * Increments the game number and round number and alerts listeners
+	 */
 	public synchronized void start_experiment() {
 		start_new_game();
 		start_next_round();
@@ -130,16 +167,25 @@ public class Model {
 		set_players_to_not_done();
 	}
 
+	/**
+	 * Alerts server handlers and server gui that a round ended
+	 */
 	private synchronized void end_round() {
 		pcs.firePropertyChange(Constants.ROUND_OVER, current_round_index, get_current_game());
 	}
 
+	/**
+	 * Calculates the index of the next round and alerts server handlers and gui
+	 */
 	private synchronized void start_next_round() {
 		current_round_index++;
 		current_round_index %= Constants.LIST_OF_ROUNDS.length;
 		pcs.firePropertyChange(Constants.NEW_ROUND, current_round_index, null);
 	}
 
+	/**
+	 * Increments the game number and alerts listeners
+	 */
 	private void start_new_game() {
 		current_game_num++;
 		pcs.firePropertyChange(Constants.NEW_GAME, current_game_num, null);
@@ -149,6 +195,9 @@ public class Model {
 		pcs.firePropertyChange(Constants.END_ALL_GAMES, null, null);
 	}
 
+	/**
+	 * @return boolean of whether the last round of the game has ended
+	 */
 	private boolean game_is_over() {
 		int next_round_index = (current_round_index + 1) % Constants.LIST_OF_ROUNDS.length;
 		if (next_round_index < current_round_index) {
@@ -158,6 +207,9 @@ public class Model {
 		}
 	}
 
+	/**
+	 * @return a boolean signifying that the current game number exceeds the total number of games
+	 */
 	private boolean more_games_left() {
 		if (current_game_num < num_games - 1) {
 			return true;

@@ -27,7 +27,7 @@ public class VoteTester {
     @Before
     public void setup() {
         game_votes = new GameVotes(0);
-        num_votes_per_candidate = new int[]{2,3,2,5};
+        num_votes_per_candidate = new int[]{2,3,1,5};
         total_votes = 0;
 
         /* Add votes to the poll vote round */
@@ -41,7 +41,7 @@ public class VoteTester {
         poll_votes = game_votes.get_round_votes(Constants.POLL);
         poll_results = VoteCounter.get_vote_counts(poll_votes);
 
-        list_results = new ArrayList<>();
+        list_results = new ArrayList<VoteResults>();
         list_results.addAll(poll_results.values());
     }
 

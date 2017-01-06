@@ -1,4 +1,4 @@
-package utils.FileIO;
+package utils.IO;
 
 import java.io.BufferedWriter;
 import java.io.File;
@@ -74,7 +74,12 @@ public class DataWriter {
 		for (int i=0; i<data.length; i++) {
 			string_data[i] = Integer.toString(data[i]);
 		}
-		return String.join(",", Arrays.asList(string_data));
+		String s = "";
+		for (int i=0; i<data.length-1; i++) {
+			s += string_data[i] + ',';
+		}
+		s += string_data[data.length-1];
+		return s;
 	}
 
 	public static int[] bool_to_int(boolean[] bool_data) {

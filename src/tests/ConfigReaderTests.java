@@ -10,7 +10,7 @@ import org.json.JSONObject;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import utils.FileIO.ConfigReader;
+import utils.IO.ConfigReader;
 
 import java.io.IOException;
 import java.util.ArrayList;

@@ -3,7 +3,7 @@
  * @author Max Buster
  */
 
-package utils.FileIO;
+package utils.IO;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -24,7 +24,7 @@ public class ConfigReader {
 	 * @throws JSONException if the file is not correctly json formatted
 	 */
 	public static ArrayList<Game> get_games_from_config(String file_name) throws IOException, JSONException {
-		ArrayList<Game> all_games = new ArrayList<>();
+		ArrayList<Game> all_games = new ArrayList<Game>();
 
 		String file_contents = get_file_contents(file_name);
 		JSONObject json_contents = convert_string_to_json(file_contents);
@@ -69,7 +69,7 @@ public class ConfigReader {
 	 * @throws JSONException if json read fails
 	 */
 	public static ArrayList<Candidate> get_candidates_from_json(JSONArray candidate_list) throws JSONException {
-		ArrayList<Candidate> candidates = new ArrayList<>();
+		ArrayList<Candidate> candidates = new ArrayList<Candidate>();
 		for (int candidate_num=0; candidate_num<candidate_list.length(); candidate_num++) {
 			int candidate_position = candidate_list.getInt(candidate_num);
 			candidates.add(new Candidate(candidate_num, candidate_position));
