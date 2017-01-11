@@ -8,12 +8,12 @@ package utils.IO;
 import java.io.*;
 import java.util.ArrayList;
 
-import model.Candidate;
-import model.Distributions.BiasDistribution;
-import model.Distributions.VoterDistribution;
+import model.Candidate.Candidate;
+import utils.Distributions.BiasDistribution;
+import utils.Distributions.VoterDistribution;
 import org.json.*;
 
-import model.Game;
+import model.Game.Game;
 
 public class ConfigReader {
 

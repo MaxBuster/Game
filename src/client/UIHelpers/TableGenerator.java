@@ -1,6 +1,6 @@
 package client.UIHelpers;
 
-import utils.Constants;
+import utils.Constants.Constants;
 
 public class TableGenerator {
 

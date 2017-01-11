@@ -4,7 +4,7 @@
 
 package tests;
 
-import model.Game;
+import model.Game.Game;
 import org.json.JSONException;
 import org.json.JSONObject;
 import org.junit.After;

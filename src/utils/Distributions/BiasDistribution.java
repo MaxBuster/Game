@@ -3,9 +3,12 @@
  * Created by Max Buster
  */
 
-package model.Distributions;
+package utils.Distributions;
 
+import model.Player.Bias;
 import org.apache.commons.math3.distribution.NormalDistribution;
+
+import java.util.ArrayList;
 
 public class BiasDistribution {
     private int std_dev;
@@ -19,12 +22,24 @@ public class BiasDistribution {
     }
 
     /**
+     * @param num_biases - The number of biases to generate
+     * @return a list of bias objects chosen from this distribution
+     */
+    public ArrayList<Bias> generate_list_of_biases(int num_biases) {
+        ArrayList<Bias> biases = new ArrayList<Bias>();
+        for (int candidate_num=0; candidate_num<num_biases; candidate_num++) {
+            biases.add(generate_bias(candidate_num));
+        }
+        return biases;
+    }
+
+    /**
      * @return a randomly chosen bias from the normal distribution, truncated at 3 std devs
      */
-    public double generate_bias() {
-        double sample = bias_distribution.sample();
-        double upper_bound = mean + (3*std_dev);
-        double lower_bound = mean - (3*std_dev);
+    private Bias generate_bias(int candidate_num) {
+        int sample = (int) bias_distribution.sample();
+        int upper_bound = mean + (3*std_dev);
+        int lower_bound = mean - (3*std_dev);
 
         /* Truncate sample if outside bounds */
         if (sample > upper_bound) {
@@ -32,6 +47,6 @@ public class BiasDistribution {
         } else if (sample < lower_bound){
             sample = lower_bound;
         }
-        return sample;
+        return new Bias(candidate_num, sample);
     }
 }

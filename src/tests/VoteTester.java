@@ -12,7 +12,7 @@ import model.Votes.VoteResults;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import utils.Constants;
+import utils.Constants.Constants;
 
 import java.util.*;
 

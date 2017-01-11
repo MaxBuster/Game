@@ -5,13 +5,13 @@
 
 package tests;
 
-import model.Game;
+import model.Game.Game;
 import model.Model;
-import model.Player;
+import model.Player.Player;
 import org.junit.Before;
 import org.junit.Test;
 import tests.Stubs.GameStub;
-import utils.Constants;
+import utils.Constants.Constants;
 
 import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
@@ -38,7 +38,7 @@ public class ModelTests {
     public void set_all_players_to_done() {
         ArrayList<Player> players = model.get_players();
         for (Player player : players) {
-            player.setDone(true);
+            player.set_done(true);
         }
     }
 

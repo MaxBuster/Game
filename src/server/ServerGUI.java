@@ -20,7 +20,7 @@ import javax.swing.table.DefaultTableModel;
 
 import utils.UI.ButtonEditor;
 import utils.UI.ButtonRenderer;
-import utils.Constants;
+import utils.Constants.Constants;
 
 /**
  * Creates a UI for the RA to interact with and track game progress

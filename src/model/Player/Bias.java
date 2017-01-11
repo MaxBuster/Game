@@ -3,7 +3,7 @@
  * Created by Max Buster
  */
 
-package model.Payoffs;
+package model.Player;
 
 public class Bias {
     private int candidate_num;

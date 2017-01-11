@@ -5,7 +5,7 @@
 
 package utils.IO;
 
-import utils.Constants;
+import utils.Constants.Constants;
 
 import java.io.IOException;
 import java.io.ObjectInputStream;
@@ -61,5 +61,18 @@ public class SocketIO {
      */
     public Object read_message_body() throws IOException, ClassNotFoundException {
         return in.readObject();
+    }
+
+    /**
+     * Attempts to close the socket connection
+     */
+    public void close_socket() {
+        try {
+            if (!socket.isClosed()) {
+                socket.close();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 }

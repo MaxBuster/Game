@@ -12,9 +12,11 @@ import java.beans.PropertyChangeSupport;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import model.Game.Game;
+import model.Player.Player;
 import model.Votes.GameVotes;
 import model.Votes.VoteResults;
-import utils.Constants;
+import utils.Constants.Constants;
 import utils.IO.DataWriter;
 
 public class Model {
@@ -57,7 +59,7 @@ public class Model {
 		Player player = new Player(next_player_num);
 		next_player_num++;
 		players.add(player);
-		pcs.firePropertyChange(Constants.NEW_PLAYER, player.getPlayer_number(), null);
+		pcs.firePropertyChange(Constants.NEW_PLAYER, player.get_player_number(), null);
 		return player;
 	}
 
@@ -66,7 +68,7 @@ public class Model {
 	 */
 	public boolean all_players_done() {
 		for (Player p : players) {
-			if (!p.isDone()) {
+			if (!p.is_done()) {
 				return false;
 			}
 		}
@@ -78,7 +80,7 @@ public class Model {
 	 */
 	public void set_players_to_not_done() {
 		for (Player p : players) {
-			p.setDone(false);
+			p.set_done(false);
 		}
 	}
 
@@ -233,7 +235,7 @@ public class Model {
 				int player_viewable_num = Integer.parseInt((String) PCE.getOldValue());
 				int player_num = player_viewable_num-1;
 				for (int i=0; i<players.size(); i++) {
-					if (players.get(i).getPlayer_number() == player_num) {
+					if (players.get(i).get_player_number() == player_num) {
 						players.remove(i);
 						if (experiment_started()) {
 							continue_game_if_all_players_done();

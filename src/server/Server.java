@@ -14,7 +14,7 @@ import java.util.ArrayList;
 
 import javax.swing.JOptionPane;
 
-import model.Game;
+import model.Game.Game;
 import model.Model;
 
 import org.json.JSONException;

@@ -30,7 +30,7 @@ import javax.swing.table.DefaultTableModel;
 import client.UIHelpers.ChartCreator;
 import client.UIHelpers.ClientGuiInfo;
 import client.UIHelpers.TableGenerator;
-import model.Distributions.VoterDistribution;
+import utils.Distributions.VoterDistribution;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.ValueMarker;
 import org.jfree.chart.renderer.xy.XYLineAndShapeRenderer;
@@ -39,7 +39,7 @@ import org.jfree.ui.TextAnchor;
 
 import utils.UI.ButtonEditor;
 import utils.UI.ButtonRenderer;
-import utils.Constants;
+import utils.Constants.Constants;
 
 public class ClientGUI extends JFrame {
 	private static final long serialVersionUID = 1L; // Default serial id

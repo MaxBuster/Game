@@ -5,7 +5,7 @@
 
 package model.Votes;
 
-import utils.Constants;
+import utils.Constants.Constants;
 
 import java.util.HashMap;
 

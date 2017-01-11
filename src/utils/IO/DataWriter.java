@@ -5,13 +5,12 @@ import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 
-import model.Game;
+import model.Game.Game;
 import model.Model;
-import model.Player;
-import model.PlayerGameInfo;
-import utils.Constants;
+import model.Player.Player;
+import model.Player.PlayerGameInfo;
+import utils.Constants.Constants;
 
 public class DataWriter {
 
@@ -48,13 +47,13 @@ public class DataWriter {
 	}
 
 	public static void write_player_info_for_game(Player player, BufferedWriter writer, Model model) throws IOException {
-		writer.write("// Player: " + player.getPlayer_number());
+		writer.write("// Player: " + player.get_player_number());
 		write_break(writer);
 		for (int i=0; i<model.get_current_game_num(); i++) {
 			PlayerGameInfo pgi = player.get_pgi(i);
 			writer.write("// Game: " + i);
 			write_break(writer);
-			writer.write("// Player Position: " + pgi.get_ideal_pt());
+			writer.write("// Player Position: " + pgi.get_voter_position());
 			write_break(writer);
 			writer.write("// Valences: " + implode(pgi.get_valences()));
 			write_break(writer);

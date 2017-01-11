@@ -3,9 +3,11 @@
  * Created by Max Buster
  */
 
-package model.Distributions;
+package utils.Distributions;
 
 import org.apache.commons.math3.distribution.NormalDistribution;
+
+import java.util.Random;
 
 public class VoterDistribution {
     private int std_dev_1;
@@ -24,6 +26,21 @@ public class VoterDistribution {
         this.mean_2 = mean_2;
 
         generate_data();
+    }
+
+    /**
+     * @return A new position chosen randomly from the bimodal distribution
+     */
+    public int generate_voter_position() {
+        int position = 100;
+        int random_point = new Random().nextInt(pdf_integral);
+        for (int i=1; i<cdf.length; i++) {
+            if (cdf[i] > random_point) {
+                position = i-1;
+                break;
+            }
+        }
+        return position;
     }
 
     /**
@@ -47,10 +64,6 @@ public class VoterDistribution {
     }
 
     public double[] get_pdf() { return pdf; }
-
-    public double[] get_cdf() { return cdf; }
-
-    public int get_pdf_integral() { return pdf_integral; }
 
     public int get_std_dev_1() { return std_dev_1; }
 

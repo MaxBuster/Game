@@ -12,7 +12,7 @@ import java.net.Socket;
 import javax.swing.JOptionPane;
 
 import client.UIHelpers.ClientGuiInfo;
-import utils.Constants;
+import utils.Constants.Constants;
 
 /**
  * Intermediary between the client UI and the server data stream
@@ -71,7 +71,7 @@ public class ClientHandler {
 					case Constants.VOTER_DIST:
 						gui.add_voter_data_to_graph(message);
 						break;
-					case Constants.ALL_CANDIDATES:
+					case Constants.CANDIDATE_INFO:
 						this.purchases = new int[message.length/3];
 						gui.add_candidates(message, max_valence);
 						break;

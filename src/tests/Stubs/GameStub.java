@@ -5,7 +5,7 @@
 
 package tests.Stubs;
 
-import model.Game;
+import model.Game.Game;
 
 public class GameStub extends Game {
     public GameStub(int game_num) {
