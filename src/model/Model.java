@@ -129,7 +129,7 @@ public class Model {
 			if (event == Constants.START_GAME) {
 				increment_round();
 			} else if (event == Constants.REMOVE_PLAYER || event == Constants.IO_REMOVE_PLAYER) {
-				remove_player();
+				remove_player(PCE);
 			} else if (event == Constants.END_ALL_GAMES) {
 				DataWriter.write_data("data.csv", Model.this);
 			} else if (event == Constants.WRITE_DATA) {
@@ -138,7 +138,7 @@ public class Model {
 		}
 	}
 
-	private synchronized void remove_player() {
+	private synchronized void remove_player(PropertyChangeEvent PCE) {
 		int player_viewable_num = Integer.parseInt((String) PCE.getOldValue());
 		int player_num = player_viewable_num-1;
 		for (int i=0; i<players.size(); i++) {
