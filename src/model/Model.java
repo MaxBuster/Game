@@ -129,22 +129,25 @@ public class Model {
 			if (event == Constants.START_GAME) {
 				increment_round();
 			} else if (event == Constants.REMOVE_PLAYER || event == Constants.IO_REMOVE_PLAYER) {
-				// FIXME put in synchronized method
-				int player_viewable_num = Integer.parseInt((String) PCE.getOldValue());
-				int player_num = player_viewable_num-1;
-				for (int i=0; i<players.size(); i++) {
-					if (players.get(i).getPlayer_number() == player_num) {
-						players.remove(i);
-						if (game_started()) {
-							attempt_end_round();
-						}
-						return;
-					}
-				}
+				remove_player();
 			} else if (event == Constants.END_ALL_GAMES) {
 				DataWriter.write_data("data.csv", Model.this);
 			} else if (event == Constants.WRITE_DATA) {
 				DataWriter.write_data("data.csv", Model.this);
+			}
+		}
+	}
+
+	private synchronized void remove_player() {
+		int player_viewable_num = Integer.parseInt((String) PCE.getOldValue());
+		int player_num = player_viewable_num-1;
+		for (int i=0; i<players.size(); i++) {
+			if (players.get(i).getPlayer_number() == player_num) {
+				players.remove(i);
+				if (game_started()) {
+					attempt_end_round();
+				}
+				return;
 			}
 		}
 	}
