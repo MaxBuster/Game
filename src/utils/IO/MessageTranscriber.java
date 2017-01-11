@@ -5,6 +5,10 @@
 
 package utils.IO;
 
+import model.Candidate.CandidateInfo;
+import model.Votes.VoteResults;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 
 public class MessageTranscriber {
@@ -34,5 +38,97 @@ public class MessageTranscriber {
     public static HashMap<String, Integer> decode_player_info(Object encoded_info) {
         HashMap<String, Integer> decoded_info = (HashMap<String, Integer>) encoded_info;
         return decoded_info;
+    }
+
+    // ------------------------------- Game Info ----------------------------------- //
+
+    public static Object encode_game_info(int game_num, int budget, int max_payoff) {
+        HashMap<String, Integer> encoded_info = new HashMap<String, Integer>();
+        encoded_info.put("Game Num", game_num);
+        encoded_info.put("Budget", budget);
+        encoded_info.put("Max Payoff", max_payoff);
+        return encoded_info;
+    }
+
+    public static HashMap<String, Integer> decode_game_info(Object encoded_info) {
+        HashMap<String, Integer> decoded_info = (HashMap<String, Integer>) encoded_info;
+        return decoded_info;
+    }
+
+    // ------------------------------- Voter Info ----------------------------------- //
+
+    public static Object encode_voter_info(int std_dev_1, int mean_1, int std_dev_2, int mean_2) {
+        HashMap<String, Integer> encoded_info = new HashMap<String, Integer>();
+        encoded_info.put("Std Dev 1", std_dev_1);
+        encoded_info.put("Mean 1", mean_1);
+        encoded_info.put("Std Dev 2", std_dev_2);
+        encoded_info.put("Mean 2", mean_2);
+        return encoded_info;
+    }
+
+    public static HashMap<String, Integer> decode_voter_info(Object encoded_info) {
+        HashMap<String, Integer> decoded_info = (HashMap<String, Integer>) encoded_info;
+        return decoded_info;
+    }
+
+    // ------------------------------- Candidate Info ----------------------------------- //
+
+    public static Object encode_candidate_info(ArrayList<CandidateInfo> candidate_info) {
+        return candidate_info;
+    }
+
+    public static ArrayList<CandidateInfo> decode_candidate_info(Object encoded_info) {
+        ArrayList<CandidateInfo> decoded_info = (ArrayList<CandidateInfo>) encoded_info;
+        return decoded_info;
+    }
+
+    // ------------------------------- Round Info ----------------------------------- //
+
+    public static Object encode_round_info(int round_num) {
+        HashMap<String, Integer> encoded_info = new HashMap<String, Integer>();
+        encoded_info.put("Round Num", round_num);
+        return encoded_info;
+    }
+
+    public static HashMap<String, Integer> decode_round_info(Object encoded_info) {
+        HashMap<String, Integer> decoded_info = (HashMap<String, Integer>) encoded_info;
+        return decoded_info;
+    }
+
+    // ------------------------------- Vote Results ----------------------------------- //
+
+    public static Object encode_vote_results(int vote_results) {
+        return vote_results;
+    }
+
+    public static HashMap<Integer, VoteResults> decode_vote_results(Object encoded_info) {
+        HashMap<Integer, VoteResults> decoded_info = (HashMap<Integer, VoteResults>) encoded_info;
+        return decoded_info;
+    }
+
+    // ------------------------------- End of Game ----------------------------------- //
+
+    public static Object encode_end_of_game(int winning_candidate, int round_winnings, int game_winnings, int current_game) {
+        HashMap<String, Integer> encoded_info = new HashMap<String, Integer>();
+        encoded_info.put("Winning Candidate", winning_candidate);
+        encoded_info.put("Round Winnings", round_winnings);
+        encoded_info.put("Game Winnings", game_winnings);
+        encoded_info.put("Current Game Num", current_game);
+        return encoded_info;
+    }
+
+    public static HashMap<String, Integer> decode_end_of_game(Object encoded_info) {
+        HashMap<String, Integer> decoded_info = (HashMap<String, Integer>) encoded_info;
+        return decoded_info;
+    }
+
+    // ------------------------------- Terminate Game ----------------------------------- //
+
+    public static Object encode_terminate_game() {
+        return null;
+    }
+
+    public static Object decode_terminate_game(Object encoded_info) {
+        return null;
     }
 }
