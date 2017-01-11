@@ -1,0 +1,9 @@
+Needed:
+Voting and returning to client
+Buying biases and getting expected payoffs
+Communication Simplification
+Fix if 0 votes in round handler (can't count, doesn't recognize other candidates)
+
+Nice to have:
+PCS
+UI Interactions
