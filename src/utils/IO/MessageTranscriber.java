@@ -13,6 +13,43 @@ import java.util.HashMap;
 
 public class MessageTranscriber {
 
+    // ------------------------------- Info Request ----------------------------------- //
+
+    public static Object encode_info_request(int candidate_num) {
+        HashMap<String, Integer> encoded_info = new HashMap<String, Integer>();
+        encoded_info.put("Candidate Num", candidate_num);
+        return encoded_info;
+    }
+
+    public static HashMap<String, Integer> decode_info_request(Object encoded_info) {
+        HashMap<String, Integer> decoded_info = (HashMap<String, Integer>) encoded_info;
+        return decoded_info;
+    }
+
+    // ------------------------------- End Round ----------------------------------- //
+
+    public static Object encode_end_round() {
+        return null;
+    }
+
+    public static Object decode_end_round(Object encoded_info) {
+        return null;
+    }
+
+    // ------------------------------- Client Vote ----------------------------------- //
+
+    public static Object encode_vote(int candidate_num) {
+        HashMap<String, Integer> encoded_info = new HashMap<String, Integer>();
+        encoded_info.put("Candidate Num", candidate_num);
+        return encoded_info;
+    }
+
+    public static HashMap<String, Integer> decode_vote(Object encoded_info) {
+        HashMap<String, Integer> decoded_info = (HashMap<String, Integer>) encoded_info;
+        return decoded_info;
+    }
+
+
     // ------------------------------- Initial Info ----------------------------------- //
 
     public static Object encode_initial_info(int player_num, int num_games) {
@@ -42,11 +79,11 @@ public class MessageTranscriber {
 
     // ------------------------------- Game Info ----------------------------------- //
 
-    public static Object encode_game_info(int game_num, int budget, int max_payoff) {
+    public static Object encode_game_info(int game_num, int budget, int max_bias) {
         HashMap<String, Integer> encoded_info = new HashMap<String, Integer>();
         encoded_info.put("Game Num", game_num);
         encoded_info.put("Budget", budget);
-        encoded_info.put("Max Payoff", max_payoff);
+        encoded_info.put("Max Bias", max_bias);
         return encoded_info;
     }
 
@@ -97,7 +134,7 @@ public class MessageTranscriber {
 
     // ------------------------------- Vote Results ----------------------------------- //
 
-    public static Object encode_vote_results(int vote_results) {
+    public static Object encode_vote_results(HashMap<Integer, VoteResults> vote_results) {
         return vote_results;
     }
 

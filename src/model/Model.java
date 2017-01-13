@@ -9,12 +9,14 @@ package model;
 import java.beans.PropertyChangeEvent;
 import java.beans.PropertyChangeListener;
 import java.beans.PropertyChangeSupport;
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.*;
 
+import model.Candidate.Candidate;
 import model.Game.Game;
 import model.Player.Player;
 import model.Votes.GameVotes;
+import model.Votes.RoundVotes;
+import model.Votes.VoteCounter;
 import model.Votes.VoteResults;
 import utils.Constants.Constants;
 import utils.IO.DataWriter;
@@ -116,6 +118,20 @@ public class Model {
 	 */
 	public HashMap<Integer, VoteResults> get_round_vote_results(int game_num, String round_name) {
 		return votes.get(game_num).get_round_votes(round_name).get_vote_results();
+	}
+
+	/**
+	 * @param game_num - Game to get election results for
+	 * @return The candidate who won the final election of the game
+	 */
+	public Candidate get_winning_candidate(int game_num) {
+		GameVotes votes_for_game = votes.get(game_num);
+		RoundVotes election_votes = votes_for_game.get_round_votes(Constants.ELECTION);
+		HashMap<Integer, VoteResults> vote_results = VoteCounter.get_vote_counts(election_votes);
+		List<VoteResults> list_of_results = new ArrayList<VoteResults>();
+		list_of_results.addAll(vote_results.values());
+		Collections.sort(list_of_results, VoteResults.get_vote_desc_comparator());
+		return games.get(game_num).get_candidates().get(list_of_results.get(0).get_candidate_num());
 	}
 
 	// ------------------------- Game Acccess ------------------------------ //

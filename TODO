@@ -1,8 +1,9 @@
 Needed:
-Voting and returning to client
-Buying biases and getting expected payoffs
+Get winning candidate in model
+Storing which round bias is purchased
 Communication Simplification
 Fix if 0 votes in round handler (can't count, doesn't recognize other candidates)
+Change how server waits for message to check thread
 
 Nice to have:
 PCS

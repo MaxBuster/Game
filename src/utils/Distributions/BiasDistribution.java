@@ -34,12 +34,19 @@ public class BiasDistribution {
     }
 
     /**
+     * @return The maximum distance from the distribution mean
+     */
+    public int get_max_bias() {
+        return 3*std_dev;
+    }
+
+    /**
      * @return a randomly chosen bias from the normal distribution, truncated at 3 std devs
      */
     private Bias generate_bias(int candidate_num) {
         int sample = (int) bias_distribution.sample();
-        int upper_bound = mean + (3*std_dev);
-        int lower_bound = mean - (3*std_dev);
+        int upper_bound = mean + get_max_bias();
+        int lower_bound = mean - get_max_bias();
 
         /* Truncate sample if outside bounds */
         if (sample > upper_bound) {

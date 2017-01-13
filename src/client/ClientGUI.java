@@ -163,33 +163,35 @@ public class ClientGUI extends JFrame {
 
 	/**
 	 * Sets labels that won't change throughout all the games
-	 * @param start_info - array with player_number as the first var and total games as second
+	 * @param player_num - the number of this client's player
+	 * @param num_games - the number of games we will be playing today
 	 */
-	public void set_start_info(int[] start_info) {
-		player_number_change.setText(Integer.toString(start_info[0] + 1)); // Make num readable
-		num_games_change.setText(Integer.toString(start_info[1]));
+	public void set_start_info(int player_num, int num_games) {
+		player_number_change.setText(Integer.toString(player_num + 1)); // Make num readable
+		num_games_change.setText(Integer.toString(num_games));
 	}
 
 	/**
 	 * Set ideal point label and chart marker for the current game
-	 * @param player_info - array containing the player ideal point
+	 * @param player_position - this client's position on the number line
 	 */
-	public void set_player_info(int[] player_info) {
-		int ideal_point = player_info[0]; 
-		ideal_point_change.setText(Integer.toString(ideal_point));
+	public void set_player_info(int player_position) {
+		ideal_point_change.setText(Integer.toString(player_position));
 		remove_all_markers();
-		add_marker(ideal_point, Color.BLACK, "You");
+		add_marker(player_position, Color.BLACK, "You");
 	}
 
 	/**
 	 * Resets chart then sets current game label, budget label and candidate position bias info
-	 * @param game_info - current game number and budget for this game
+	 * @param current_game_num - The game we just started
+	 * @param budget - the budget to bias candidate biases
+	 * @param max_bias - The limit of the bias distribution
 	 */
-	public void set_game_info(int[] game_info) {
+	public void set_game_info(int current_game_num, int budget, int max_bias) {
 		chart.removeAll();
-		current_game_change.setText(Integer.toString(game_info[0] + 1));
-		budget_change.setText(Integer.toString(game_info[1]));
-		buy_info = ClientGuiInfo.BUY_1 + "between -" + game_info[2] + " and " + game_info[2] + " with a greater chance closer to 0";
+		current_game_change.setText(Integer.toString(current_game_num + 1));
+		budget_change.setText(Integer.toString(budget));
+		buy_info = ClientGuiInfo.BUY_1 + "between -" + max_bias + " and " + max_bias + " with a greater chance closer to 0";
 	}
 
 	/**
@@ -202,20 +204,18 @@ public class ClientGUI extends JFrame {
 
 	/**
 	 * Sets the updated winnings
-	 * @param winnings - array containing end of game info including the winning amount
+	 * @param winnings - Total winnings for all games
 	 */
-	public void set_winnings(int[] winnings) {
-		if (winnings[3] != 0) {
-			winnings_change.setText(Integer.toString(winnings[0]));
-		}
+	public void set_winnings(int winnings) {
+		winnings_change.setText(Integer.toString(winnings));
 	}
 
 	/**
 	 * Sets the UI up according to the round given the round number
-	 * @param round_message - array containing the round number
+	 * @param round_num - The current round index in the rounds list
 	 */
-	public void set_round(int[] round_message) {
-		String round = Constants.LIST_OF_ROUNDS[round_message[0]];
+	public void set_round(int round_num) {
+		String round = Constants.LIST_OF_ROUNDS[round_num];
 		System.out.println(round);
 		current_round_change.setText(round);
 		if (round == Constants.FIRST_BUY) {
@@ -342,12 +342,7 @@ public class ClientGUI extends JFrame {
 	 * Given a voter distribution (mean1, std dev1, mean2, std dev2), it generates the data
 	 * to graph the distribution and adds the generated data as a line to the chart
 	 */
-	public void add_voter_data_to_graph(int[] voter_dist) {
-		int mean1 = voter_dist[0];
-		int stdDev1 = voter_dist[1];
-		int mean2 = voter_dist[2];
-		int stdDev2 = voter_dist[3];
-		VoterDistribution voter_distribution = new VoterDistribution(stdDev1, mean1, stdDev2, mean2);
+	public void add_voter_data_to_graph(VoterDistribution voter_distribution) {
 		double[] voter_data = voter_distribution.get_pdf();
 
 		int dataset_position = 0;
@@ -599,26 +594,5 @@ public class ClientGUI extends JFrame {
 		end_round_panel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		end_round_panel.add(end_round);
 		content.add(end_round_panel);
-	}
-
-	// -------------------------------------- Testing ----------------------------------------- //
-
-	/**
-	 * Main method to test ui on its own
-	 */
-	public static void main(String[] args) {
-		ClientGUI gui = new ClientGUI(new PropertyChangeSupport(new Object()));
-		gui.set_visible_panels(Constants.BUY_ROUND_VISIBILITY);
-		gui.add_voter_data_to_graph(new int[]{40, 5, 80, 5});
-
-		sleep(3000);
-	}
-
-	private static void sleep(long ms) {
-		try {
-			Thread.sleep(ms);
-		} catch (InterruptedException e) {
-			e.printStackTrace();
-		}
 	}
 }

@@ -24,6 +24,7 @@ import model.Player.Player;
 import model.Player.PlayerGameInfo;
 
 import utils.Constants.Constants;
+import utils.IO.MessageTranscriber;
 import utils.IO.SocketIO;
 
 public class ServerHandler {
@@ -135,98 +136,83 @@ public class ServerHandler {
 	// -------------------------------- Server Writes --------------------------------- //
 
 	private void write_initial_info() throws IOException {
+		int player_num = player.get_player_number();
+		int num_games = model.get_num_games();
+
 		int message_type = Constants.START_INFO;
-		HashMap<String, Integer> message_body = new HashMap<String, Integer>();
-
-		message_body.put("Player Number", player.get_player_number());
-		message_body.put("Num Games", model.get_num_games());
-
+		Object message_body = MessageTranscriber.encode_initial_info(player_num, num_games);
 		socketIO.write_message(message_type, message_body);
 	}
 
 	private void write_player_info() throws IOException {
+		int player_position = pgi.get_voter_position();
+
 		int message_type = Constants.PLAYER_INFO;
-		HashMap<String, Integer> message_body = new HashMap<String, Integer>();
-
-		message_body.put("Player Position", pgi.get_voter_position());
-
+		Object message_body = MessageTranscriber.encode_player_info(player_position);
 		socketIO.write_message(message_type, message_body);
 	}
 
 	private void write_new_game_info() throws IOException {
+		int game_num = current_game.get_game_num();
+		int budget = current_game.get_budget();
+		int max_bias = current_game.get_bias_distribution().get_max_bias();
+
 		int message_type = Constants.GAME_INFO;
-		HashMap<String, Integer> message_body = new HashMap<String, Integer>();
-
-		Game current_game = model.get_current_game();
-		message_body.put("Current Game Num", current_game.get_game_num());
-		message_body.put("Budget", current_game.get_budget());
-		message_body.put("Max Payoff", current_game.get_payoff_max());
-
+		Object message_body = MessageTranscriber.encode_game_info(game_num, budget, max_bias);
 		socketIO.write_message(message_type, message_body);
 	}
 
 	private void write_voter_dist() throws IOException {
-		int message_type = Constants.VOTER_DIST;
-		HashMap<String, Integer> message_body = new HashMap<String, Integer>();
-
-		Game current_game = model.get_current_game();
 		VoterDistribution current_dist = current_game.get_voter_distribution();
-		message_body.put("Mean 1", current_dist.get_mean_1());
-		message_body.put("Std Dev 1", current_dist.get_std_dev_1());
-		message_body.put("Mean 2", current_dist.get_mean_2());
-		message_body.put("Std Dev 2", current_dist.get_std_dev_2());
+		int std_dev_1 = current_dist.get_std_dev_1();
+		int mean_1 = current_dist.get_mean_1();
+		int std_dev_2 = current_dist.get_std_dev_2();
+		int mean_2 = current_dist.get_mean_2();
 
+		int message_type = Constants.VOTER_DIST;
+		Object message_body = MessageTranscriber.encode_voter_info(std_dev_1, mean_1, std_dev_2, mean_2);
 		socketIO.write_message(message_type, message_body);
 	}
 
 	private void write_candidate_info() throws IOException {
-		int message_type = Constants.CANDIDATE_INFO;
-		ArrayList<CandidateInfo> message_body = pgi.get_expected_payoffs();
+		ArrayList<CandidateInfo> candidate_info = pgi.get_expected_payoffs(); // FIXME rename this and change location
 
+		int message_type = Constants.CANDIDATE_INFO;
+		Object message_body = MessageTranscriber.encode_candidate_info(candidate_info);
 		socketIO.write_message(message_type, message_body);
 	}
 
 	private void write_round_num() throws IOException {
+		int round_num = model.get_current_round_index();
+
 		int message_type = Constants.ROUND_NUMBER;
-		HashMap<String, Integer> message_body = new HashMap<String, Integer>();
-
-		message_body.put("Round Num", model.get_current_round_index());
-
+		Object message_body = MessageTranscriber.encode_round_info(round_num);
 		socketIO.write_message(message_type, message_body);
 	}
 
 	private void write_vote_results(String previous_round_name, Game current_game) throws IOException {
-		int message_type = Constants.VOTE_RESULTS;
-		HashMap<Integer, VoteResults> message_body = model.get_round_vote_results(current_game.get_game_num(), previous_round_name);
+		int game_num = current_game.get_game_num();
+		HashMap<Integer, VoteResults> vote_results = model.get_round_vote_results(game_num, previous_round_name);
 
+		int message_type = Constants.VOTE_RESULTS;
+		Object message_body = MessageTranscriber.encode_vote_results(vote_results);
 		socketIO.write_message(message_type, message_body);
 	}
 
 	private void write_end_of_game_info(Candidate winning_candidate) throws IOException {
-		Collections.sort(model.get_round_vote_results(current_game.get_game_num(), Constants.ELECTION).values(), VoteResults.get_vote_desc_comparator());
-
-		int game_winnings = pgi.get_expected_payoff(winning_candidate);
-		pgi.set_winnings(game_winnings);
-		if (current_game.get_game_num() != 0) {
-			player.add_winnings(game_winnings);
-			pcs.firePropertyChange(Constants.PLAYER_WINNINGS, player.get_player_number(), player.get_winnings());
-		}
+		int winning_candide_num = winning_candidate.get_candidate_num();
+		int game_winnings = pgi.get_winnings();
+		int player_winnings = player.get_winnings();
+		int game_num = current_game.get_game_num();
 
 		int message_type = Constants.WINNINGS;
-		HashMap<String, Integer> message_body = new HashMap<String, Integer>();
-
-		message_body.put("Winning Candidate", winning_candidate.get_candidate_num());
-		message_body.put("Round Winnings", pgi.get_winnings());
-		message_body.put("Game Winnings", player.get_winnings());
-		message_body.put("Current Game Num", current_game.get_game_num());
-
+		Object message_body = MessageTranscriber.encode_end_of_game(winning_candide_num, game_winnings, player_winnings, game_num);
 		socketIO.write_message(message_type, message_body);
 	}
 
 	private void write_terminating_message() throws IOException {
 		int message_type = Constants.END_OF_GAME;
-		Object message_body = null;
-
+		Object message_body = MessageTranscriber.encode_terminate_game();
 		socketIO.write_message(message_type, message_body);
 	}
 
@@ -259,9 +245,20 @@ public class ServerHandler {
 		String previous_round_name = Constants.LIST_OF_ROUNDS[previous_round];
 		Game current_game = (Game) PCE.getNewValue();
 		if (was_the_election(previous_round_name)) {
-			write_end_of_game_info();
+			Candidate winning_candidate = model.get_winning_candidate(current_game.get_game_num());
+			set_winnings(winning_candidate, current_game);
+			write_end_of_game_info(winning_candidate);
 		} else if (was_a_vote_round(previous_round_name)) {
 			write_vote_results(previous_round_name, current_game);
+		}
+	}
+
+	private void set_winnings(Candidate winning_candidate, Game current_game) {
+		int game_winnings = pgi.get_expected_payoff(winning_candidate);
+		pgi.set_winnings(game_winnings);
+		if (current_game.get_game_num() != 0) {
+			player.add_winnings(game_winnings);
+			pcs.firePropertyChange(Constants.PLAYER_WINNINGS, player.get_player_number(), player.get_winnings());
 		}
 	}
 
