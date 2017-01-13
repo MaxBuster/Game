@@ -50,21 +50,21 @@ public class DataWriter {
 		writer.write("// Player: " + player.get_player_number());
 		write_break(writer);
 		for (int i=0; i<model.get_current_game_num(); i++) {
-			PlayerGameInfo pgi = player.get_pgi(i);
-			writer.write("// Game: " + i);
-			write_break(writer);
-			writer.write("// Player Position: " + pgi.get_voter_position());
-			write_break(writer);
-			writer.write("// Valences: " + implode(pgi.get_valences()));
-			write_break(writer);
-			writer.write("// Round 1 Buys: " + implode(bool_to_int(pgi.get_purchases(Constants.FIRST_BUY))));
-			write_break(writer);
-			writer.write("// Round 2 Buys: " + implode(bool_to_int(pgi.get_purchases(Constants.SECOND_BUY))));
-			write_break(writer);
-			writer.write("// Votes: " + implode(pgi.get_votes()));
-			write_break(writer);
-			writer.write("// Winnings: " + pgi.get_winnings());
-			write_break(writer);
+//			PlayerGameInfo pgi = player.get_pgi(i);
+//			writer.write("// Game: " + i);
+//			write_break(writer);
+//			writer.write("// Player Position: " + pgi.get_voter_position());
+//			write_break(writer);
+//			writer.write("// Valences: " + implode(pgi.get_valences()));
+//			write_break(writer);
+//			writer.write("// Round 1 Buys: " + implode(bool_to_int(pgi.get_purchases(Constants.FIRST_BUY))));
+//			write_break(writer);
+//			writer.write("// Round 2 Buys: " + implode(bool_to_int(pgi.get_purchases(Constants.SECOND_BUY))));
+//			write_break(writer);
+//			writer.write("// Votes: " + implode(pgi.get_votes()));
+//			write_break(writer);
+//			writer.write("// Winnings: " + pgi.get_winnings());
+//			write_break(writer);
 		}
 	}
 

@@ -30,6 +30,7 @@ import javax.swing.table.DefaultTableModel;
 import client.UIHelpers.ChartCreator;
 import client.UIHelpers.ClientGuiInfo;
 import client.UIHelpers.TableGenerator;
+import model.Candidate.CandidateInfo;
 import utils.Distributions.VoterDistribution;
 import org.jfree.chart.ChartPanel;
 import org.jfree.chart.plot.ValueMarker;
@@ -106,16 +107,16 @@ public class ClientGUI extends JFrame {
 		add_player_label_panel();
 		add_info_panel();
 
+		/* Set panels that will be changed depending on the round */
+		this.info_table_pane = add_info_table();
+		this.action_table_pane = add_action_table();
+		this.chart = add_chart();
+
 		/* Add all tables to the top level container */
 		this.tables = new JPanel();
 		this.tables.setLayout(new BoxLayout(tables, BoxLayout.Y_AXIS));
 		this.tables.add(info_table_pane);
 		this.tables.add(action_table_pane);
-
-		/* Set panels that will be changed depending on the round */
-		this.info_table_pane = add_info_table();
-		this.action_table_pane = add_action_table();
-		this.chart = add_chart();
 
 		/* Add all the info panels to the top level container */
 		this.all_info = new JPanel();
@@ -260,33 +261,33 @@ public class ClientGUI extends JFrame {
 		info_block.setText(text);
 	}
 
-	/**
-	 * Given candidate #'s and ideal points, sets them in a chart and tables
-	 * @param candidates - array with alternating candidate #s and parties
-	 */
-	public void add_candidates(int[] candidates, int max_valence) { 
-		for (int i=0; i<candidates.length; i+=3) {
-			int candidate_number = candidates[i];
-			String candidate_viewable = Integer.toString(candidate_number+1);
-			int candidate_ideal_pt = candidates[i+1];
-			add_marker(candidate_ideal_pt, Color.BLACK, candidate_viewable);
+	public void set_info_table(ArrayList<CandidateInfo> candidate_info, int max_valence) {
+		// FIXME if it is not null this round, just update the payoffs?
+		info_table_data = TableGenerator.generate_info_table(candidate_info, max_valence);
+	}
+
+	public void update_expected_payoff(int[] candidate_payoffs, int max_valence, int[] purchases) {
+		for (int candidate_num=0; candidate_num<candidate_payoffs.length; candidate_num++) {
+			int expected_payoff = candidate_payoffs[candidate_num];
+			String expectation_string = Integer.toString(expected_payoff);
+			expectation_string += purchases[candidate_num] == 0 ? " +/- " + max_valence : "";
+			update_candidate_info(candidate_num, 2, expectation_string);
 		}
-		info_table_data = TableGenerator.generate_info_table(candidates, max_valence);
 	}
 
-	/**
-	 * Creates a row for each candidate to buy the true value you would receive
-	 * @param candidate_nums
-	 */
-	public void set_buy_table(int[] candidate_nums) {
-		buy_table_data = TableGenerator.generate_buy_table(candidate_nums); 
+	public void add_candidate_markers(ArrayList<CandidateInfo> candidate_info) {
+		for (CandidateInfo candidate : candidate_info) {
+			String candidate_viewable_num = Integer.toString(candidate.candidate_num+1);
+			add_marker(candidate.candidate_position, Color.BLACK, candidate_viewable_num);
+		}
 	}
 
-	/**
-	 * Sets the action tables with a row for each candidate
- 	 */
-	public void set_vote_table(int[] candidate_nums) {
-		vote_table_data = TableGenerator.generate_vote_table(candidate_nums);
+	public void set_buy_table(ArrayList<CandidateInfo> candidate_info) {
+		buy_table_data = TableGenerator.generate_buy_table(candidate_info);
+	}
+
+	public void set_vote_table(ArrayList<CandidateInfo> candidate_info) {
+		vote_table_data = TableGenerator.generate_vote_table(candidate_info);
 	}
 
 	/**
@@ -356,15 +357,6 @@ public class ClientGUI extends JFrame {
 		renderer.setSeriesShapesVisible(0, false);
 		renderer.setSeriesPaint(0, dataset_color);
 		chart.getChart().getXYPlot().setRenderer(dataset_position, renderer);
-	}
-
-	public void update_expected_payoff(int[] candidate_payoffs, int max_valence, int[] purchases) {
-		for (int candidate_num=0; candidate_num<candidate_payoffs.length; candidate_num++) {
-			int expected_payoff = candidate_payoffs[candidate_num];
-			String expectation_string = Integer.toString(expected_payoff);
-			expectation_string += purchases[candidate_num] == 0 ? " +/- " + max_valence : "";
-			update_candidate_info(candidate_num, 2, expectation_string);
-		}
 	}
 
 	public void remove_candidate_from_buy(String candidate_num) {

@@ -66,8 +66,18 @@ public class Server {
 	public void start_client_handler_thread(final Socket client_socket) {
 		Thread thread = new Thread() {
 			public void run() {
-				ServerHandler server_IO_handler = new ServerHandler(model, pcs, client_socket);
-				server_IO_handler.handleIO();
+				try {
+					ServerHandler server_IO_handler = new ServerHandler(model, pcs, client_socket);
+					server_IO_handler.handleIO();
+				} catch (IOException e) {
+					e.printStackTrace();
+				} finally {
+					try {
+						client_socket.close();
+					} catch (IOException e) {
+						e.printStackTrace();
+					}
+				}
 			}
 		};
 		thread.start();

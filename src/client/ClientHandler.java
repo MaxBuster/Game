@@ -18,6 +18,7 @@ import javax.swing.JOptionPane;
 
 import client.UIHelpers.ClientGuiInfo;
 import model.Candidate.CandidateInfo;
+import model.Votes.VoteResults;
 import utils.Constants.Constants;
 import utils.Distributions.VoterDistribution;
 import utils.IO.MessageTranscriber;
@@ -135,11 +136,11 @@ public class ClientHandler {
 
 	private void handle_candidate_info(Object message_body) {
 		ArrayList<CandidateInfo> decoded_message = MessageTranscriber.decode_candidate_info(message_body);
-		this.purchases = new int[message_body.length/3];
-		gui.add_candidates(message_body, max_valence);
-//		gui.update_expected_payoff(message_body, max_valence, purchases);
-//		gui.set_buy_table(message_body);
-//		gui.set_vote_table(message_body);
+
+		gui.add_candidate_markers(decoded_message);
+		gui.set_info_table(decoded_message, max_valence);
+		gui.set_buy_table(decoded_message);
+		gui.set_vote_table(decoded_message);
 	}
 
 	private void handle_round_num(Object message_body) {
@@ -149,9 +150,16 @@ public class ClientHandler {
 	}
 
 	private void handle_vote_results(Object message_body) {
-		gui.add_votes(3, message_body); // Poll
-		gui.add_votes(4, message_body); // Primary
-		gui.set_vote_table(message_body); // Top two results
+		HashMap<Integer, VoteResults> vote_results = MessageTranscriber.decode_vote_results(message_body);
+
+		/*
+		Add votes to info table
+		Set vote table if it was primary
+		 */
+
+//		gui.add_votes(3, message_body); // Poll
+//		gui.add_votes(4, message_body); // Primary
+//		gui.set_vote_table(message_body); // Top two results
 	}
 
 	private void handle_winnings(Object message_body) {
