@@ -5,7 +5,9 @@
 
 package model.Candidate;
 
-public class CandidateInfo {
+import java.io.Serializable;
+
+public class CandidateInfo implements Serializable {
     public int candidate_num;
     public int candidate_position;
     public int expected_value;

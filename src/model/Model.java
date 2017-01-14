@@ -152,8 +152,8 @@ public class Model {
 	 * Increments the game number and round number and alerts listeners
 	 */
 	public synchronized void start_experiment() {
-		start_new_game();
 		start_next_round();
+		start_new_game();
 	}
 
 	public synchronized int get_num_games() { return num_games; }

@@ -7,6 +7,7 @@ package utils.IO;
 
 import utils.Constants.Constants;
 
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
@@ -42,6 +43,7 @@ public class SocketIO {
      * @throws IOException - On write error
      */
     public void write_message(int message_type, Object message_body) throws IOException {
+        out.writeInt(Constants.MESSAGE_START);
         out.writeInt(message_type);
         out.writeObject(message_body);
     }
