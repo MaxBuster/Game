@@ -73,7 +73,8 @@ public class DataWriter {
 		for (int i=0; i<data.length; i++) {
 			string_data[i] = Integer.toString(data[i]);
 		}
-		return String.join(",", Arrays.asList(string_data));
+		return join_strings_with_commas(string_data);
+//		return String.join(",", Arrays.asList(string_data));
 	}
 
 	public static int[] bool_to_int(boolean[] bool_data) {
@@ -82,5 +83,18 @@ public class DataWriter {
 			int_data[i] = bool_data[i] ? 1 : 0;
 		}
 		return int_data;
+	}
+
+	private static String join_strings_with_commas(String[] strings) {
+		if (strings.length == 0) {
+			return null;
+		}
+		StringBuilder string_builder = new StringBuilder();
+		for (int i=0; i<strings.length-1; i++) {
+			string_builder.append(strings[i]);
+			string_builder.append(",");
+		}
+		string_builder.append(strings[strings.length-1]);
+		return string_builder.toString();
 	}
 }

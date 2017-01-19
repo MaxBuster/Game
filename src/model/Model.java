@@ -131,11 +131,20 @@ public class Model {
 			} else if (event == Constants.REMOVE_PLAYER || event == Constants.IO_REMOVE_PLAYER) {
 				remove_player(PCE);
 			} else if (event == Constants.END_ALL_GAMES) {
-				DataWriter.write_data("data.csv", Model.this);
+				write_data();
 			} else if (event == Constants.WRITE_DATA) {
-				DataWriter.write_data("data.csv", Model.this);
+				write_data();
 			}
 		}
+	}
+
+	private synchronized void write_data() {
+		new Thread(new Runnable() {
+			@Override
+			public void run() {
+				DataWriter.write_data("data.csv", Model.this);
+			}
+		}).start();
 	}
 
 	private synchronized void remove_player(PropertyChangeEvent PCE) {
