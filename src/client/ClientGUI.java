@@ -103,16 +103,16 @@ public class ClientGUI extends JFrame {
 		add_player_label_panel();
 		add_info_panel();
 
+		/* Set panels that will be changed depending on the round */
+		this.info_table_pane = add_info_table();
+		this.action_table_pane = add_action_table();
+		this.chart = add_chart();
+
 		/* Add all tables to the top level container */
 		this.tables = new JPanel();
 		this.tables.setLayout(new BoxLayout(tables, BoxLayout.Y_AXIS));
 		this.tables.add(info_table_pane);
 		this.tables.add(action_table_pane);
-
-		/* Set panels that will be changed depending on the round */
-		this.info_table_pane = add_info_table();
-		this.action_table_pane = add_action_table();
-		this.chart = add_chart();
 
 		/* Add all the info panels to the top level container */
 		this.all_info = new JPanel();
